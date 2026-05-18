@@ -1,0 +1,22 @@
+# Sandbox-masked dotfiles (character-device shims, not real files).
+# Tooling injects /dev/null at these paths to deny reads; git sees the
+# entries and would happily try to track them. Keep them out.
+.bash_profile
+.bashrc
+.gitconfig
+.gitmodules
+.idea
+.mcp.json
+.profile
+.ripgreprc
+.vscode
+.zprofile
+.zshrc
+
+# Claude Code machine-local settings.
+.claude/settings.local.json
+
+# Sandbox-masked entries inside .claude/ (same char-device shim pattern).
+.claude/agents
+.claude/commands
+.claude/settings.json
