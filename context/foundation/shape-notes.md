@@ -2,8 +2,8 @@
 project: "Taskodoro"
 context_type: greenfield
 created: 2026-05-18
-updated: 2026-05-20
-product_type: desktop
+updated: 2026-05-21
+product_type: cross-platform     # desktop (Linux) + mobile (Android), single codebase
 target_scale:
   users: small
   qps: low
@@ -26,6 +26,8 @@ checkpoint:
       decision: "3-week after-hours MVP. Scope is deliberately tight: timer + break overlay + task CRUD + randomization rule + user registration/login + hosted backend with per-user task store + authenticated hosted integration endpoint with 3 operations + at least one user-flow test + CI/CD. Polish localization, focus-task linking, sound, system tray, task details, tag/project sources, manual selection UI, offline cache all deferred to v2."
     - topic: "hosted sync service"
       decision: "Reversed: v1 now includes a hosted backend with user accounts and per-user task sync. Multi-device sync follows from this for free. The original 'no hosted sync' decision was overturned during scope review when access control was upgraded from a per-install token to user accounts. Offline-first behaviour is deferred to v2 as a local-cache concern; the v1 app is online-first."
+    - topic: "target platforms"
+      decision: "v1 ships on Linux desktop + Android mobile from a single cross-platform UI codebase. iOS, macOS, Windows, and web are deferred to v2. The full-screen break presentation behaves the same on both platforms; Android background-to-foreground constraints (foreground services / notification flow) are an Open Question for the stack-selection step."
   frs_drafted: 17
   quality_check_status: accepted
 ---
@@ -42,7 +44,7 @@ Taskodoro is fully usable on its own: the user defines their own break habits in
 
 ## User & Persona
 
-Primary persona: a focus-driven knowledge worker or hobbyist who runs Pomodoros to structure deep work and wants their breaks to do something useful instead of evaporating into a phone. They define a small set of break habits inside the app, the randomization rule decides what to surface on each break, and the fullscreen overlay nudges them into doing it. They work on desktop (Windows or Linux first), tolerate the app requiring a network connection for task data, and prefer a well-randomized handful of habits over a long checklist they would ignore.
+Primary persona: a focus-driven knowledge worker or hobbyist who runs Pomodoros to structure deep work and wants their breaks to do something useful instead of evaporating into a phone. They define a small set of break habits inside the app, the randomization rule decides what to surface on each break, and the full-screen break presentation nudges them into doing it. They work on Linux desktop and Android mobile from a single shared client, tolerate the app requiring a network connection for task data, and prefer a well-randomized handful of habits over a long checklist they would ignore.
 
 A subset of these users are agent-fluent or scripting-comfortable: they may additionally wire up an external client (an AI agent, a personal script, a vendor bridge they build themselves) that pushes tasks into the break pool through the hosted integration endpoint. This is a power-user capability, not a persona-defining trait. The primary persona is satisfied by the app alone.
 
@@ -96,7 +98,8 @@ Step 6 is the integration-surface acceptance test: without it, the cross-vendor 
 - Authenticated hosted integration endpoint exposing at minimum three operations: list tasks, add task, complete task.
 - At least one automated test covering the primary user flow (start session, break appears, randomized task is visible).
 - CI/CD pipeline that builds the app and runs the test on every push to main.
-- Note: the desktop client has no local offline cache in v1. Network access is required for the core read/write loop.
+- Cross-platform single-codebase client targeting Linux desktop and Android mobile in v1. Same full-screen break presentation behavior on both platforms.
+- Note: neither the desktop nor mobile client has a local offline cache in v1. Network access is required for the core read/write loop.
 
 **Deferred to v2 (or later):**
 
@@ -110,7 +113,7 @@ Step 6 is the integration-surface acceptance test: without it, the cross-vendor 
 - Manual-pick UI on the break overlay (after multiple Roll-agains). v1 has Roll-again only.
 - Export / import configuration.
 - Offline-first or local-cache mode for the desktop client (v1 is online-first).
-- Android and any non-desktop client (v1 is desktop only).
+- iOS, macOS, Windows, and web clients (v1 ships Linux desktop + Android mobile only). Other platforms are v2.
 - Stats and analytics surfaces.
 
 ## Functional Requirements
@@ -217,14 +220,14 @@ Eligibility is type-aware. one_time tasks become permanently ineligible after th
 - The break overlay returns control to the user within 1 s of pressing End-break-early or the Escape key; this guarantee holds even under sustained background-process CPU load.
 - The desktop client requires network connectivity to read or write tasks in v1; offline operation is a v2 capability.
 - An invalid or missing session credential presented at the integration boundary is rejected before any tool handler runs, and the rejection latency is indistinguishable from a valid-but-empty call (no timing-side-channel on session validity).
-- Task and completion state survive a normal app close and a host-machine reboot; data lives on the hosted backend and is available on next login.
+- Task and completion state survive a normal app close and a host-machine or device restart; data lives on the hosted backend and is available on next login.
 - The Settings task list remains responsive (operations under 200 ms) for pools up to 500 tasks. Larger pools are out of scope.
 - The fullscreen overlay does not consume more than one display unless the user has explicitly opted into multi-monitor mode (default behaviour parked in Open Question 5).
 
 ## Non-Goals
 
 - **Offline-first desktop client / local cache.** v1 is online-first; offline operation is a v2 capability.
-- **Non-desktop clients including Android, iOS, and web.** v1 is desktop only. Other platforms are v2.
+- **iOS, macOS, Windows, and web clients in v1.** v1 ships Linux desktop + Android mobile from a single shared codebase. Other platforms are v2.
 - **Stats and analytics surfaces.** Deferred to v2.
 - **Vendor-specific integrations baked into the app** (TickTick, Todoist, Notion, Google Tasks, and similar). The whole point of the integration surface is that external clients handle bridging; building one inside the app re-creates the coupling just removed.
 - **Focus-task linking and external time recording.** Deferred to v2. The integration surface in v1 reads and writes break-task data only, not focus-session state.
@@ -261,3 +264,4 @@ All required elements are present for a greenfield shape-notes:
 4. **i18n scaffolding in v1, or no i18n at all?** Setting up i18n early means a second locale is cheap later; skipping it means rework when Polish ships. Owner: user. Block: no.
 5. **Multi-monitor overlay behaviour**: fullscreen on the active monitor only, or fullscreen on every connected monitor? Owner: user. Block: no (NFR/UX detail).
 6. **v1 budget cut needed.** The 3-week after-hours budget did not assume a hosted backend, user accounts, and sync. Identify which one or two of the existing must-have FRs to demote (candidates: FR-005 edit-in-place, FR-009 Roll-again, FR-014 credential rotation, multi-monitor NFR) before implementation begins. Owner: user. Block: yes (must resolve before implementation starts).
+7. **Android background-to-foreground constraint for the full-screen break presentation.** Android cannot freely force a full-screen overlay from a backgrounded app; the standard path is a high-priority notification that opens a full-screen activity, gated by `USE_FULL_SCREEN_INTENT` permission and Android version. Owner: user. Resolution path: downstream tech-stack-selection step (which cross-platform toolkit and which Android API surface together satisfy FR-007 on Android).

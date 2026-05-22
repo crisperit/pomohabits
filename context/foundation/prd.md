@@ -1,10 +1,10 @@
 ---
 project: "Taskodoro"
-version: 2
+version: 3
 status: draft
-created: 2026-05-18
+created: 2026-05-21
 context_type: greenfield
-product_type: desktop
+product_type: cross-platform
 target_scale:
   users: small
   qps: low
@@ -21,11 +21,11 @@ timeline_budget:
 
 Traditional Pomodoro apps treat the break as a passive countdown: a 5-minute gap the user fills by reaching for their phone, doomscrolling, and losing the momentum the focus session just built. The pain lands on a focus-driven knowledge worker or hobbyist who runs Pomodoros to protect deep work but watches their breaks turn into productivity-killing distractions: forgotten hydration, neglected stretches, no eye rest, no real recovery. Existing Pomodoro apps assume the user fills the break themselves, which is precisely the problem.
 
-The insight is that the break is a recurring forced-interrupt window, a perfect substrate for nudging tiny productive habits into the user's day. A full-screen break presentation surfaces a small set of habits when willpower is at its lowest: one or more always-shown habits the user does every relevant break, a randomized one drawn from a personal pool, and a built-in suggestion when the pool is empty. The randomization rule (filter by which break window is active, exclude already-done daily habits, fall back to a built-in suggestion) is the product's domain decision; the break presentation is the user-visible payoff. Taskodoro stays vendor-neutral by inverting the typical import-from-X pattern: the app owns the break-task pool and exposes a hosted integration endpoint so any agent-friendly external client can push tasks INTO the pool from whichever task-tracking system the user already uses. No third-party task manager is privileged inside the app itself. The app is online-first: user accounts on a hosted backend mean the same task pool follows the user across devices and clients.
+The insight is that the break is a recurring forced-interrupt window, a perfect substrate for nudging tiny productive habits into the user's day. A full-screen break presentation surfaces a small set of habits when willpower is at its lowest: one or more always-shown habits the user does every relevant break, a randomized one drawn from a personal pool, and a built-in suggestion when the pool is empty. The randomization rule (filter by which break window is active, exclude already-done daily habits, fall back to a built-in suggestion) is the product's domain decision; the break presentation is the user-visible payoff. Taskodoro stays vendor-neutral by inverting the typical import-from-X pattern: the app owns the break-task pool and exposes a hosted integration endpoint so any agent-friendly external client can push tasks INTO the pool from whichever task-tracking system the user already uses. No third-party task manager is privileged inside the app itself. The app is online-first: user accounts on a hosted backend mean the same task pool follows the user across devices and clients, whether they are on Linux desktop or Android mobile.
 
 ## User & Persona
 
-Primary persona: a focus-driven knowledge worker or hobbyist who runs Pomodoros to structure deep work and wants their breaks to do something useful instead of evaporating into a phone. They define a small set of break habits inside the app, the randomization rule decides what to surface on each break, and the full-screen break presentation nudges them into doing it. They work on desktop (Windows or Linux first), tolerate the app requiring a network connection for task data, and prefer a well-randomized handful of habits over a long checklist they would ignore.
+Primary persona: a focus-driven knowledge worker or hobbyist who runs Pomodoros to structure deep work and wants their breaks to do something useful instead of evaporating into a phone. They define a small set of break habits inside the app, the randomization rule decides what to surface on each break, and the full-screen break presentation nudges them into doing it. They work on Linux desktop and Android mobile from a single shared client, tolerate the app requiring a network connection for task data, and prefer a well-randomized handful of habits over a long checklist they would ignore.
 
 A subset of these users are agent-fluent or scripting-comfortable: they may additionally wire up an external client (an AI agent, a personal script, a bridge to whichever task system they keep) that pushes tasks into the break pool through the hosted integration endpoint. This is a power-user capability, not a persona-defining trait. The primary persona is satisfied by the app alone.
 
@@ -37,10 +37,10 @@ The first-launch end-to-end loop runs without manual intervention:
 
 1. User opens Taskodoro. The run-mode window shows a 25-minute timer.
 2. User registers and logs in. The timer is ready to start.
-3. User adds two break tasks from the configuration surface (one always-shown daily "Drink water" applicable to both break windows, one randomized unlimited "10 pushups" applicable to short breaks). Both persist and reappear after restart.
+3. User adds two break tasks from the task-configuration surface (one always-shown daily "Drink water" applicable to both break windows, one randomized unlimited "10 pushups" applicable to short breaks). Both persist and reappear after restart.
 4. After the configured work duration, the full-screen break presentation appears showing the always-shown task, one randomized task drawn from the pool, a Roll-again action, and an End-break-early action.
 5. User marks the always-shown task complete. The check persists for the rest of the day. User ends the break early. The focus cycle resumes.
-6. From outside the app, an external client authenticated as the user calls list, then create, then list again. The new task appears in the configuration surface without restart and is eligible for the next break.
+6. From outside the app, an external client authenticated as the user calls list, then create, then list again. The new task appears in the task-configuration surface without restart and is eligible for the next break.
 
 Step 6 is the integration-surface acceptance test; without it, the cross-vendor pitch is unproven.
 
@@ -60,7 +60,7 @@ Step 6 is the integration-surface acceptance test; without it, the cross-vendor 
 
 ### US-01: First-launch standalone loop
 
-- **Given** a freshly installed Taskodoro on a desktop with no break tasks defined
+- **Given** a freshly installed Taskodoro on a Linux desktop or Android device with no break tasks defined
 - **When** the user registers, logs in, starts a focus session and, from the task-configuration surface during the session, adds two break tasks: one always-shown daily "Drink water" applicable to both break windows, and one randomized unlimited "10 pushups" applicable to short breaks
 - **Then** at the end of the work session the full-screen break presentation appears showing the always-shown task plus one randomized task drawn from the pool, with working Roll-again and End-break-early actions
 
@@ -140,19 +140,19 @@ Step 6 is the integration-surface acceptance test; without it, the cross-vendor 
 - FR-015: User can register a new account by supplying a name and credential; the account is created on the hosted backend and the user is logged in. Priority: must-have
   > Socratic: Counter considered: accounts are bloat for what is essentially a single-user desktop tool; the original per-install token was simpler. Resolution: kept; accounts are the prerequisite for the hosted backend, cross-device sync, and the authenticated hosted integration endpoint. Without accounts, the access-control floor collapses back to a machine-local token, and all three of those capabilities are lost.
 
-- FR-016: Registered users can log in with their credentials; the hosted authentication service issues a session credential that the desktop client and external clients use to authorize subsequent requests. Priority: must-have
+- FR-016: Registered users can log in with their credentials; the hosted authentication service issues a session credential that the desktop and mobile clients and external clients use to authorize subsequent requests. Priority: must-have
   > Socratic: Counter considered: accounts are bloat for what is essentially a single-user desktop tool. Resolution: same as FR-015; login is the other half of the account capability. The managed authentication service handles credential validation so the app does not need to implement it from scratch.
 
-- FR-017: Task and completion changes made through any authenticated client (desktop or integration endpoint) for the same user account are reflected in the desktop client within a few seconds, without a manual restart or reload. Priority: must-have
-  > Socratic: Counter considered: real-time sync is a v2 concern; v1 can show a refresh button. Resolution: kept; sync falls out naturally from the hosted-backend decision (all clients read from the same per-user store), and it is the primary motivation for reversing the no-hosted-backend non-goal. Deferring sync to v2 would mean v1 ships a hosted backend that the desktop client barely uses.
+- FR-017: Task and completion changes made through any authenticated client (desktop, mobile, or integration endpoint) for the same user account are reflected in the desktop and mobile clients within a few seconds, without a manual restart or reload. Priority: must-have
+  > Socratic: Counter considered: real-time sync is a v2 concern; v1 can show a refresh button. Resolution: kept; sync falls out naturally from the hosted-backend decision (all clients read from the same per-user store), and it is the primary motivation for reversing the no-hosted-backend non-goal. Deferring sync to v2 would mean v1 ships a hosted backend that the clients barely use.
 
 ## Non-Functional Requirements
 
-- The break presentation appears within 500 ms of the focus-session timer reaching zero on a typical consumer desktop (laptop or tower; low-end single-board computers are out of scope), assuming a healthy connection to the hosted backend.
+- The break presentation appears within 500 ms of the focus-session timer reaching zero on a typical consumer device (laptop, tower, or mid-range Android phone), assuming a healthy connection to the hosted backend.
 - The break presentation returns control to the user within 1 s of an end-break action; this guarantee holds under sustained background CPU load.
-- The desktop client requires network connectivity to read or write tasks in v1; offline operation is a v2 capability.
+- The client (desktop and mobile) requires network connectivity to read or write tasks in v1; offline operation is a v2 capability.
 - An invalid or missing session credential presented at the integration boundary is rejected before any task-data operation runs, and the rejection latency is indistinguishable from a valid-but-empty call (no timing-side-channel on session validity).
-- Task and completion state survive a normal app close and a host-machine reboot; data lives on the hosted backend and is available on next login.
+- Task and completion state survive a normal app close and a host-machine or device restart; data lives on the hosted backend and is available on next login.
 - The task-configuration surface remains responsive (operations completing under 200 ms) for pools up to 500 tasks. Larger pools are out of scope.
 - The full-screen break presentation does not occupy more than one display unless the user has explicitly opted into a multi-monitor mode (default behaviour is parked in Open Questions).
 
@@ -166,14 +166,14 @@ Eligibility depends on category. One-time tasks become permanently ineligible af
 
 ## Access Control
 
-User accounts on a hosted backend, with registration and login required for v1. Identity is per-user, not per-install: the same account opens the same task pool from any device or client. The configuration surface is the boundary for changing app behaviour; other surfaces are read/write over the same user's profile.
+User accounts on a hosted backend, with registration and login required for v1. Identity is per-user, not per-install: the same account opens the same task pool from any device or client. The task-configuration surface is the boundary for changing app behaviour; other surfaces are read/write over the same user's profile.
 
 The hosted integration endpoint is gated by the user's authenticated session. Any client that wants to read or modify the break-task pool through the integration endpoint must present a valid session credential issued after authentication; unauthenticated clients are rejected at the boundary. Account credentials are managed by the hosted authentication service; the user never holds a raw machine-local token. This design makes the integration edge non-anonymous by construction and removes the need for a generated per-install token entirely.
 
 ## Non-Goals
 
-- **Offline-first desktop client / local cache.** v1 is online-first; offline operation is a v2 capability.
-- **Non-desktop clients including Android, iOS, and web.** v1 is desktop only. Other platforms are v2.
+- **Offline-first client / local cache.** v1 is online-first; offline operation is a v2 capability.
+- **iOS, macOS, Windows, and web clients in v1.** v1 ships Linux desktop + Android mobile from a single shared codebase. Other platforms are v2.
 - **Stats and analytics surfaces.** Deferred to v2.
 - **Vendor-specific integrations baked into the app** (named third-party task managers as concrete examples). The integration surface exists so external clients handle bridging; building one inside the app re-creates the coupling just removed.
 - **Focus-task linking and external time recording.** Deferred to v2. The integration surface in v1 reads and writes break-task data only, not focus-session state.
@@ -194,3 +194,4 @@ The hosted integration endpoint is gated by the user's authenticated session. An
 4. **Localization scaffolding in v1, or none at all?** Setting up localization early means a second locale is cheap later; skipping it means rework when a second locale ships. Owner: user. Block: no.
 5. **Multi-monitor break-presentation default**: full-screen on the active monitor only, or full-screen on every connected monitor? Owner: user. Block: no.
 6. **v1 budget cut needed.** The 3-week after-hours budget did not assume a hosted backend, user accounts, and sync. Identify which one or two of the existing must-have FRs to demote (candidates: FR-005 edit-in-place, FR-009 Roll-again, FR-014 credential rotation, multi-monitor NFR) before implementation begins. Owner: user. Block: yes (must resolve before implementation starts).
+7. **Android background-to-foreground constraint for the full-screen break presentation.** Android cannot freely force a full-screen overlay from a backgrounded app; the standard path is a high-priority notification that opens a full-screen activity, gated by `USE_FULL_SCREEN_INTENT` permission and Android version. Owner: user. Resolution path: downstream tech-stack-selection step (which cross-platform toolkit and which Android API surface together satisfy FR-007 on Android).
