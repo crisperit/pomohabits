@@ -188,7 +188,7 @@ The hosted integration endpoint is gated by the user's authenticated session. An
 
 ## Open Questions
 
-1. **Integration surface protocol choice for v1**: the hosted integration endpoint speaks a single protocol; the specific protocol shape is deferred to tech-stack selection. Owner: user. Resolution path: downstream tech-stack-selection step.
+1. **Integration surface protocol choice for v1**: the hosted integration endpoint speaks a single protocol; the specific protocol shape is deferred to tech-stack selection. Owner: user. Resolution path: downstream tech-stack-selection step. **Resolution (2026-05-23): MCP (Model Context Protocol), hosted as a Supabase Edge Function exposing `list_tasks`, `add_task`, `complete_task` as MCP tools, authenticated via Supabase Auth. Cloudflare Workers is held as a known future migration target if specific CF features become load-bearing. See `context/foundation/tech-stack.md` for the component-boundaries detail.**
 2. **One concrete external importer in v1, or not?** Default proposed during shaping: no, since the integration surface exists so external clients handle bridging. Owner: user. Resolution before v1 implementation begins.
 3. **Credential rotation UX**: silent disconnect of all clients on credential invalidation, or a list of recently-authenticated clients to revoke selectively? Default proposed: silent disconnect. Owner: user. Block: no.
 4. **Localization scaffolding in v1, or none at all?** Setting up localization early means a second locale is cheap later; skipping it means rework when a second locale ships. Owner: user. Block: no.
