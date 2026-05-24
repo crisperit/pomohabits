@@ -127,7 +127,7 @@ All commands run from `/home/crispy/dev/private/taskodoro` unless noted.
 Replace `<PROD_REF>`, `<URL>`, `<API_KEY>`, `<REGION>` with values captured
 in section 3.
 
-> Note on API keys: Supabase now issues new publishable keys (`sb_publishable_...`) alongside the legacy `anon` key. Both are drop-in replacements; pick either from the dashboard's API Keys page. The new key is preferred for forward-compat (the legacy shape is deprecated end-of-2026, and rotating it would invalidate user sessions). The function code uses the env var name `SUPABASE_ANON_KEY` regardless of which key shape you paste; that name is the Supabase platform convention.
+> Note on API keys: Supabase now issues publishable keys (`sb_publishable_...`) and secret keys (`sb_secret_...`); the legacy `anon` / `service_role` JWTs are still issued for backwards compat through end-of-2026. The function reads `SUPABASE_PUBLISHABLE_KEYS["default"]` first and falls back to `SUPABASE_ANON_KEY` for local dev (where the CLI still injects only the legacy var). When the Cloudflare landing-page secret slot prompts for a value, paste the publishable key from the dashboard's API Keys page; the new key is preferred because it can be rotated without invalidating user sessions.
 
 ### a. Link local repo to prod Supabase project
 

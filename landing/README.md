@@ -33,7 +33,7 @@ cd 10x-astro-starter
 npm install
 ```
 
-3. Set up Supabase and configure environment variables — see [Supabase Configuration](#supabase-configuration) below.
+3. Set up Supabase and configure environment variables; see [Supabase Configuration](#supabase-configuration) below.
 
 4. Create a `.dev.vars` file for local Cloudflare dev secrets:
 
@@ -72,7 +72,7 @@ npm run dev
 
 ## Supabase Configuration
 
-This project uses [Supabase](https://supabase.com/) for authentication. Environment variables are declared via Astro's `astro:env` schema and are treated as **server-only secrets** — they are never exposed to the client.
+This project uses [Supabase](https://supabase.com/) for authentication. Environment variables are declared via Astro's `astro:env` schema and are treated as **server-only secrets**: they are never exposed to the client.
 
 ### First-time setup (local, no cloud project needed)
 
@@ -100,7 +100,7 @@ npx supabase start
 
 ```
 SUPABASE_URL=http://127.0.0.1:54321
-SUPABASE_KEY=<anon key from CLI output>
+SUPABASE_KEY=<publishable key from CLI output; the legacy anon JWT from `npx supabase status` also works>
 ```
 
 5. To stop the stack when done:
@@ -111,7 +111,7 @@ npx supabase stop
 
 The local Studio UI is available at `http://localhost:54323`.
 
-No database tables or migrations are required — this project uses Supabase Auth's built-in `auth.users` table only.
+No database tables or migrations are required; this project uses Supabase Auth's built-in `auth.users` table only.
 
 ### Using a cloud Supabase project instead
 
@@ -120,11 +120,11 @@ If you prefer to use a hosted Supabase project, add these variables to your `.en
 | Variable       | Description                                                |
 | -------------- | ---------------------------------------------------------- |
 | `SUPABASE_URL` | Project URL from Supabase dashboard → Settings → API       |
-| `SUPABASE_KEY` | `anon` public key from Supabase dashboard → Settings → API |
+| `SUPABASE_KEY` | publishable key from Supabase dashboard → API Keys page (legacy `anon` JWT also works) |
 
 ```
 SUPABASE_URL=https://<project-ref>.supabase.co
-SUPABASE_KEY=<anon-key>
+SUPABASE_KEY=<publishable-key>
 ```
 
 ### Email confirmation in local development
