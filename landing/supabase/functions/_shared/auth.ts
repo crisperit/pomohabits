@@ -4,12 +4,38 @@ import { createClient, type User } from "npm:@supabase/supabase-js@^2";
 // Boot-time env validation
 // ---------------------------------------------------------------------------
 
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
-const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
-
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  throw new Error("SUPABASE_URL and SUPABASE_ANON_KEY must be set");
+// Supabase auto-injects SUPABASE_PUBLISHABLE_KEYS (JSON dict) as the new default
+// and SUPABASE_ANON_KEY as legacy-but-still-supported. Local CLI still ships
+// the legacy var only as of 2026-05-24; the fallback keeps `supabase functions
+// serve` working until the local stack catches up.
+function resolveProjectKey(): string {
+  const dictRaw = Deno.env.get("SUPABASE_PUBLISHABLE_KEYS");
+  if (dictRaw && dictRaw.length > 0) {
+    let dict: Record<string, string>;
+    try {
+      dict = JSON.parse(dictRaw);
+    } catch (err) {
+      throw new Error(
+        `SUPABASE_PUBLISHABLE_KEYS must be valid JSON: ${(err as Error).message}`,
+      );
+    }
+    const key = dict["default"];
+    if (!key) {
+      throw new Error(`SUPABASE_PUBLISHABLE_KEYS has no "default" entry`);
+    }
+    return key;
+  }
+  const legacy = Deno.env.get("SUPABASE_ANON_KEY");
+  if (legacy && legacy.length > 0) return legacy;
+  throw new Error(
+    "Neither SUPABASE_PUBLISHABLE_KEYS nor SUPABASE_ANON_KEY is set",
+  );
 }
+
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+if (!SUPABASE_URL) throw new Error("SUPABASE_URL must be set");
+
+const SUPABASE_PROJECT_KEY = resolveProjectKey();
 
 // ---------------------------------------------------------------------------
 // Errors
@@ -27,7 +53,7 @@ export class UnauthorizedError extends Error {
 // It carries no user context of its own.
 // ---------------------------------------------------------------------------
 
-const baseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+const baseClient = createClient(SUPABASE_URL, SUPABASE_PROJECT_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
@@ -75,7 +101,7 @@ export async function authenticate(
 // ---------------------------------------------------------------------------
 
 export function clientForUser(jwt: string) {
-  return createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
+  return createClient(SUPABASE_URL!, SUPABASE_PROJECT_KEY!, {
     global: { headers: { Authorization: `Bearer ${jwt}` } },
     auth: { persistSession: false, autoRefreshToken: false },
   });
