@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Taskodoro (Linux, --dart-define-from-file)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "deviceId": "linux",
+      "args": [
+        "--dart-define-from-file=env.json"
+      ]
+    },
+    {
+      "name": "Taskodoro (Android, --dart-define-from-file)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "deviceId": "android",
+      "args": [
+        "--dart-define-from-file=env.json"
+      ]
+    }
+  ]
+}
