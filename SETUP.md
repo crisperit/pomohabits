@@ -54,7 +54,7 @@ In the Supabase dashboard:
 
 1. New project -> name `taskodoro`, choose a region close to you, set a strong DB password.
 2. Wait for provisioning to finish (~1 minute).
-3. From Project Settings -> API, copy the **Project URL** and the **anon (public) key**. You will paste these into env files below.
+3. From Project Settings -> API, copy the **Project URL** and the **publishable key** (from the API Keys page; older dashboards label this `anon`/public). You will paste these into env files below.
 4. From Project Settings -> API -> Project ref, copy the **project ref** (the slug, not the full URL).
 
 ## 2. Link the local repo to the cloud project
@@ -99,14 +99,14 @@ Create `landing/.env` (gitignored already):
 
 ```
 SUPABASE_URL=https://<your-project-ref>.supabase.co
-SUPABASE_KEY=<your-anon-key>
+SUPABASE_KEY=<your-publishable-key>
 ```
 
 Restart `npm run dev` after creating the file.
 
 For Cloudflare local dev (`npm run dev` with the workerd runtime), use `landing/.dev.vars` instead -- same key=value format, also gitignored.
 
-> Note on naming: Astro's `landing/src/lib/supabase.ts` reads `SUPABASE_KEY`; the Flutter examples below use `SUPABASE_ANON_KEY`. Both refer to the same Supabase **anon (public) key** value from the dashboard. The two names exist only because each app's conventions differ; nothing forces them to match.
+> Note on naming: Astro's `landing/src/lib/supabase.ts` reads `SUPABASE_KEY`; the Flutter side uses `SUPABASE_PUBLISHABLE_KEY`. Both hold the same value -- the project's publishable key from the dashboard's API Keys page (or the legacy `anon` JWT from `npx supabase status` locally; both work). The two names exist only because each app's conventions differ.
 
 ### Flutter (repo root)
 
@@ -117,14 +117,14 @@ Flutter does not have a single canonical env-file convention. The two common pat
   ```bash
   flutter run -d linux \
     --dart-define=SUPABASE_URL=https://<ref>.supabase.co \
-    --dart-define=SUPABASE_ANON_KEY=<anon-key>
+    --dart-define=SUPABASE_PUBLISHABLE_KEY=<publishable-key>
   ```
 
   Read them in Dart with `String.fromEnvironment('SUPABASE_URL')`.
 
 - **Runtime .env via the `flutter_dotenv` package**: more flexible, less secure (the .env ships with the app bundle if not handled carefully). Add later if the compile-time approach becomes annoying.
 
-Pick one and wire `Supabase.initialize(url: ..., anonKey: ...)` in `lib/main.dart` before `runApp`.
+Pick one and wire `Supabase.initialize(url: ..., anonKey: <publishable-key>)` in `lib/main.dart` before `runApp`.
 
 > VS Code shortcut: copy `env.json.example` to `env.json` (gitignored), fill in your values, then use "Run and Debug" -> "Taskodoro (Linux, --dart-define-from-file)". The Flutter extension reads `--dart-define-from-file=env.json` from `.vscode/launch.json`.
 
@@ -194,7 +194,7 @@ The Astro landing in `landing/` is configured for `@astrojs/cloudflare` and uses
   ```bash
   cd landing
   npx wrangler secret put SUPABASE_URL    # paste the project URL when prompted
-  npx wrangler secret put SUPABASE_KEY    # paste the anon key when prompted
+  npx wrangler secret put SUPABASE_KEY    # paste the publishable key when prompted
   ```
 
 - Build and deploy: `npx wrangler deploy`. Output prints the live URL (something like `https://taskodoro-landing.<account>.workers.dev`).
@@ -222,6 +222,6 @@ Supabase's CLI does not officially target Dart, but the community tool `supabase
 - **Astro dev server exits with `SUPABASE_URL is missing`**: confirm you created `landing/.env` (or `landing/.dev.vars` for the workerd runtime) and restarted `npm run dev` afterwards.
 - **`flutter run` cannot find the Supabase URL at runtime**: you forgot `--dart-define`. The values do not persist between invocations; either include them every run or wire a `scripts/run-linux.sh` wrapper.
 - **`npx wrangler deploy` fails with "no account_id"**: the first run after `wrangler login` writes the account ID to `landing/wrangler.jsonc`; if you have multiple Cloudflare accounts, pass `--account-id <id>` explicitly.
-- **MCP function returns 401 on every call**: confirm the client sends `Authorization: Bearer <jwt>` and that the JWT was issued by the same Supabase project the function is deployed to. The anon key is NOT a valid bearer token; you need a session token from `supabase.auth.signIn*`.
+- **MCP function returns 401 on every call**: confirm the client sends `Authorization: Bearer <jwt>` and that the JWT was issued by the same Supabase project the function is deployed to. The project API key (anon or publishable) is NOT a valid bearer token; you need a session token from `supabase.auth.signIn*`.
 - **MCP function returns 500 with no log line**: tail logs with `npx supabase functions logs mcp --follow`. Empty logs usually mean the function crashed during startup; check the deploy output for syntax errors.
 - **`npm audit` reports high-severity findings in `landing/`**: known. Already documented in "Known constraints" above. Address with npm `overrides` or wait for an upstream Astro patch before production deploy.
