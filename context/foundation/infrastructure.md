@@ -97,12 +97,12 @@ How Supabase Edge Functions actually operates day to day for the MCP endpoint.
 
 Validated against `supabase` CLI v2 docs and the official BYO-MCP guide as of 2026-05-23.
 
-1. **Confirm the Supabase project exists and is linked.** `SETUP.md` should already document `supabase link --project-ref <ref>`. If not, run `supabase login` then `supabase link --project-ref <ref>` from the repo root.
-2. **Scaffold the Edge Function.** From repo root: `supabase functions new mcp` - creates `supabase/functions/mcp/index.ts`.
-3. **Implement the MCP server from the official template.** Follow `https://supabase.com/docs/guides/getting-started/byo-mcp` for the MCP TypeScript SDK + Hono + `WebStandardStreamableHTTPServerTransport` skeleton, OR `https://supabase.com/docs/guides/functions/examples/mcp-server-mcp-lite` for the lighter mcp-lite alternative. Wire `list_tasks` / `add_task` / `complete_task` as MCP tools, each delegating to the existing PostgREST RPC. Implement Bearer-token extraction + `supabase.auth.getUser(token)` in a single `_shared/auth.ts` helper. Set `verify_jwt = false` for the `mcp` function in `supabase/config.toml` (auth is handled in handler code, not the platform gate).
-4. **Pin the function region to the Postgres region.** In `supabase/config.toml` set `[functions.mcp] region = "<region-matching-project>"` to keep DB round-trips in single-digit ms.
-5. **Add the rollback script.** Create `scripts/rollback-function.sh` that takes `<name> <sha>` and runs `git checkout <sha> -- supabase/functions/<name> && supabase functions deploy <name> && git checkout HEAD -- supabase/functions/<name>`. Document in `SETUP.md`.
-6. **First production deploy.** `supabase functions deploy mcp --project-ref <prod-ref>`. Tag the commit: `git tag prod-mcp-<YYYYMMDD-HHmm> && git push --tags`.
+1. **Confirm the Supabase project exists and is linked.** `SETUP.md` should already document `supabase link --project-ref <ref>`. If not, run `supabase login` then `cd landing && npx supabase link --project-ref <ref>`.
+2. **Scaffold the Edge Function.** `cd landing && npx supabase functions new mcp` - creates `landing/supabase/functions/mcp/index.ts`.
+3. **Implement the MCP server from the official template.** Follow `https://supabase.com/docs/guides/getting-started/byo-mcp` for the MCP TypeScript SDK + Hono + `WebStandardStreamableHTTPServerTransport` skeleton, OR `https://supabase.com/docs/guides/functions/examples/mcp-server-mcp-lite` for the lighter mcp-lite alternative. Wire `list_tasks` / `add_task` / `complete_task` as MCP tools, each delegating to the existing PostgREST RPC. Implement Bearer-token extraction + `supabase.auth.getUser(token)` in a single `landing/supabase/functions/_shared/auth.ts` helper. Set `verify_jwt = false` for the `mcp` function in `landing/supabase/config.toml` (auth is handled in handler code, not the platform gate).
+4. **Pin the function region to the Postgres region.** In `landing/supabase/config.toml` set `[functions.mcp] region = "<region-matching-project>"` to keep DB round-trips in single-digit ms.
+5. **Add the rollback script.** Create `scripts/rollback-function.sh` at repo root that takes `<name> <sha>`; the script `cd`s into `landing/` before invoking `supabase`, and runs `git checkout <sha> -- landing/supabase/functions/<name> && npx supabase functions deploy <name> && git checkout HEAD -- landing/supabase/functions/<name>`. Document in `SETUP.md`.
+6. **First production deploy.** `cd landing && npx supabase functions deploy mcp --project-ref <prod-ref>`. Tag the commit from repo root: `git tag prod-mcp-<YYYYMMDD-HHmm> && git push --tags`.
 
 ## Out of Scope
 
