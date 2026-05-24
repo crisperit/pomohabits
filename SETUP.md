@@ -147,13 +147,15 @@ flutter run -d <device-id>
 
 Goal: scaffold a TypeScript MCP server that runs on a Supabase Edge Function, talks to Postgres via the three RPC functions, and validates Supabase Auth JWTs in the handler.
 
-- From the repo root (NOT inside `landing/`), run `npx supabase functions new mcp`. This creates `supabase/functions/mcp/index.ts`.
+All `supabase` CLI commands in this section run from `landing/`.
+
+- Scaffold the function: `cd landing && npx supabase functions new mcp`. This creates `landing/supabase/functions/mcp/index.ts`.
 - Implement the handler following Supabase's official BYO MCP guide (https://supabase.com/docs/guides/getting-started/byo-mcp): MCP TypeScript SDK + Hono + `WebStandardStreamableHTTPServerTransport`. Register `list_tasks` / `add_task` / `complete_task` as MCP tools; each delegates to the matching PostgREST RPC.
-- Put the JWT check in a shared helper at `supabase/functions/_shared/auth.ts`. It extracts the Bearer token from the request, calls `supabase.auth.getUser(token)`, and returns the user (or rejects with 401). The MCP handler calls this helper before dispatching any tool call.
-- In `supabase/config.toml`, set the `mcp` function's `verify_jwt = false` (auth runs in handler code, not at the platform gate). Edge Functions automatically run in the project's region, so the function and Postgres share a region with no extra config.
-- Local dev: `npx supabase functions serve mcp --env-file ./supabase/functions/.env.local`. The function will be available at `http://127.0.0.1:54321/functions/v1/mcp`.
-- Deploy to your linked project: `npx supabase functions deploy mcp`.
-- Tag every production deploy: `git tag prod-mcp-$(date +%Y%m%d-%H%M) && git push --tags`.
+- Put the JWT check in a shared helper at `landing/supabase/functions/_shared/auth.ts`. It extracts the Bearer token from the request, calls `supabase.auth.getUser(token)`, and returns the user (or rejects with 401). The MCP handler calls this helper before dispatching any tool call.
+- In `landing/supabase/config.toml`, set the `mcp` function's `verify_jwt = false` (auth runs in handler code, not at the platform gate). Edge Functions automatically run in the project's region, so the function and Postgres share a region with no extra config.
+- Local dev (already `cd`'d into `landing/`): `npx supabase functions serve mcp --env-file ./supabase/functions/.env.local`. The function will be available at `http://127.0.0.1:54321/functions/v1/mcp`.
+- Deploy to your linked project (from `landing/`): `npx supabase functions deploy mcp`.
+- Tag every production deploy (from repo root, since git is repo-wide): `git tag prod-mcp-$(date +%Y%m%d-%H%M) && git push --tags`.
 
 Why this shape: the function shares Auth context with the rest of the Supabase stack, so the JWT check is one line; the function and Postgres are in the same region, so DB round-trip is single-digit ms; the operational surface stays on one CLI.
 
