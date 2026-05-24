@@ -98,7 +98,7 @@ cost of a wrong scripted mutation is hours.
    Dashboard → New project, name `taskodoro`, region matching expected user
    base (recommendation: `eu-central-1` or `eu-west-1` for EU latency;
    document the chosen region back into step 2.2 above). Note: project URL,
-   anon key, project ref, DB password.
+   API key (legacy `anon` or new `sb_publishable_...` from the API Keys page; either works), project ref, DB password.
 
 2. **Set Supabase auth provider.** Authentication → Providers → Email
    enabled. Email confirmations: **enabled** for production (different from
@@ -114,7 +114,7 @@ cost of a wrong scripted mutation is hours.
    This credential stays human-managed for first deploy. CI wiring is a
    follow-up; first deploy is local-`wrangler` from the developer machine.
 
-5. **Confirm prod Supabase project ref, URL, and anon key** are recorded in
+5. **Confirm prod Supabase project ref, URL, and API key (legacy `anon` or new publishable)** are recorded in
    the developer's secret store (NOT committed). Needed for `.env`,
    `--dart-define`, and `wrangler secret put` in the steps below.
 
@@ -124,8 +124,10 @@ manual-only beyond this first deploy.
 ## 4. Deploy steps (exact commands, in order)
 
 All commands run from `/home/crispy/dev/private/taskodoro` unless noted.
-Replace `<PROD_REF>`, `<URL>`, `<ANON_KEY>`, `<REGION>` with values captured
+Replace `<PROD_REF>`, `<URL>`, `<API_KEY>`, `<REGION>` with values captured
 in section 3.
+
+> Note on API keys: Supabase now issues new publishable keys (`sb_publishable_...`) alongside the legacy `anon` key. Both are drop-in replacements; pick either from the dashboard's API Keys page. The new key is preferred for forward-compat (the legacy shape is deprecated end-of-2026, and rotating it would invalidate user sessions). The function code uses the env var name `SUPABASE_ANON_KEY` regardless of which key shape you paste; that name is the Supabase platform convention.
 
 ### a. Link local repo to prod Supabase project
 
@@ -197,7 +199,7 @@ git push --tags
 cd landing
 npx wrangler login                                   # one-time, browser
 npx wrangler secret put SUPABASE_URL                 # paste <URL>
-npx wrangler secret put SUPABASE_KEY                 # paste <ANON_KEY>
+npx wrangler secret put SUPABASE_KEY                 # paste <API_KEY> (legacy anon or new publishable)
 ```
 
 ### g. Deploy the landing page
