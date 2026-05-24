@@ -9,7 +9,8 @@
 .mcp.json
 .profile
 .ripgreprc
-.vscode
+.vscode/*
+!.vscode/launch.json
 .zprofile
 .zshrc
 
@@ -67,3 +68,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Flutter compile-time env vars (copy env.json.example to env.json and fill in values)
+env.json
