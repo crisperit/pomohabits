@@ -10,16 +10,16 @@ You need four tools on PATH and three free cloud accounts.
 
 **git**: `sudo apt install git` (Debian/Ubuntu) or `sudo dnf install git` (Fedora). Verify with `git --version`.
 
-**Node 22** (matches `landing/.nvmrc`). Easiest path is `nvm`:
+**Node 24** (matches `landing/.nvmrc`). Easiest path is `nvm`:
 
 ```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 # restart your shell, then:
-nvm install 22
+nvm install 24
 cd landing && nvm use   # reads .nvmrc
 ```
 
-Verify with `node --version` (should report `v22.x`).
+Verify with `node --version` (should report `v24.x`).
 
 **Flutter SDK**. Two options:
 
