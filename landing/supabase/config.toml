@@ -389,4 +389,3 @@ s3_secret_key = "env(S3_SECRET_KEY)"
 
 [functions.mcp]
 verify_jwt = false
-region = "eu-central-1"
