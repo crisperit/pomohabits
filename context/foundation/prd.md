@@ -1,6 +1,6 @@
 ---
 project: "Taskodoro"
-version: 3
+version: 4
 status: draft
 created: 2026-05-21
 context_type: greenfield
@@ -177,7 +177,6 @@ The hosted integration endpoint is gated by the user's authenticated session. An
 - **Stats and analytics surfaces.** Deferred to v2.
 - **Vendor-specific integrations baked into the app** (named third-party task managers as concrete examples). The integration surface exists so external clients handle bridging; building one inside the app re-creates the coupling just removed.
 - **Focus-task linking and external time recording.** Deferred to v2. The integration surface in v1 reads and writes break-task data only, not focus-session state.
-- **Non-English locales in v1.** English-only ship. Localization scaffolding is parked as an Open Question.
 - **System tray, always-on-top window mode, custom themes.** Window-management nice-to-haves; not on the path to the deliverable floor.
 - **Sound effects on session boundaries.** Standard OS notifications are sufficient for v1; in-app audio is a v2 candidate.
 - **Rich task details** (description, image, links, estimated time, notes). v1 tasks carry name, category, applicable break window, and the always-shown flag; nothing else. Details are a v2 capability.
@@ -191,7 +190,7 @@ The hosted integration endpoint is gated by the user's authenticated session. An
 1. **Integration surface protocol choice for v1**: the hosted integration endpoint speaks a single protocol; the specific protocol shape is deferred to tech-stack selection. Owner: user. Resolution path: downstream tech-stack-selection step. **Resolution (2026-05-23): MCP (Model Context Protocol), hosted as a Supabase Edge Function exposing `list_tasks`, `add_task`, `complete_task` as MCP tools, authenticated via Supabase Auth. Cloudflare Workers is held as a known future migration target if specific CF features become load-bearing. See `context/foundation/tech-stack.md` for the component-boundaries detail.**
 2. **One concrete external importer in v1, or not?** Default proposed during shaping: no, since the integration surface exists so external clients handle bridging. Owner: user. Resolution before v1 implementation begins.
 3. **Credential rotation UX**: silent disconnect of all clients on credential invalidation, or a list of recently-authenticated clients to revoke selectively? Default proposed: silent disconnect. Owner: user. Block: no.
-4. **Localization scaffolding in v1, or none at all?** Setting up localization early means a second locale is cheap later; skipping it means rework when a second locale ships. Owner: user. Block: no.
+4. **Localization scaffolding in v1, or none at all?** Setting up localization early means a second locale is cheap later; skipping it means rework when a second locale ships. Owner: user. Block: no. **Resolution (2026-05-26): i18n scaffolding lands in v1 with Polish (`pl`) and English (`en`) as the shipped locales. Default device locale picks the UI locale on first launch; a settings affordance lets the user override. Implementation lives in the Flutter shell foundation (F-01 in the roadmap) so every later slice writes localized strings from day one. ARB-file structure per the Flutter `intl` convention.**
 5. **Multi-monitor break-presentation default**: full-screen on the active monitor only, or full-screen on every connected monitor? Owner: user. Block: no.
 6. **v1 budget cut needed.** The 3-week after-hours budget did not assume a hosted backend, user accounts, and sync. Identify which one or two of the existing must-have FRs to demote (candidates: FR-005 edit-in-place, FR-009 Roll-again, FR-014 credential rotation, multi-monitor NFR) before implementation begins. Owner: user. Block: yes (must resolve before implementation starts). **Resolution (2026-05-22): user opted not to demote any FR. All 17 must-have FRs remain in v1 scope; over-scope risk is acknowledged and accepted as a stretch.**
 7. **Android background-to-foreground constraint for the full-screen break presentation.** Android cannot freely force a full-screen overlay from a backgrounded app; the standard path is a high-priority notification that opens a full-screen activity, gated by `USE_FULL_SCREEN_INTENT` permission and Android version. Owner: user. Resolution path: downstream tech-stack-selection step (which cross-platform toolkit and which Android API surface together satisfy FR-007 on Android).
