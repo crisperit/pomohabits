@@ -1,0 +1,11 @@
+{
+  "@@locale": "en",
+  "appTitle": "Taskodoro",
+  "@appTitle": {
+    "description": "Application name shown in the app bar"
+  },
+  "signInPlaceholder": "Sign-in screen is not built yet (S-01)",
+  "@signInPlaceholder": {
+    "description": "Placeholder body text on the sign-in page during F-01"
+  }
+}
