@@ -13,4 +13,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signInPlaceholder => 'Sign-in screen is not built yet (S-01)';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get themeLabel => 'Theme';
+
+  @override
+  String get themeSystem => 'Auto';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get localeLabel => 'Language';
+
+  @override
+  String get localeSystem => 'Auto';
+
+  @override
+  String get localeEnglish => 'English';
+
+  @override
+  String get localePolish => 'Polish';
+
+  @override
+  String get close => 'Close';
 }

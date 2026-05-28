@@ -1,5 +1,15 @@
 {
   "@@locale": "pl",
   "appTitle": "Taskodoro",
-  "signInPlaceholder": "Ekran logowania nie jest jeszcze zbudowany (S-01)"
+  "signInPlaceholder": "Ekran logowania nie jest jeszcze zbudowany (S-01)",
+  "settingsTitle": "Ustawienia",
+  "themeLabel": "Motyw",
+  "themeSystem": "Auto",
+  "themeLight": "Jasny",
+  "themeDark": "Ciemny",
+  "localeLabel": "Język",
+  "localeSystem": "Auto",
+  "localeEnglish": "Angielski",
+  "localePolish": "Polski",
+  "close": "Zamknij"
 }
