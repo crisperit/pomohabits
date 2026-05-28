@@ -13,16 +13,16 @@ Future<void> main() async {
 
   try {
     await initializeSupabase();
+    final prefs = await SharedPreferences.getInstance();
+    final router = buildRouter();
+
+    runApp(ProviderScope(
+      overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+      child: MainApp(router: router),
+    ));
   } on SupabaseEnvException catch (e) {
     runApp(ErrorApp(message: e.message));
-    return;
+  } catch (e) {
+    runApp(ErrorApp(message: 'Startup failed: $e'));
   }
-
-  final prefs = await SharedPreferences.getInstance();
-  final router = buildRouter();
-
-  runApp(ProviderScope(
-    overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
-    child: MainApp(router: router),
-  ));
 }

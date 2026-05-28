@@ -24,9 +24,15 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
   }
 
   Future<void> set(ThemeMode mode) async {
+    final previous = state;
     state = mode;
-    final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.setString(_key, mode.name);
+    try {
+      final prefs = ref.read(sharedPreferencesProvider);
+      await prefs.setString(_key, mode.name);
+    } catch (_) {
+      state = previous;
+      rethrow;
+    }
   }
 }
 
@@ -45,12 +51,18 @@ class LocaleNotifier extends Notifier<Locale?> {
   }
 
   Future<void> set(Locale? locale) async {
+    final previous = state;
     state = locale;
-    final prefs = ref.read(sharedPreferencesProvider);
-    if (locale == null) {
-      await prefs.remove(_key);
-    } else {
-      await prefs.setString(_key, locale.languageCode);
+    try {
+      final prefs = ref.read(sharedPreferencesProvider);
+      if (locale == null) {
+        await prefs.remove(_key);
+      } else {
+        await prefs.setString(_key, locale.languageCode);
+      }
+    } catch (_) {
+      state = previous;
+      rethrow;
     }
   }
 }
