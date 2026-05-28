@@ -2,7 +2,7 @@
 
 ## Overview
 
-Replace the Hello World scaffold in `lib/main.dart` with a real Flutter app shell that every subsequent slice hangs off. The shell initializes `supabase_flutter` from compile-time `--dart-define` env vars, establishes a Riverpod state-management baseline, ships a go_router-based auth-aware router with placeholder destinations, applies Material 3 light + dark theming following the OS, scaffolds i18n with `pl` + `en` ARB files (device-locale only in F-01; the override surface ships with S-09), and commits a feature-first `lib/` directory layout. A two-test baseline locks in the auth-redirect contract S-01 will plug into.
+Replace the Hello World scaffold in `lib/main.dart` with a real Flutter app shell that every subsequent slice hangs off. The shell initializes `supabase_flutter` from compile-time `--dart-define` env vars, establishes a Riverpod state-management baseline, ships a go_router-based auth-aware router with placeholder destinations, applies Material 3 light + dark theming following the OS, scaffolds i18n with `pl` + `en` ARB files and a Settings page that lets the user override both theme and locale (persisted via shared_preferences), and commits a feature-first `lib/` directory layout. A two-test baseline locks in the auth-redirect contract S-01 will plug into.
 
 ## Current State Analysis
 
@@ -20,7 +20,7 @@ Replace the Hello World scaffold in `lib/main.dart` with a real Flutter app shel
 ### Key Discoveries
 
 - Env vars contract is settled by SETUP.md §5: `SUPABASE_URL` + `SUPABASE_PUBLISHABLE_KEY` via `--dart-define`. `String.fromEnvironment` reads them. `flutter_dotenv` is parked unless we revisit (CLAUDE.md `## Conventions that aren't in landing/CLAUDE.md`).
-- i18n policy is settled by PRD Open Question #4 resolution (2026-05-26): `pl` + `en`, device-locale on first launch with a settings override later. F-01 ships device-locale only - the picker lands with S-09 per the roadmap F-01 entry and the answers in this plan's questioning round.
+- i18n policy is settled by PRD Open Question #4 resolution (2026-05-26): `pl` + `en`, device-locale on first launch with a settings override later. Original plan: device-locale only in F-01. Updated mid-implementation: F-01 also ships a Settings page with manual theme and locale overrides persisted via shared_preferences. Pulled forward from the original S-09 scope at user request after Phase 2 manual verification.
 - Tech-stack contract for Flutter is settled by `context/foundation/tech-stack.md` "Component boundaries (added 2026-05-23)": Flutter talks to Supabase directly via `supabase_flutter` (auth + realtime + PostgREST RPC). No MCP function hop on the client side.
 - The Flutter scaffold under `linux/` and `android/` is already configured by the bootstrap; F-01 does not touch native code.
 
@@ -30,7 +30,7 @@ Replace the Hello World scaffold in `lib/main.dart` with a real Flutter app shel
 - Task CRUD UI of any shape - lives in S-02 (add) and S-06 (list/edit/delete).
 - Focus timer, break presentation, randomization - live in S-03.
 - Realtime `tasks` subscription - lives in S-08.
-- Account settings UI, locale override picker, credential rotation - live in S-09.
+- Credential rotation lives in S-09 (the Settings page itself ships in this phase, but S-09 adds rotation rows to it).
 - Android `USE_FULL_SCREEN_INTENT` permission and platform channel - sub-task of S-03.
 - Creating an actual `env.json` (only `env.json.example`); `env.json` stays gitignored and the developer fills it locally.
 - Dart code-gen from the Postgres schema (`supabase_codegen` is parked per SETUP.md "Optional: generate Dart types").
@@ -38,11 +38,12 @@ Replace the Hello World scaffold in `lib/main.dart` with a real Flutter app shel
 
 ## Implementation Approach
 
-Three phases, each delivering an independently verifiable milestone:
+Four phases, each delivering an independently verifiable milestone:
 
 1. **Project structure & dependencies** - pubspec deps, `lib/` directory layout, `env.json.example`, analysis_options tightening, `l10n.yaml` and empty ARB files. Outcome: `flutter pub get` + `flutter analyze` are clean; project compiles with the chosen deps; no runtime behavior yet.
 2. **App initialization & visual baseline** - `Supabase.initialize` with full-screen error widget on missing env; Material 3 light + dark themes; `MaterialApp.router` wired with `localizationsDelegates` and `supportedLocales`; two seed localized strings to prove the i18n loop closed end-to-end. Outcome: app boots on Linux and Android into a themed, localized empty-state page.
-3. **Auth-aware router & tests** - Riverpod `StreamProvider` over `supabase.auth.onAuthStateChange`; go_router with `/sign-in` and `/home` placeholder destinations and a `redirect` callback driven by the current session; widget test + redirect-logic test. Outcome: redirect behavior is verified by tests; the contract S-01 plugs into is locked.
+3. **Settings screen with theme and locale override** - shared_preferences-backed Riverpod providers for ThemeMode and Locale; SettingsPage with two RadioListTile groups; MainApp reads the providers; /settings route in the temp router; Settings IconButton on placeholder pages. Outcome: user can override system theme and locale; choices persist across restart.
+4. **Auth-aware router & tests** - Riverpod `StreamProvider` over `supabase.auth.onAuthStateChange`; go_router with `/sign-in` and `/home` placeholder destinations and a `redirect` callback driven by the current session; widget test + redirect-logic test. Outcome: redirect behavior is verified by tests; the contract S-01 plugs into is locked.
 
 ## Critical Implementation Details
 
@@ -114,11 +115,11 @@ lib/
   app/
     app.dart              # MainApp widget - built out in Phase 2
     error_app.dart        # ErrorApp widget - built out in Phase 2
-    router.dart           # go_router config + route path constants - built out in Phase 3
+    router.dart           # go_router config + route path constants - built out in Phase 4
   core/
     supabase/
       supabase_init.dart  # Supabase.initialize wrapper + env reading - built out in Phase 2
-      auth_providers.dart # Riverpod providers over supabase.auth - built out in Phase 3
+      auth_providers.dart # Riverpod providers over supabase.auth - built out in Phase 4
     theme/
       app_theme.dart      # light + dark ColorSchemes - built out in Phase 2
   features/
@@ -151,7 +152,7 @@ For Phase 1, files referenced as "built out later" contain only their import-abl
 
 **File**: `test/.gitkeep`
 
-**Intent**: Stake the `test/` directory now so Phase 3's tests land in an expected location. A `.gitkeep` is enough.
+**Intent**: Stake the `test/` directory now so Phase 4's tests land in an expected location. A `.gitkeep` is enough.
 
 **Contract**: Empty file at `test/.gitkeep`.
 
@@ -237,7 +238,7 @@ Turn the empty scaffold into a bootable app. Wire `Supabase.initialize` with a c
 - Top-level `void main() async` body:
   1. `WidgetsFlutterBinding.ensureInitialized()`
   2. `try { await initializeSupabase(); } on SupabaseEnvException catch (e) { runApp(ErrorApp(message: e.message)); return; }`
-  3. Build the `GoRouter` (the Phase 3 deliverable; for the Phase 2 milestone, a temporary one-route router pointing at `SignInPage` is fine - replaced when Phase 3 lands).
+  3. Build the `GoRouter` (the Phase 4 deliverable; for the Phase 2 milestone, a temporary one-route router pointing at `SignInPage` is fine - replaced when Phase 4 lands).
   4. `runApp(ProviderScope(child: MainApp(router: …)));`
 
 #### 6. Placeholder page bodies render localized strings
@@ -256,7 +257,7 @@ Turn the empty scaffold into a bootable app. Wire `Supabase.initialize` with a c
 
 - `flutter analyze` exits 0.
 - `flutter build linux --dart-define=SUPABASE_URL=https://example.supabase.co --dart-define=SUPABASE_PUBLISHABLE_KEY=dummy` succeeds (dummy values are fine because Supabase.initialize doesn't network-validate until the first call).
-- `flutter test` still exits 0 (zero tests, or the one-liner smoke test if added early - Phase 3 owns the test set).
+- `flutter test` still exits 0 (zero tests, or the one-liner smoke test if added early - Phase 4 owns the test set).
 
 #### Manual Verification
 
@@ -270,7 +271,113 @@ Turn the empty scaffold into a bootable app. Wire `Supabase.initialize` with a c
 
 ---
 
-## Phase 3: Auth-aware router & tests
+## Phase 3: Settings dialog with theme and locale override
+
+### Overview
+
+Add a Settings dialog exposing two user-controllable preferences: theme mode (system / light / dark) and locale (device / English / Polish). Values persist across restart via `shared_preferences` and override the OS defaults that earlier phases follow. Each placeholder page (`SignInPage`, `HomePage`) gets a Settings AppBar `IconButton` that opens the dialog via showDialog. This phase was added mid-implementation after Phase 2 manual verification - the original plan deferred the locale picker to S-09, but the user opted to pull both toggles forward into F-01 so every later slice can rely on them existing. S-09 still owns credential rotation; it just adds rows to a settings dialog that already exists.
+
+### Changes Required
+
+#### 1. pubspec.yaml: shared_preferences dependency
+
+**File**: `pubspec.yaml`
+
+**Intent**: Add `shared_preferences` so theme and locale choices persist across restart.
+
+**Contract**: `dependencies` adds `shared_preferences` (latest stable). Resolve via `flutter pub add shared_preferences`.
+
+#### 2. ARB files: nine new keys
+
+**File**: `lib/l10n/app_en.arb` and `lib/l10n/app_pl.arb`
+
+**Intent**: Add the strings the Settings page renders. Template (`app_en.arb`) gets `@`-annotations; the Polish file just carries translations.
+
+**Contract** - keys to add to both files:
+
+- `settingsTitle` -> "Settings" / "Ustawienia"
+- `themeLabel` -> "Theme" / "Motyw"
+- `themeSystem` -> "Follow system" / "Zgodnie z systemem"
+- `themeLight` -> "Light" / "Jasny"
+- `themeDark` -> "Dark" / "Ciemny"
+- `localeLabel` -> "Language" / "Język"
+- `localeSystem` -> "Device default" / "Domyślny dla urządzenia"
+- `localeEnglish` -> "English" / "Angielski"
+- `localePolish` -> "Polish" / "Polski"
+- `close` -> "Close" / "Zamknij"
+
+#### 3. SharedPreferences + Riverpod providers
+
+**File**: `lib/core/preferences/preferences_providers.dart` (new)
+
+**Intent**: Three providers backing the theme and locale state. `sharedPreferencesProvider` is overridden at the `ProviderScope` root with a real `SharedPreferences` instance fetched before `runApp`. `themeModeProvider` and `localeProvider` are `NotifierProvider`s whose `build()` reads the initial value from prefs and whose `set(...)` persists on every update.
+
+**Contract**:
+- `sharedPreferencesProvider` - `Provider<SharedPreferences>` that throws `UnimplementedError` by default; must be overridden in `main()`.
+- `ThemeModeNotifier` extends `Notifier<ThemeMode>`. Persists to key `'theme_mode'` with values `'system' | 'light' | 'dark'`. `set(ThemeMode mode)` writes both state and prefs.
+- `LocaleNotifier` extends `Notifier<Locale?>`. Persists to key `'locale'` with values `'en' | 'pl'` or absent (null = device locale). `set(Locale? locale)` writes state and prefs (clears the key on null).
+- `themeModeProvider` and `localeProvider` expose the notifiers.
+
+#### 4. lib/app/app.dart: read providers in MainApp
+
+**File**: `lib/app/app.dart`
+
+**Intent**: Convert `MainApp` from `StatelessWidget` to `ConsumerWidget`. Watch `themeModeProvider` and `localeProvider`; pass to `MaterialApp.router`. When the locale provider is non-null, force `MaterialApp`'s `locale` parameter; otherwise leave it unset so the OS locale wins.
+
+**Contract**: `build(BuildContext context, WidgetRef ref)` watches the two providers. `MaterialApp.router` adds `themeMode: <watched>` and `locale: <watched-or-null>`. Other wires (theme, darkTheme, localizationsDelegates, supportedLocales, onGenerateTitle) unchanged.
+
+#### 5. lib/main.dart: SharedPreferences bootstrap
+
+**File**: `lib/main.dart`
+
+**Intent**: After `initializeSupabase` succeeds, fetch `SharedPreferences.getInstance()` and pass it as a `sharedPreferencesProvider` override to `ProviderScope`.
+
+**Contract**: One additional `final prefs = await SharedPreferences.getInstance();` after `initializeSupabase`. The `ProviderScope` becomes `ProviderScope(overrides: [sharedPreferencesProvider.overrideWithValue(prefs)], child: MainApp(router: router))`.
+
+#### 6. lib/features/settings/presentation/settings_dialog.dart
+
+**File**: `lib/features/settings/presentation/settings_dialog.dart` (new)
+
+**Intent**: A `ConsumerWidget` returning an `AlertDialog` with two `RadioListTile<T>` groups, one for theme and one for locale. Selecting a tile calls the corresponding notifier's `set(...)`. A Close button in the dialog actions calls `Navigator.of(context).pop()`.
+
+**Contract**:
+- `SettingsDialog` extends `ConsumerWidget`.
+- Returns `AlertDialog` with title `AppLocalizations.of(context)!.settingsTitle`.
+- Content: `SingleChildScrollView` wrapping a `Column(mainAxisSize: MainAxisSize.min)` with two sections separated by a `Divider`. Section 1: theme group (system, light, dark). Section 2: locale group (system, en, pl).
+- Actions: one `TextButton` labeled `AppLocalizations.of(context)!.close` that calls `Navigator.of(context).pop()`.
+- Each radio tile: `value`, `groupValue: <watched>`, `onChanged: (v) => ref.read(provider.notifier).set(v)`, `title: <localized label>`.
+
+#### 7. Settings IconButton on placeholder pages
+
+**File**: `lib/features/auth/presentation/sign_in_page.dart` and `lib/features/home/presentation/home_page.dart`
+
+**Intent**: Add an `IconButton(icon: Icon(Icons.settings))` in `AppBar.actions` that opens the Settings dialog. Same affordance on both pages so the user can reach Settings whether signed in or out.
+
+**Contract**: Each page's `Scaffold.appBar` gets `actions: [IconButton(icon: Icon(Icons.settings), onPressed: () => showDialog<void>(context: context, builder: (_) => const SettingsDialog()))]`. Imports: remove `package:go_router/go_router.dart`; add relative import `../../settings/presentation/settings_dialog.dart` to both files.
+
+### Success Criteria
+
+#### Automated Verification
+
+- `flutter analyze` exits 0.
+- `flutter build linux --dart-define=SUPABASE_URL=https://example.supabase.co --dart-define=SUPABASE_PUBLISHABLE_KEY=dummy` succeeds.
+- `flutter test` exits 0.
+
+#### Manual Verification
+
+- Tap the Settings IconButton on a placeholder page; the Settings page opens with both groups visible.
+- Toggle theme to "Dark"; the app theme flips immediately. Restart; the dark theme persists.
+- Toggle theme to "Light"; the theme flips and persists.
+- Toggle theme back to "Follow system"; the theme follows the OS again.
+- On an English OS, toggle locale to "Polish"; strings flip to Polish immediately without restart. Restart; Polish persists.
+- Toggle locale back to "Device default"; strings revert to the OS-detected locale.
+- Equivalent behavior on Android.
+
+**Implementation Note**: After completing this phase and all automated verification passes, pause for manual confirmation before proceeding to Phase 4.
+
+---
+
+## Phase 4: Auth-aware router & tests
 
 ### Overview
 
@@ -360,7 +467,7 @@ Replace the temporary Phase 2 router with the real go_router config: a session-d
 
 ### Unit / widget tests in this change
 
-- **`test/app/router_test.dart`** - two tests as detailed in Phase 3: cold-boot routing and redirect-on-session.
+- **`test/app/router_test.dart`** - two tests as detailed in Phase 4: cold-boot routing and redirect-on-session.
 
 ### Integration tests
 
@@ -401,44 +508,62 @@ No data migration. The Supabase schema already exists in `landing/supabase/migra
 
 #### Automated
 
-- [x] 1.1 `flutter pub get` succeeds with the new deps
-- [x] 1.2 `lib/l10n/app_localizations.dart` is generated and present after `flutter pub get`
-- [x] 1.3 `flutter analyze` exits 0 with no warnings or info-level lints
-- [x] 1.4 `flutter test` exits 0
+- [x] 1.1 `flutter pub get` succeeds with the new deps - 1d89672
+- [x] 1.2 `lib/l10n/app_localizations.dart` is generated and present after `flutter pub get` - 1d89672
+- [x] 1.3 `flutter analyze` exits 0 with no warnings or info-level lints - 1d89672
+- [x] 1.4 `flutter test` exits 0 - 1d89672
 
 #### Manual
 
-- [x] 1.5 `lib/` directory matches the planned layout exactly
-- [x] 1.6 `env.json.example` exists at repo root and is not in `.gitignore`
-- [x] 1.7 `pubspec.yaml` shows `flutter.generate: true`
-- [x] 1.8 Both ARB files render valid JSON with matching key sets
+- [x] 1.5 `lib/` directory matches the planned layout exactly - 1d89672
+- [x] 1.6 `env.json.example` exists at repo root and is not in `.gitignore` - 1d89672
+- [x] 1.7 `pubspec.yaml` shows `flutter.generate: true` - 1d89672
+- [x] 1.8 Both ARB files render valid JSON with matching key sets - 1d89672
 
 ### Phase 2: App initialization & visual baseline
 
 #### Automated
 
-- [ ] 2.1 `flutter analyze` exits 0
-- [ ] 2.2 `flutter build linux --dart-define=…` succeeds with dummy env values
-- [ ] 2.3 `flutter test` exits 0
+- [x] 2.1 `flutter analyze` exits 0
+- [x] 2.2 `flutter build linux --dart-define=…` succeeds with dummy env values
+- [x] 2.3 `flutter test` exits 0
 
 #### Manual
 
-- [ ] 2.4 `flutter run -d linux --dart-define-from-file=env.json` boots into the placeholder sign-in page with localized title
-- [ ] 2.5 OS language switch (en ⇄ pl) changes visible strings on next launch
-- [ ] 2.6 OS theme switch (light ⇄ dark) changes visible colors on next launch
-- [ ] 2.7 Removing a `--dart-define` triggers `ErrorApp` with actionable message
-- [ ] 2.8 `flutter run -d <android-device>` produces equivalent result on Android
+- [x] 2.4 `flutter run -d linux --dart-define-from-file=env.json` boots into the placeholder sign-in page with localized title
+- [x] 2.5 OS language switch (en ⇄ pl) changes visible strings on next launch
+- [x] 2.6 OS theme switch (light ⇄ dark) changes visible colors on next launch
+- [x] 2.7 Removing a `--dart-define` triggers `ErrorApp` with actionable message
+- [x] 2.8 `flutter run -d <android-device>` produces equivalent result on Android
 
-### Phase 3: Auth-aware router & tests
+### Phase 3: Settings screen with theme and locale override
 
 #### Automated
 
-- [ ] 3.1 `flutter analyze` exits 0
-- [ ] 3.2 `flutter test test/app/router_test.dart` passes both tests
-- [ ] 3.3 `flutter test` (full suite) exits 0
+- [x] 3.1 `flutter analyze` exits 0
+- [x] 3.2 `flutter build linux --dart-define=…` succeeds with dummy env values
+- [x] 3.3 `flutter test` exits 0
 
 #### Manual
 
-- [ ] 3.4 `flutter run -d linux` boots into `SignInPage` on a session-less launch
-- [ ] 3.5 Ad-hoc forced sign-in causes redirect to `HomePage` within one frame
-- [ ] 3.6 `flutter run -d <android-device>` produces equivalent behavior on Android
+- [x] 3.4 Settings IconButton on placeholder page opens the Settings dialog
+- [x] 3.5 Theme toggle to Dark applies immediately and persists across restart
+- [x] 3.6 Theme toggle to Light applies immediately and persists across restart
+- [x] 3.7 Theme toggle back to Auto follows the OS again
+- [x] 3.8 Locale toggle to Polish flips strings immediately without restart and persists
+- [x] 3.9 Locale toggle back to Auto reverts to OS-detected locale
+- [x] 3.10 Equivalent behavior on Android
+
+### Phase 4: Auth-aware router & tests
+
+#### Automated
+
+- [ ] 4.1 `flutter analyze` exits 0
+- [ ] 4.2 `flutter test test/app/router_test.dart` passes both tests
+- [ ] 4.3 `flutter test` (full suite) exits 0
+
+#### Manual
+
+- [ ] 4.4 `flutter run -d linux` boots into `SignInPage` on a session-less launch
+- [ ] 4.5 Ad-hoc forced sign-in causes redirect to `HomePage` within one frame
+- [ ] 4.6 `flutter run -d <android-device>` produces equivalent behavior on Android

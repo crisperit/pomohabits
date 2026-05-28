@@ -14,4 +14,34 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get signInPlaceholder =>
       'Ekran logowania nie jest jeszcze zbudowany (S-01)';
+
+  @override
+  String get settingsTitle => 'Ustawienia';
+
+  @override
+  String get themeLabel => 'Motyw';
+
+  @override
+  String get themeSystem => 'Auto';
+
+  @override
+  String get themeLight => 'Jasny';
+
+  @override
+  String get themeDark => 'Ciemny';
+
+  @override
+  String get localeLabel => 'Język';
+
+  @override
+  String get localeSystem => 'Auto';
+
+  @override
+  String get localeEnglish => 'Angielski';
+
+  @override
+  String get localePolish => 'Polski';
+
+  @override
+  String get close => 'Zamknij';
 }

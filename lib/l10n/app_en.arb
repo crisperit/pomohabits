@@ -7,5 +7,45 @@
   "signInPlaceholder": "Sign-in screen is not built yet (S-01)",
   "@signInPlaceholder": {
     "description": "Placeholder body text on the sign-in page during F-01"
+  },
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "Title of the Settings page"
+  },
+  "themeLabel": "Theme",
+  "@themeLabel": {
+    "description": "Section header for theme selection in Settings"
+  },
+  "themeSystem": "Auto",
+  "@themeSystem": {
+    "description": "Radio option: follow the OS theme"
+  },
+  "themeLight": "Light",
+  "@themeLight": {
+    "description": "Radio option: force light theme"
+  },
+  "themeDark": "Dark",
+  "@themeDark": {
+    "description": "Radio option: force dark theme"
+  },
+  "localeLabel": "Language",
+  "@localeLabel": {
+    "description": "Section header for language selection in Settings"
+  },
+  "localeSystem": "Auto",
+  "@localeSystem": {
+    "description": "Radio option: use the device locale"
+  },
+  "localeEnglish": "English",
+  "@localeEnglish": {
+    "description": "Radio option: force English locale"
+  },
+  "localePolish": "Polish",
+  "@localePolish": {
+    "description": "Radio option: force Polish locale"
+  },
+  "close": "Close",
+  "@close": {
+    "description": "Label for the Close button in the Settings dialog"
   }
 }

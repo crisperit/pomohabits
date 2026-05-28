@@ -109,6 +109,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign-in screen is not built yet (S-01)'**
   String get signInPlaceholder;
+
+  /// Title of the Settings page
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// Section header for theme selection in Settings
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get themeLabel;
+
+  /// Radio option: follow the OS theme
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get themeSystem;
+
+  /// Radio option: force light theme
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// Radio option: force dark theme
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// Section header for language selection in Settings
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get localeLabel;
+
+  /// Radio option: use the device locale
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get localeSystem;
+
+  /// Radio option: force English locale
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get localeEnglish;
+
+  /// Radio option: force Polish locale
+  ///
+  /// In en, this message translates to:
+  /// **'Polish'**
+  String get localePolish;
+
+  /// Label for the Close button in the Settings dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
 }
 
 class _AppLocalizationsDelegate
