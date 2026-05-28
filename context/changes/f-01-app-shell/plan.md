@@ -524,46 +524,46 @@ No data migration. The Supabase schema already exists in `landing/supabase/migra
 
 #### Automated
 
-- [x] 2.1 `flutter analyze` exits 0
-- [x] 2.2 `flutter build linux --dart-define=…` succeeds with dummy env values
-- [x] 2.3 `flutter test` exits 0
+- [x] 2.1 `flutter analyze` exits 0 - 8ef9b39
+- [x] 2.2 `flutter build linux --dart-define=…` succeeds with dummy env values - 8ef9b39
+- [x] 2.3 `flutter test` exits 0 - 8ef9b39
 
 #### Manual
 
-- [x] 2.4 `flutter run -d linux --dart-define-from-file=env.json` boots into the placeholder sign-in page with localized title
-- [x] 2.5 OS language switch (en ⇄ pl) changes visible strings on next launch
-- [x] 2.6 OS theme switch (light ⇄ dark) changes visible colors on next launch
-- [x] 2.7 Removing a `--dart-define` triggers `ErrorApp` with actionable message
-- [x] 2.8 `flutter run -d <android-device>` produces equivalent result on Android
+- [x] 2.4 `flutter run -d linux --dart-define-from-file=env.json` boots into the placeholder sign-in page with localized title - 8ef9b39
+- [x] 2.5 OS language switch (en ⇄ pl) changes visible strings on next launch - 8ef9b39
+- [x] 2.6 OS theme switch (light ⇄ dark) changes visible colors on next launch - 8ef9b39
+- [x] 2.7 Removing a `--dart-define` triggers `ErrorApp` with actionable message - 8ef9b39
+- [x] 2.8 `flutter run -d <android-device>` produces equivalent result on Android - 8ef9b39
 
 ### Phase 3: Settings screen with theme and locale override
 
 #### Automated
 
-- [x] 3.1 `flutter analyze` exits 0
-- [x] 3.2 `flutter build linux --dart-define=…` succeeds with dummy env values
-- [x] 3.3 `flutter test` exits 0
+- [x] 3.1 `flutter analyze` exits 0 - 8ef9b39
+- [x] 3.2 `flutter build linux --dart-define=…` succeeds with dummy env values - 8ef9b39
+- [x] 3.3 `flutter test` exits 0 - 8ef9b39
 
 #### Manual
 
-- [x] 3.4 Settings IconButton on placeholder page opens the Settings dialog
-- [x] 3.5 Theme toggle to Dark applies immediately and persists across restart
-- [x] 3.6 Theme toggle to Light applies immediately and persists across restart
-- [x] 3.7 Theme toggle back to Auto follows the OS again
-- [x] 3.8 Locale toggle to Polish flips strings immediately without restart and persists
-- [x] 3.9 Locale toggle back to Auto reverts to OS-detected locale
-- [x] 3.10 Equivalent behavior on Android
+- [x] 3.4 Settings IconButton on placeholder page opens the Settings dialog - 8ef9b39
+- [x] 3.5 Theme toggle to Dark applies immediately and persists across restart - 8ef9b39
+- [x] 3.6 Theme toggle to Light applies immediately and persists across restart - 8ef9b39
+- [x] 3.7 Theme toggle back to Auto follows the OS again - 8ef9b39
+- [x] 3.8 Locale toggle to Polish flips strings immediately without restart and persists - 8ef9b39
+- [x] 3.9 Locale toggle back to Auto reverts to OS-detected locale - 8ef9b39
+- [x] 3.10 Equivalent behavior on Android - 8ef9b39
 
 ### Phase 4: Auth-aware router & tests
 
 #### Automated
 
-- [ ] 4.1 `flutter analyze` exits 0
-- [ ] 4.2 `flutter test test/app/router_test.dart` passes both tests
-- [ ] 4.3 `flutter test` (full suite) exits 0
+- [x] 4.1 `flutter analyze` exits 0
+- [x] 4.2 `flutter test test/app/router_test.dart` passes both tests
+- [x] 4.3 `flutter test` (full suite) exits 0
 
 #### Manual
 
-- [ ] 4.4 `flutter run -d linux` boots into `SignInPage` on a session-less launch
-- [ ] 4.5 Ad-hoc forced sign-in causes redirect to `HomePage` within one frame
-- [ ] 4.6 `flutter run -d <android-device>` produces equivalent behavior on Android
+- [x] 4.4 `flutter run -d linux` boots into `SignInPage` on a session-less launch
+- [x] 4.5 Ad-hoc forced sign-in causes redirect to `HomePage` within one frame
+- [x] 4.6 `flutter run -d <android-device>` produces equivalent behavior on Android
