@@ -13,3 +13,4 @@ linter:
     - prefer_typing_uninitialized_variables
     - prefer_relative_imports
     - prefer_single_quotes
+    - unawaited_futures

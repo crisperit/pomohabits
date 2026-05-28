@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -28,7 +30,7 @@ class SettingsDialog extends ConsumerWidget {
                 DropdownMenuEntry(value: ThemeMode.dark, label: l10n.themeDark),
               ],
               onSelected: (v) {
-                if (v != null) ref.read(themeModeProvider.notifier).set(v);
+                if (v != null) unawaited(ref.read(themeModeProvider.notifier).set(v));
               },
             ),
             const SizedBox(height: 16),
@@ -41,7 +43,7 @@ class SettingsDialog extends ConsumerWidget {
                 DropdownMenuEntry<Locale?>(value: const Locale('en'), label: l10n.localeEnglish),
                 DropdownMenuEntry<Locale?>(value: const Locale('pl'), label: l10n.localePolish),
               ],
-              onSelected: (v) => ref.read(localeProvider.notifier).set(v),
+              onSelected: (v) => unawaited(ref.read(localeProvider.notifier).set(v)),
             ),
           ],
         ),

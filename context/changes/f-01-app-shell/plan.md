@@ -567,3 +567,9 @@ No data migration. The Supabase schema already exists in `landing/supabase/migra
 - [x] 4.4 `flutter run -d linux` boots into `SignInPage` on a session-less launch - a33f925
 - [x] 4.5 Ad-hoc forced sign-in causes redirect to `HomePage` within one frame - a33f925
 - [x] 4.6 `flutter run -d <android-device>` produces equivalent behavior on Android - a33f925
+
+## Addenda
+
+- 2026-05-28: Phase 3 SettingsDialog ships with two `DropdownMenu<T>` controls instead of the contracted `RadioListTile<T>` groups (separator is a `SizedBox` rather than a `Divider`). Functionally equivalent, signed off in manual verification 3.4 to 3.9. Future Settings work should match the dropdown pattern unless explicitly revisited.
+- 2026-05-28: `themeSystem` and `localeSystem` ARB keys in both `app_en.arb` and `app_pl.arb` ship the value "Auto" instead of the contracted "Follow system"/"Zgodnie z systemem" (theme) and "Device default"/"Domyślny dla urządzenia" (locale). Intentional UX simplification, consistent across the dialog. Future translation work should preserve "Auto" unless explicitly revisited.
+- 2026-05-28: The plan's Critical Implementation Details point about `synthetic-package: false` in `l10n.yaml` is stale on Flutter 3.27+. The directive is deprecated and `flutter pub get` emits a deprecation warning if it is present. Real generated files at `lib/l10n/app_localizations*.dart` are emitted by default, which is what the plan wanted; the explicit directive is no longer needed. Future plans should not reference this directive.
