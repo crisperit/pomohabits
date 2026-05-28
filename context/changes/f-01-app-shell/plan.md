@@ -558,12 +558,12 @@ No data migration. The Supabase schema already exists in `landing/supabase/migra
 
 #### Automated
 
-- [x] 4.1 `flutter analyze` exits 0
-- [x] 4.2 `flutter test test/app/router_test.dart` passes both tests
-- [x] 4.3 `flutter test` (full suite) exits 0
+- [x] 4.1 `flutter analyze` exits 0 - a33f925
+- [x] 4.2 `flutter test test/app/router_test.dart` passes both tests - a33f925
+- [x] 4.3 `flutter test` (full suite) exits 0 - a33f925
 
 #### Manual
 
-- [x] 4.4 `flutter run -d linux` boots into `SignInPage` on a session-less launch
-- [x] 4.5 Ad-hoc forced sign-in causes redirect to `HomePage` within one frame
-- [x] 4.6 `flutter run -d <android-device>` produces equivalent behavior on Android
+- [x] 4.4 `flutter run -d linux` boots into `SignInPage` on a session-less launch - a33f925
+- [x] 4.5 Ad-hoc forced sign-in causes redirect to `HomePage` within one frame - a33f925
+- [x] 4.6 `flutter run -d <android-device>` produces equivalent behavior on Android - a33f925
