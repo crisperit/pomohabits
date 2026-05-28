@@ -14,13 +14,9 @@
 .zprofile
 .zshrc
 
-# Claude Code machine-local settings.
-.claude/settings.local.json
-
-# Sandbox-masked entries inside .claude/ (same char-device shim pattern).
-.claude/agents
-.claude/commands
-.claude/settings.json
+# Claude Code: ignore the entire directory and CLAUDE.md guidance files.
+.claude/
+CLAUDE.md
 
 # --- appended by 10x-bootstrapper from flutter scaffold ---
 # Miscellaneous
