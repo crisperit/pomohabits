@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:taskodoro/app/app.dart';
 import 'package:taskodoro/app/router.dart';
 import 'package:taskodoro/core/preferences/preferences_providers.dart';
+import 'package:taskodoro/core/supabase/auth_providers.dart';
 import 'package:taskodoro/features/auth/presentation/sign_in_page.dart';
 import 'package:taskodoro/features/home/presentation/home_page.dart';
 
@@ -29,7 +30,10 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+        overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
+          supabaseClientProvider.overrideWith((ref) => _StubClient()),
+        ],
         child: MainApp(router: router),
       ),
     );
@@ -53,7 +57,10 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+        overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
+          supabaseClientProvider.overrideWith((ref) => _StubClient()),
+        ],
         child: MainApp(router: router),
       ),
     );
@@ -82,4 +89,28 @@ class _FakeSession extends Session {
             createdAt: '2024-01-01T00:00:00.000Z',
           ),
         );
+}
+
+// ---------------------------------------------------------------------------
+// Minimal stubs to satisfy supabaseClientProvider without Supabase.initialize.
+// Mirrors the pattern from test/core/supabase/auth_providers_test.dart.
+// ---------------------------------------------------------------------------
+
+class _StubClient implements SupabaseClient {
+  @override
+  GoTrueClient get auth => _StubAuth();
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _StubAuth implements GoTrueClient {
+  @override
+  Session? get currentSession => null;
+
+  @override
+  Stream<AuthState> get onAuthStateChange => const Stream.empty();
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
