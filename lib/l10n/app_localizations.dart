@@ -224,6 +224,12 @@ abstract class AppLocalizations {
   /// **'Resend email'**
   String get authResendButton;
 
+  /// Link text to return from the awaiting-confirmation screen to sign-in mode
+  ///
+  /// In en, this message translates to:
+  /// **'Back to sign in'**
+  String get authBackToSignIn;
+
   /// Title shown on the awaiting-confirmation screen
   ///
   /// In en, this message translates to:
@@ -271,6 +277,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Passwords do not match.'**
   String get authErrorPasswordMismatch;
+
+  /// Fallback error message shown when a non-AuthException error occurs during auth
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get authErrorUnexpected;
 
   /// Greeting shown on the home screen with the user's name
   ///

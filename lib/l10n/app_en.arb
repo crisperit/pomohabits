@@ -84,6 +84,10 @@
   "@authResendButton": {
     "description": "Label for the resend confirmation email button"
   },
+  "authBackToSignIn": "Back to sign in",
+  "@authBackToSignIn": {
+    "description": "Link text to return from the awaiting-confirmation screen to sign-in mode"
+  },
   "authCheckEmailTitle": "Check your email",
   "@authCheckEmailTitle": {
     "description": "Title shown on the awaiting-confirmation screen"
@@ -120,6 +124,10 @@
   "authErrorPasswordMismatch": "Passwords do not match.",
   "@authErrorPasswordMismatch": {
     "description": "Validation error when the confirm-password field does not match the password"
+  },
+  "authErrorUnexpected": "Something went wrong. Please try again.",
+  "@authErrorUnexpected": {
+    "description": "Fallback error message shown when a non-AuthException error occurs during auth"
   },
   "homeGreeting": "Hello, {name}",
   "@homeGreeting": {

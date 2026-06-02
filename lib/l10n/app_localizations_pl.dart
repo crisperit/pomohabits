@@ -72,6 +72,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get authResendButton => 'Wyślij ponownie';
 
   @override
+  String get authBackToSignIn => 'Wróć do logowania';
+
+  @override
   String get authCheckEmailTitle => 'Sprawdź skrzynkę';
 
   @override
@@ -98,6 +101,9 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get authErrorPasswordMismatch => 'Hasła nie są takie same.';
+
+  @override
+  String get authErrorUnexpected => 'Coś poszło nie tak. Spróbuj ponownie.';
 
   @override
   String homeGreeting(String name) {
