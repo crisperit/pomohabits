@@ -4,10 +4,6 @@
   "@appTitle": {
     "description": "Application name shown in the app bar"
   },
-  "signInPlaceholder": "Sign-in screen is not built yet (S-01)",
-  "@signInPlaceholder": {
-    "description": "Placeholder body text on the sign-in page during F-01"
-  },
   "settingsTitle": "Settings",
   "@settingsTitle": {
     "description": "Title of the Settings page"
@@ -47,5 +43,91 @@
   "close": "Close",
   "@close": {
     "description": "Label for the Close button in the Settings dialog"
+  },
+  "authNameLabel": "Name",
+  "@authNameLabel": {
+    "description": "Label for the name field on the sign-up form"
+  },
+  "authEmailLabel": "Email",
+  "@authEmailLabel": {
+    "description": "Label for the email field on the auth form"
+  },
+  "authPasswordLabel": "Password",
+  "@authPasswordLabel": {
+    "description": "Label for the password field on the auth form"
+  },
+  "authConfirmPasswordLabel": "Confirm password",
+  "@authConfirmPasswordLabel": {
+    "description": "Label for the confirm-password field on the sign-up form"
+  },
+  "authSignInButton": "Sign in",
+  "@authSignInButton": {
+    "description": "Label for the sign-in submit button"
+  },
+  "authSignUpButton": "Sign up",
+  "@authSignUpButton": {
+    "description": "Label for the sign-up submit button"
+  },
+  "authToggleToSignUp": "Need an account? Sign up",
+  "@authToggleToSignUp": {
+    "description": "Link text to switch from sign-in mode to sign-up mode"
+  },
+  "authToggleToSignIn": "Already have an account? Sign in",
+  "@authToggleToSignIn": {
+    "description": "Link text to switch from sign-up mode to sign-in mode"
+  },
+  "authSignOut": "Sign out",
+  "@authSignOut": {
+    "description": "Label for the sign-out action"
+  },
+  "authResendButton": "Resend email",
+  "@authResendButton": {
+    "description": "Label for the resend confirmation email button"
+  },
+  "authCheckEmailTitle": "Check your email",
+  "@authCheckEmailTitle": {
+    "description": "Title shown on the awaiting-confirmation screen"
+  },
+  "authCheckEmailBody": "We sent a confirmation link to {email}. Open it to finish signing up.",
+  "@authCheckEmailBody": {
+    "description": "Body text shown on the awaiting-confirmation screen",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "authResendSuccess": "Confirmation email sent again.",
+  "@authResendSuccess": {
+    "description": "Feedback shown after successfully resending the confirmation email"
+  },
+  "authErrorNameRequired": "Please enter your name.",
+  "@authErrorNameRequired": {
+    "description": "Validation error when the name field is empty"
+  },
+  "authErrorEmailRequired": "Please enter your email.",
+  "@authErrorEmailRequired": {
+    "description": "Validation error when the email field is empty"
+  },
+  "authErrorEmailInvalid": "Please enter a valid email.",
+  "@authErrorEmailInvalid": {
+    "description": "Validation error when the email field contains an invalid address"
+  },
+  "authErrorPasswordTooShort": "Password must be at least 6 characters.",
+  "@authErrorPasswordTooShort": {
+    "description": "Validation error when the password is shorter than 6 characters"
+  },
+  "authErrorPasswordMismatch": "Passwords do not match.",
+  "@authErrorPasswordMismatch": {
+    "description": "Validation error when the confirm-password field does not match the password"
+  },
+  "homeGreeting": "Hello, {name}",
+  "@homeGreeting": {
+    "description": "Greeting shown on the home screen with the user's name",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

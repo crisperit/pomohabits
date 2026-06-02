@@ -104,12 +104,6 @@ abstract class AppLocalizations {
   /// **'Taskodoro'**
   String get appTitle;
 
-  /// Placeholder body text on the sign-in page during F-01
-  ///
-  /// In en, this message translates to:
-  /// **'Sign-in screen is not built yet (S-01)'**
-  String get signInPlaceholder;
-
   /// Title of the Settings page
   ///
   /// In en, this message translates to:
@@ -169,6 +163,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get close;
+
+  /// Label for the name field on the sign-up form
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get authNameLabel;
+
+  /// Label for the email field on the auth form
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get authEmailLabel;
+
+  /// Label for the password field on the auth form
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get authPasswordLabel;
+
+  /// Label for the confirm-password field on the sign-up form
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get authConfirmPasswordLabel;
+
+  /// Label for the sign-in submit button
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get authSignInButton;
+
+  /// Label for the sign-up submit button
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up'**
+  String get authSignUpButton;
+
+  /// Link text to switch from sign-in mode to sign-up mode
+  ///
+  /// In en, this message translates to:
+  /// **'Need an account? Sign up'**
+  String get authToggleToSignUp;
+
+  /// Link text to switch from sign-up mode to sign-in mode
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? Sign in'**
+  String get authToggleToSignIn;
+
+  /// Label for the sign-out action
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get authSignOut;
+
+  /// Label for the resend confirmation email button
+  ///
+  /// In en, this message translates to:
+  /// **'Resend email'**
+  String get authResendButton;
+
+  /// Title shown on the awaiting-confirmation screen
+  ///
+  /// In en, this message translates to:
+  /// **'Check your email'**
+  String get authCheckEmailTitle;
+
+  /// Body text shown on the awaiting-confirmation screen
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a confirmation link to {email}. Open it to finish signing up.'**
+  String authCheckEmailBody(String email);
+
+  /// Feedback shown after successfully resending the confirmation email
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmation email sent again.'**
+  String get authResendSuccess;
+
+  /// Validation error when the name field is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your name.'**
+  String get authErrorNameRequired;
+
+  /// Validation error when the email field is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your email.'**
+  String get authErrorEmailRequired;
+
+  /// Validation error when the email field contains an invalid address
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email.'**
+  String get authErrorEmailInvalid;
+
+  /// Validation error when the password is shorter than 6 characters
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters.'**
+  String get authErrorPasswordTooShort;
+
+  /// Validation error when the confirm-password field does not match the password
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match.'**
+  String get authErrorPasswordMismatch;
+
+  /// Greeting shown on the home screen with the user's name
+  ///
+  /// In en, this message translates to:
+  /// **'Hello, {name}'**
+  String homeGreeting(String name);
 }
 
 class _AppLocalizationsDelegate

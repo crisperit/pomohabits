@@ -20,7 +20,7 @@ class SignInPage extends StatelessWidget {
           ),
         ],
       ),
-      body: Center(child: Text(AppLocalizations.of(context)!.signInPlaceholder)),
+      body: const Center(),
     );
   }
 }

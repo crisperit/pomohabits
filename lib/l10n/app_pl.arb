@@ -1,7 +1,6 @@
 {
   "@@locale": "pl",
   "appTitle": "Taskodoro",
-  "signInPlaceholder": "Ekran logowania nie jest jeszcze zbudowany (S-01)",
   "settingsTitle": "Ustawienia",
   "themeLabel": "Motyw",
   "themeSystem": "Auto",
@@ -11,5 +10,24 @@
   "localeSystem": "Auto",
   "localeEnglish": "Angielski",
   "localePolish": "Polski",
-  "close": "Zamknij"
+  "close": "Zamknij",
+  "authNameLabel": "Imię",
+  "authEmailLabel": "Email",
+  "authPasswordLabel": "Hasło",
+  "authConfirmPasswordLabel": "Potwierdź hasło",
+  "authSignInButton": "Zaloguj się",
+  "authSignUpButton": "Zarejestruj się",
+  "authToggleToSignUp": "Nie masz konta? Zarejestruj się",
+  "authToggleToSignIn": "Masz już konto? Zaloguj się",
+  "authSignOut": "Wyloguj się",
+  "authResendButton": "Wyślij ponownie",
+  "authCheckEmailTitle": "Sprawdź skrzynkę",
+  "authCheckEmailBody": "Wysłaliśmy link potwierdzający na adres {email}. Otwórz go, aby dokończyć rejestrację.",
+  "authResendSuccess": "Email potwierdzający został wysłany ponownie.",
+  "authErrorNameRequired": "Podaj swoje imię.",
+  "authErrorEmailRequired": "Podaj swój email.",
+  "authErrorEmailInvalid": "Podaj prawidłowy email.",
+  "authErrorPasswordTooShort": "Hasło musi mieć co najmniej 6 znaków.",
+  "authErrorPasswordMismatch": "Hasła nie są takie same.",
+  "homeGreeting": "Cześć, {name}"
 }

@@ -12,10 +12,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get appTitle => 'Taskodoro';
 
   @override
-  String get signInPlaceholder =>
-      'Ekran logowania nie jest jeszcze zbudowany (S-01)';
-
-  @override
   String get settingsTitle => 'Ustawienia';
 
   @override
@@ -44,4 +40,67 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get close => 'Zamknij';
+
+  @override
+  String get authNameLabel => 'Imię';
+
+  @override
+  String get authEmailLabel => 'Email';
+
+  @override
+  String get authPasswordLabel => 'Hasło';
+
+  @override
+  String get authConfirmPasswordLabel => 'Potwierdź hasło';
+
+  @override
+  String get authSignInButton => 'Zaloguj się';
+
+  @override
+  String get authSignUpButton => 'Zarejestruj się';
+
+  @override
+  String get authToggleToSignUp => 'Nie masz konta? Zarejestruj się';
+
+  @override
+  String get authToggleToSignIn => 'Masz już konto? Zaloguj się';
+
+  @override
+  String get authSignOut => 'Wyloguj się';
+
+  @override
+  String get authResendButton => 'Wyślij ponownie';
+
+  @override
+  String get authCheckEmailTitle => 'Sprawdź skrzynkę';
+
+  @override
+  String authCheckEmailBody(String email) {
+    return 'Wysłaliśmy link potwierdzający na adres $email. Otwórz go, aby dokończyć rejestrację.';
+  }
+
+  @override
+  String get authResendSuccess =>
+      'Email potwierdzający został wysłany ponownie.';
+
+  @override
+  String get authErrorNameRequired => 'Podaj swoje imię.';
+
+  @override
+  String get authErrorEmailRequired => 'Podaj swój email.';
+
+  @override
+  String get authErrorEmailInvalid => 'Podaj prawidłowy email.';
+
+  @override
+  String get authErrorPasswordTooShort =>
+      'Hasło musi mieć co najmniej 6 znaków.';
+
+  @override
+  String get authErrorPasswordMismatch => 'Hasła nie są takie same.';
+
+  @override
+  String homeGreeting(String name) {
+    return 'Cześć, $name';
+  }
 }
