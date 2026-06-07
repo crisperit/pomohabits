@@ -34,6 +34,8 @@ class AuthController extends AsyncNotifier<void> {
     );
   }
 
+  /// Returns null iff the call failed (state ends in AsyncError); otherwise
+  /// returns the [AuthSignUpOutcome] (signedIn or awaitingConfirmation).
   Future<AuthSignUpOutcome?> signUp({
     required String name,
     required String email,

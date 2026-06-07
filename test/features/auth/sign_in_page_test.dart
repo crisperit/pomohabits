@@ -180,6 +180,9 @@ void main() {
 
       expect(find.byKey(const ValueKey('authResendButton')), findsOneWidget);
       expect(find.text('Check your email'), findsOneWidget);
+
+      // Verify the page passed the entered name as full_name metadata.
+      expect(auth.lastSignUpData, containsPair('full_name', 'Test User'));
     });
   });
 }
@@ -216,6 +219,9 @@ class _StubAuth implements GoTrueClient {
   int signInCallCount = 0;
   int signUpCallCount = 0;
 
+  /// Records the `data` map passed to the most recent [signUp] call.
+  Map<String, dynamic>? lastSignUpData;
+
   @override
   Future<AuthResponse> signInWithPassword({
     String? email,
@@ -240,6 +246,7 @@ class _StubAuth implements GoTrueClient {
     OtpChannel channel = OtpChannel.sms,
   }) async {
     signUpCallCount++;
+    lastSignUpData = data;
     return signUpResponse ?? AuthResponse(session: null);
   }
 

@@ -36,6 +36,8 @@ class _SignInPageState extends ConsumerState<SignInPage> {
   }
 
   void _toggleMode() {
+    // Intentionally resets AsyncValue to clear any inline error on mode change.
+    // Safe because the router listens to authStateChangesProvider, not authControllerProvider.
     ref.invalidate(authControllerProvider);
     _formKey.currentState?.reset();
     setState(() {
@@ -44,6 +46,8 @@ class _SignInPageState extends ConsumerState<SignInPage> {
   }
 
   void _goBackToSignIn() {
+    // Intentionally resets AsyncValue to clear any inline error on mode change.
+    // Safe because the router listens to authStateChangesProvider, not authControllerProvider.
     ref.invalidate(authControllerProvider);
     setState(() {
       _mode = _AuthMode.signIn;
@@ -84,8 +88,10 @@ class _SignInPageState extends ConsumerState<SignInPage> {
         .read(authControllerProvider.notifier)
         .resendConfirmation(email: email);
     if (!mounted) return;
-    final state = ref.read(authControllerProvider);
-    if (!state.hasError) {
+    // Failure path: the _ErrorSlot in _AwaitingConfirmationBody surfaces any
+    // error from authControllerProvider automatically; no extra handling needed.
+    final authState = ref.read(authControllerProvider);
+    if (!authState.hasError) {
       final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.authResendSuccess)),
