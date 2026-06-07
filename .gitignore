@@ -67,3 +67,4 @@ app.*.map.json
 
 # Flutter compile-time env vars (copy env.json.example to env.json and fill in values)
 env.json
+env.local.json

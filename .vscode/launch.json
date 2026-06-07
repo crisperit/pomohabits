@@ -12,6 +12,16 @@
       ]
     },
     {
+      "name": "Taskodoro (Linux, LOCAL supabase)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "deviceId": "linux",
+      "args": [
+        "--dart-define-from-file=env.local.json"
+      ]
+    },
+    {
       "name": "Taskodoro (Android, --dart-define-from-file)",
       "request": "launch",
       "type": "dart",
