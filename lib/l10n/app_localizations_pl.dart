@@ -109,4 +109,71 @@ class AppLocalizationsPl extends AppLocalizations {
   String homeGreeting(String name) {
     return 'Cześć, $name';
   }
+
+  @override
+  String get homeTasksTooltip => 'Zadania';
+
+  @override
+  String get tasksTitle => 'Zadania';
+
+  @override
+  String get tasksEmpty => 'Brak zadań.';
+
+  @override
+  String get tasksRefreshTooltip => 'Odśwież';
+
+  @override
+  String get tasksLoadError => 'Nie udało się wczytać zadań.';
+
+  @override
+  String get addTaskTitle => 'Dodaj zadanie';
+
+  @override
+  String get taskNameLabel => 'Nazwa';
+
+  @override
+  String get taskCategoryLabel => 'Kategoria';
+
+  @override
+  String get categoryOneTime => 'Jednorazowe';
+
+  @override
+  String get categoryDaily => 'Codzienne';
+
+  @override
+  String get categoryUnlimited => 'Bez limitu';
+
+  @override
+  String get breakWindowLabel => 'Okno przerwy';
+
+  @override
+  String get breakWindowShort => 'Krótka';
+
+  @override
+  String get breakWindowLong => 'Długa';
+
+  @override
+  String get breakWindowBoth => 'Obie';
+
+  @override
+  String get alwaysShownLabel => 'Zawsze widoczne';
+
+  @override
+  String get addTaskButton => 'Dodaj zadanie';
+
+  @override
+  String get taskAddedSuccess => 'Zadanie dodane.';
+
+  @override
+  String get taskErrorNameRequired => 'Podaj nazwę zadania.';
+
+  @override
+  String get taskErrorNameTooLong => 'Nazwa może mieć maksymalnie 200 znaków.';
+
+  @override
+  String get taskErrorNameDuplicate => 'Zadanie o tej nazwie już istnieje.';
+
+  @override
+  String get taskErrorUnexpected =>
+      'Nie udało się dodać zadania. Spróbuj ponownie.';
 }

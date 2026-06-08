@@ -108,4 +108,70 @@ class AppLocalizationsEn extends AppLocalizations {
   String homeGreeting(String name) {
     return 'Hello, $name';
   }
+
+  @override
+  String get homeTasksTooltip => 'Tasks';
+
+  @override
+  String get tasksTitle => 'Tasks';
+
+  @override
+  String get tasksEmpty => 'No tasks yet.';
+
+  @override
+  String get tasksRefreshTooltip => 'Refresh';
+
+  @override
+  String get tasksLoadError => 'Could not load tasks.';
+
+  @override
+  String get addTaskTitle => 'Add task';
+
+  @override
+  String get taskNameLabel => 'Name';
+
+  @override
+  String get taskCategoryLabel => 'Category';
+
+  @override
+  String get categoryOneTime => 'One-time';
+
+  @override
+  String get categoryDaily => 'Daily';
+
+  @override
+  String get categoryUnlimited => 'Unlimited';
+
+  @override
+  String get breakWindowLabel => 'Break window';
+
+  @override
+  String get breakWindowShort => 'Short';
+
+  @override
+  String get breakWindowLong => 'Long';
+
+  @override
+  String get breakWindowBoth => 'Both';
+
+  @override
+  String get alwaysShownLabel => 'Always shown';
+
+  @override
+  String get addTaskButton => 'Add task';
+
+  @override
+  String get taskAddedSuccess => 'Task added.';
+
+  @override
+  String get taskErrorNameRequired => 'Please enter a task name.';
+
+  @override
+  String get taskErrorNameTooLong => 'Name must be 200 characters or fewer.';
+
+  @override
+  String get taskErrorNameDuplicate => 'A task with this name already exists.';
+
+  @override
+  String get taskErrorUnexpected => 'Could not add the task. Please try again.';
 }

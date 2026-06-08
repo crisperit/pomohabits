@@ -289,6 +289,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hello, {name}'**
   String homeGreeting(String name);
+
+  /// Tooltip for the Tasks icon button on the home screen AppBar
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks'**
+  String get homeTasksTooltip;
+
+  /// Title of the Tasks configuration page
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks'**
+  String get tasksTitle;
+
+  /// Message shown on the Tasks page when the list is empty
+  ///
+  /// In en, this message translates to:
+  /// **'No tasks yet.'**
+  String get tasksEmpty;
+
+  /// Tooltip for the refresh icon button on the Tasks page AppBar
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get tasksRefreshTooltip;
+
+  /// Error message shown on the Tasks page when loading fails
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load tasks.'**
+  String get tasksLoadError;
+
+  /// Title of the Add Task form page
+  ///
+  /// In en, this message translates to:
+  /// **'Add task'**
+  String get addTaskTitle;
+
+  /// Label for the task name text field on the Add Task form
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get taskNameLabel;
+
+  /// Label for the category dropdown on the Add Task form
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get taskCategoryLabel;
+
+  /// Dropdown option for the one-time task category
+  ///
+  /// In en, this message translates to:
+  /// **'One-time'**
+  String get categoryOneTime;
+
+  /// Dropdown option for the daily task category
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
+  String get categoryDaily;
+
+  /// Dropdown option for the unlimited task category
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited'**
+  String get categoryUnlimited;
+
+  /// Label for the break window dropdown on the Add Task form
+  ///
+  /// In en, this message translates to:
+  /// **'Break window'**
+  String get breakWindowLabel;
+
+  /// Dropdown option for the short break window
+  ///
+  /// In en, this message translates to:
+  /// **'Short'**
+  String get breakWindowShort;
+
+  /// Dropdown option for the long break window
+  ///
+  /// In en, this message translates to:
+  /// **'Long'**
+  String get breakWindowLong;
+
+  /// Dropdown option for both break windows
+  ///
+  /// In en, this message translates to:
+  /// **'Both'**
+  String get breakWindowBoth;
+
+  /// Label for the always-shown toggle on the Add Task form
+  ///
+  /// In en, this message translates to:
+  /// **'Always shown'**
+  String get alwaysShownLabel;
+
+  /// Label for the submit button on the Add Task form
+  ///
+  /// In en, this message translates to:
+  /// **'Add task'**
+  String get addTaskButton;
+
+  /// Snackbar message shown after a task is successfully added
+  ///
+  /// In en, this message translates to:
+  /// **'Task added.'**
+  String get taskAddedSuccess;
+
+  /// Validation error when the task name field is empty or whitespace
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a task name.'**
+  String get taskErrorNameRequired;
+
+  /// Validation error when the task name exceeds 200 characters
+  ///
+  /// In en, this message translates to:
+  /// **'Name must be 200 characters or fewer.'**
+  String get taskErrorNameTooLong;
+
+  /// Validation error when the task name matches an existing task (case-insensitive)
+  ///
+  /// In en, this message translates to:
+  /// **'A task with this name already exists.'**
+  String get taskErrorNameDuplicate;
+
+  /// Fallback error message shown when a non-PostgrestException error occurs during task add
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add the task. Please try again.'**
+  String get taskErrorUnexpected;
 }
 
 class _AppLocalizationsDelegate

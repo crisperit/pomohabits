@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../app/router.dart';
 import '../../../core/supabase/auth_providers.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../auth/auth_controller.dart';
@@ -31,6 +35,11 @@ class HomePage extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.appTitle),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.checklist),
+            tooltip: l10n.homeTasksTooltip,
+            onPressed: () => unawaited(context.push(routeTasks)),
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: l10n.authSignOut,

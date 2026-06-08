@@ -6,9 +6,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../features/auth/presentation/sign_in_page.dart';
 import '../features/home/presentation/home_page.dart';
+import '../features/tasks/presentation/add_task_page.dart';
+import '../features/tasks/presentation/tasks_page.dart';
 
 const routeSignIn = '/sign-in';
 const routeHome = '/home';
+const routeTasks = '/tasks';
+const routeAddTask = '/tasks/new';
 
 GoRouter buildRouter({
   Stream<AuthState>? authStateStream,
@@ -32,6 +36,8 @@ GoRouter buildRouter({
     routes: [
       GoRoute(path: routeSignIn, builder: (context, state) => const SignInPage()),
       GoRoute(path: routeHome, builder: (context, state) => const HomePage()),
+      GoRoute(path: routeTasks, builder: (context, state) => const TasksPage()),
+      GoRoute(path: routeAddTask, builder: (context, state) => const AddTaskPage()),
     ],
   );
 }

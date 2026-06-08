@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:taskodoro/app/router.dart';
 import 'package:taskodoro/core/preferences/preferences_providers.dart';
 import 'package:taskodoro/core/supabase/auth_providers.dart';
 import 'package:taskodoro/features/home/presentation/home_page.dart';
@@ -75,6 +77,63 @@ void main() {
       await tester.pump();
 
       expect(auth.signOutCallCount, 1);
+    });
+
+    testWidgets(
+        'Tasks button pushes /tasks so back navigation is possible',
+        (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      final session = _FakeSession(
+        fullName: 'Test User',
+        email: 'test@example.com',
+      );
+      final stub = _StubClient(auth: _StubAuth());
+
+      // Minimal router: /home -> HomePage, /tasks -> probe scaffold.
+      // No redirect guard needed; the test starts directly at /home.
+      final router = GoRouter(
+        initialLocation: routeHome,
+        routes: [
+          GoRoute(
+            path: routeHome,
+            builder: (context, state) => const HomePage(),
+          ),
+          GoRoute(
+            path: routeTasks,
+            builder: (context, state) => Scaffold(
+              appBar: AppBar(),
+              body: const SizedBox(key: ValueKey('tasksProbe')),
+            ),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            currentSessionProvider.overrideWithValue(session),
+            supabaseClientProvider.overrideWith((ref) => stub),
+            sharedPreferencesProvider.overrideWithValue(prefs),
+          ],
+          child: MaterialApp.router(
+            routerConfig: router,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap the Tasks icon button on the home AppBar.
+      await tester.tap(find.widgetWithIcon(IconButton, Icons.checklist));
+      await tester.pumpAndSettle();
+
+      // The probe scaffold is now on screen (push succeeded).
+      expect(find.byKey(const ValueKey('tasksProbe')), findsOneWidget);
+
+      // A back button is present because /tasks was pushed on top of /home.
+      expect(find.byType(BackButton), findsOneWidget);
     });
   });
 }
