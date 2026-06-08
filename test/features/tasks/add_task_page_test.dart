@@ -15,6 +15,8 @@ import 'package:taskodoro/features/tasks/presentation/add_task_page.dart';
 import 'package:taskodoro/features/tasks/tasks_controller.dart';
 import 'package:taskodoro/l10n/app_localizations.dart';
 
+import '../../helpers/stub_filter_builder.dart';
+
 // ---------------------------------------------------------------------------
 // Test harness helpers
 // ---------------------------------------------------------------------------
@@ -263,24 +265,9 @@ void main() {
 }
 
 // ---------------------------------------------------------------------------
-// Hand-rolled stubs - reuses the _StubFilterBuilder pattern from
-// test/data/tasks_repository_test.dart; no mocking library.
+// Hand-rolled stubs - no mocking library; StubFilterBuilder from
+// test/helpers/stub_filter_builder.dart.
 // ---------------------------------------------------------------------------
-
-class _StubFilterBuilder<T> implements PostgrestFilterBuilder<T> {
-  _StubFilterBuilder(this._future);
-  final Future<T> _future;
-
-  @override
-  Future<U> then<U>(
-    FutureOr<U> Function(T value) onValue, {
-    Function? onError,
-  }) =>
-      _future.then(onValue, onError: onError);
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
 
 class _StubClient implements SupabaseClient {
   _StubClient({
@@ -307,14 +294,14 @@ class _StubClient implements SupabaseClient {
     lastRpcFn = fn;
     lastRpcParams = params;
     if (rpcCompleter != null) {
-      return _StubFilterBuilder<T>(
+      return StubFilterBuilder<T>(
         rpcCompleter!.future.then((v) => v as T),
       );
     }
     if (rpcError != null) {
-      return _StubFilterBuilder<T>(Future<T>.error(rpcError!));
+      return StubFilterBuilder<T>(Future<T>.error(rpcError!));
     }
-    return _StubFilterBuilder<T>(Future<T>.value(rpcResult as T));
+    return StubFilterBuilder<T>(Future<T>.value(rpcResult as T));
   }
 
   @override

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -7,6 +5,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:taskodoro/core/supabase/auth_providers.dart';
 import 'package:taskodoro/data/task.dart';
 import 'package:taskodoro/data/tasks_repository.dart';
+
+import '../helpers/stub_filter_builder.dart';
 
 void main() {
   group('TaskCategory', () {
@@ -207,25 +207,6 @@ void main() {
 // Hand-rolled stubs - no mocking library, mirrors auth_controller_test.dart
 // ---------------------------------------------------------------------------
 
-/// Minimal fake builder that delegates `then` to an inner future and routes
-/// everything else through noSuchMethod. This satisfies the static type
-/// PostgrestFilterBuilder that SupabaseClient.rpc returns, which Dart
-/// would otherwise fail to downcast from a plain Future.
-class _StubFilterBuilder<T> implements PostgrestFilterBuilder<T> {
-  _StubFilterBuilder(this._future);
-  final Future<T> _future;
-
-  @override
-  Future<U> then<U>(
-    FutureOr<U> Function(T value) onValue, {
-    Function? onError,
-  }) =>
-      _future.then(onValue, onError: onError);
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
 class _StubClient implements SupabaseClient {
   _StubClient({this.rpcResult, this.rpcError});
 
@@ -244,9 +225,9 @@ class _StubClient implements SupabaseClient {
     lastRpcFn = fn;
     lastRpcParams = params;
     if (rpcError != null) {
-      return _StubFilterBuilder<T>(Future<T>.error(rpcError!));
+      return StubFilterBuilder<T>(Future<T>.error(rpcError!));
     }
-    return _StubFilterBuilder<T>(Future<T>.value(rpcResult as T));
+    return StubFilterBuilder<T>(Future<T>.value(rpcResult as T));
   }
 
   @override

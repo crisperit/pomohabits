@@ -18,7 +18,7 @@ class TasksRepository {
     required TaskBreakWindow applicableBreakWindow,
     required bool alwaysShown,
   }) async {
-    final response = await _client.rpc(
+    final data = await _client.rpc(
       _rpcAddTask,
       params: {
         'p_name': name,
@@ -27,12 +27,22 @@ class TasksRepository {
         'p_always_shown': alwaysShown,
       },
     );
-    return Task.fromRow(response as Map<String, dynamic>);
+    if (data is! Map<String, dynamic>) {
+      throw StateError(
+        'add_task returned an unexpected response shape: ${data.runtimeType}',
+      );
+    }
+    return Task.fromRow(data);
   }
 
   Future<List<Task>> fetchTasks() async {
-    final response = await _client.rpc(_rpcListTasks);
-    return (response as List)
+    final data = await _client.rpc(_rpcListTasks);
+    if (data is! List) {
+      throw StateError(
+        'list_tasks returned an unexpected response shape: ${data.runtimeType}',
+      );
+    }
+    return data
         .map((r) => Task.fromRow(r as Map<String, dynamic>))
         .toList();
   }

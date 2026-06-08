@@ -73,104 +73,108 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.addTaskTitle)),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                TextFormField(
-                  key: const ValueKey('taskNameField'),
-                  controller: _nameController,
-                  decoration: InputDecoration(labelText: l10n.taskNameLabel),
-                  maxLength: 200,
-                  maxLengthEnforcement: MaxLengthEnforcement.none,
-                  textInputAction: TextInputAction.done,
-                  validator: (v) {
-                    final trimmed = v?.trim() ?? '';
-                    if (trimmed.isEmpty) return l10n.taskErrorNameRequired;
-                    if (trimmed.length > 200) return l10n.taskErrorNameTooLong;
-                    final existing =
-                        ref.read(tasksListProvider).value;
-                    if (existing != null) {
-                      final lower = trimmed.toLowerCase();
-                      final isDuplicate = existing.any(
-                        (t) => t.name.trim().toLowerCase() == lower,
-                      );
-                      if (isDuplicate) return l10n.taskErrorNameDuplicate;
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                DropdownMenu<TaskCategory>(
-                  initialSelection: _category,
-                  label: Text(l10n.taskCategoryLabel),
-                  expandedInsets: EdgeInsets.zero,
-                  dropdownMenuEntries: [
-                    DropdownMenuEntry(
-                      value: TaskCategory.oneTime,
-                      label: l10n.categoryOneTime,
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 400),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextFormField(
+                      key: const ValueKey('taskNameField'),
+                      controller: _nameController,
+                      decoration: InputDecoration(labelText: l10n.taskNameLabel),
+                      maxLength: 200,
+                      maxLengthEnforcement: MaxLengthEnforcement.none,
+                      textInputAction: TextInputAction.done,
+                      validator: (v) {
+                        final trimmed = v?.trim() ?? '';
+                        if (trimmed.isEmpty) return l10n.taskErrorNameRequired;
+                        if (trimmed.length > 200) return l10n.taskErrorNameTooLong;
+                        final existing = ref.read(tasksListProvider).value;
+                        if (existing != null) {
+                          final lower = trimmed.toLowerCase();
+                          final isDuplicate = existing.any(
+                            (t) => t.name.trim().toLowerCase() == lower,
+                          );
+                          if (isDuplicate) return l10n.taskErrorNameDuplicate;
+                        }
+                        return null;
+                      },
                     ),
-                    DropdownMenuEntry(
-                      value: TaskCategory.daily,
-                      label: l10n.categoryDaily,
+                    const SizedBox(height: 16),
+                    DropdownMenu<TaskCategory>(
+                      initialSelection: _category,
+                      label: Text(l10n.taskCategoryLabel),
+                      expandedInsets: EdgeInsets.zero,
+                      dropdownMenuEntries: [
+                        DropdownMenuEntry(
+                          value: TaskCategory.oneTime,
+                          label: l10n.categoryOneTime,
+                        ),
+                        DropdownMenuEntry(
+                          value: TaskCategory.daily,
+                          label: l10n.categoryDaily,
+                        ),
+                        DropdownMenuEntry(
+                          value: TaskCategory.unlimited,
+                          label: l10n.categoryUnlimited,
+                        ),
+                      ],
+                      onSelected: (v) {
+                        if (v != null) setState(() => _category = v);
+                      },
                     ),
-                    DropdownMenuEntry(
-                      value: TaskCategory.unlimited,
-                      label: l10n.categoryUnlimited,
+                    const SizedBox(height: 16),
+                    DropdownMenu<TaskBreakWindow>(
+                      initialSelection: _breakWindow,
+                      label: Text(l10n.breakWindowLabel),
+                      expandedInsets: EdgeInsets.zero,
+                      dropdownMenuEntries: [
+                        DropdownMenuEntry(
+                          value: TaskBreakWindow.short,
+                          label: l10n.breakWindowShort,
+                        ),
+                        DropdownMenuEntry(
+                          value: TaskBreakWindow.long,
+                          label: l10n.breakWindowLong,
+                        ),
+                        DropdownMenuEntry(
+                          value: TaskBreakWindow.both,
+                          label: l10n.breakWindowBoth,
+                        ),
+                      ],
+                      onSelected: (v) {
+                        if (v != null) setState(() => _breakWindow = v);
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    SwitchListTile(
+                      title: Text(l10n.alwaysShownLabel),
+                      value: _alwaysShown,
+                      onChanged: (v) => setState(() => _alwaysShown = v),
+                    ),
+                    // Fixed-height error slot: always present so layout does not jump.
+                    const SizedBox(height: 8),
+                    _ErrorSlot(message: errorMsg),
+                    const SizedBox(height: 8),
+                    ElevatedButton(
+                      key: const ValueKey('addTaskSubmitButton'),
+                      onPressed: isLoading ? null : _submit,
+                      child: isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Text(l10n.addTaskButton),
                     ),
                   ],
-                  onSelected: (v) {
-                    if (v != null) setState(() => _category = v);
-                  },
                 ),
-                const SizedBox(height: 16),
-                DropdownMenu<TaskBreakWindow>(
-                  initialSelection: _breakWindow,
-                  label: Text(l10n.breakWindowLabel),
-                  expandedInsets: EdgeInsets.zero,
-                  dropdownMenuEntries: [
-                    DropdownMenuEntry(
-                      value: TaskBreakWindow.short,
-                      label: l10n.breakWindowShort,
-                    ),
-                    DropdownMenuEntry(
-                      value: TaskBreakWindow.long,
-                      label: l10n.breakWindowLong,
-                    ),
-                    DropdownMenuEntry(
-                      value: TaskBreakWindow.both,
-                      label: l10n.breakWindowBoth,
-                    ),
-                  ],
-                  onSelected: (v) {
-                    if (v != null) setState(() => _breakWindow = v);
-                  },
-                ),
-                const SizedBox(height: 8),
-                SwitchListTile(
-                  title: Text(l10n.alwaysShownLabel),
-                  value: _alwaysShown,
-                  onChanged: (v) => setState(() => _alwaysShown = v),
-                ),
-                // Fixed-height error slot: always present so layout does not jump.
-                const SizedBox(height: 8),
-                _ErrorSlot(message: errorMsg),
-                const SizedBox(height: 8),
-                ElevatedButton(
-                  key: const ValueKey('addTaskSubmitButton'),
-                  onPressed: isLoading ? null : _submit,
-                  child: isLoading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(l10n.addTaskButton),
-                ),
-              ],
+              ),
             ),
           ),
         ),
