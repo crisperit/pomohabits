@@ -86,15 +86,17 @@ app.all("*", async (c) => {
         category: z.enum(["one_time", "daily", "unlimited"]),
         applicable_break_window: z.enum(["short", "long", "both"]),
         always_shown: z.boolean(),
+        icon: z.string().max(16).optional(),
       },
     },
-    async ({ name, category, applicable_break_window, always_shown }) => {
+    async ({ name, category, applicable_break_window, always_shown, icon }) => {
       const client = clientForUser(jwt);
       const { data, error } = await client.rpc("add_task", {
         p_name: name,
         p_category: category,
         p_applicable_break_window: applicable_break_window,
         p_always_shown: always_shown,
+        p_icon: icon ?? null,
       });
       if (error) {
         return {
