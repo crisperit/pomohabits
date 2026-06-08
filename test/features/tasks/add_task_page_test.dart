@@ -180,6 +180,7 @@ void main() {
           'category': 'daily',
           'applicable_break_window': 'both',
           'always_shown': false,
+          'icon': null,
           'created_at': '2026-01-01T00:00:00.000Z',
           'updated_at': '2026-01-01T00:00:00.000Z',
         },
@@ -192,7 +193,8 @@ void main() {
       );
 
       // Category defaults to daily, break window defaults to both,
-      // always-shown defaults to false -- so no interaction needed.
+      // always-shown defaults to false, icon defaults to null --
+      // so no interaction needed.
 
       await tester.tap(find.byKey(const ValueKey('addTaskSubmitButton')));
       await tester.pumpAndSettle();
@@ -203,7 +205,60 @@ void main() {
         'p_category': 'daily',
         'p_applicable_break_window': 'both',
         'p_always_shown': false,
+        'p_icon': null,
       });
+    });
+
+    testWidgets('emoji entered in icon field is forwarded as p_icon',
+        (tester) async {
+      final stub = _StubClient(
+        rpcResult: {
+          'id': 'new-id',
+          'name': 'Stretch',
+          'category': 'daily',
+          'applicable_break_window': 'both',
+          'always_shown': false,
+          'icon': '\u{1F3CB}',
+          'created_at': '2026-01-01T00:00:00.000Z',
+          'updated_at': '2026-01-01T00:00:00.000Z',
+        },
+      );
+      await _pumpAddTaskPage(tester, stubClient: stub, existingTasks: []);
+
+      await tester.enterText(
+        find.byKey(const ValueKey('taskNameField')),
+        'Stretch',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('taskIconField')),
+        '\u{1F3CB}',
+      );
+
+      await tester.tap(find.byKey(const ValueKey('addTaskSubmitButton')));
+      await tester.pumpAndSettle();
+
+      expect(stub.lastRpcFn, 'add_task');
+      expect(stub.lastRpcParams!['p_icon'], '\u{1F3CB}');
+    });
+
+    testWidgets('icon field longer than one grapheme blocks submit',
+        (tester) async {
+      final stub = _StubClient();
+      await _pumpAddTaskPage(tester, stubClient: stub, existingTasks: []);
+
+      await tester.enterText(
+        find.byKey(const ValueKey('taskNameField')),
+        'Stretch',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('taskIconField')),
+        '\u{1F3CB}\u{1F3CB}',
+      );
+      await tester.tap(find.byKey(const ValueKey('addTaskSubmitButton')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Enter one emoji or leave empty.'), findsOneWidget);
+      expect(stub.lastRpcFn, isNull);
     });
 
     testWidgets('stubbed PostgrestException surfaces inline in _ErrorSlot',
@@ -256,6 +311,7 @@ void main() {
         'category': 'daily',
         'applicable_break_window': 'both',
         'always_shown': false,
+        'icon': null,
         'created_at': '2026-01-01T00:00:00.000Z',
         'updated_at': '2026-01-01T00:00:00.000Z',
       });

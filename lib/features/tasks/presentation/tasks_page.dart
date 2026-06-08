@@ -38,9 +38,14 @@ class TasksPage extends ConsumerWidget {
             itemBuilder: (context, index) {
               final task = tasks[index];
               return ListTile(
-                leading: task.alwaysShown
-                    ? const Icon(Icons.push_pin)
-                    : const Icon(Icons.task_alt),
+                leading: task.icon != null
+                    ? Text(
+                        task.icon!,
+                        style: const TextStyle(fontSize: 24),
+                      )
+                    : task.alwaysShown
+                        ? const Icon(Icons.push_pin)
+                        : const Icon(Icons.task_alt),
                 title: Text(task.name),
                 subtitle: Text(
                   '${_categoryLabel(l10n, task.category)} - '

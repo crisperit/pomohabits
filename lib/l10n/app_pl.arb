@@ -53,5 +53,8 @@
   "taskErrorNameRequired": "Podaj nazwę zadania.",
   "taskErrorNameTooLong": "Nazwa może mieć maksymalnie 200 znaków.",
   "taskErrorNameDuplicate": "Zadanie o tej nazwie już istnieje.",
-  "taskErrorUnexpected": "Nie udało się dodać zadania. Spróbuj ponownie."
+  "taskErrorUnexpected": "Nie udało się dodać zadania. Spróbuj ponownie.",
+  "taskIconLabel": "Ikona",
+  "taskIconHint": "Opcjonalne emoji",
+  "taskErrorIconTooLong": "Wpisz jedno emoji lub zostaw puste."
 }

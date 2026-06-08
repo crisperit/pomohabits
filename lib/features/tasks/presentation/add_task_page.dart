@@ -24,6 +24,7 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
   TaskCategory _category = TaskCategory.daily;
   TaskBreakWindow _breakWindow = TaskBreakWindow.both;
   bool _alwaysShown = false;
+  String? _icon;
 
   @override
   void dispose() {
@@ -50,6 +51,7 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
           category: _category,
           applicableBreakWindow: _breakWindow,
           alwaysShown: _alwaysShown,
+          icon: _icon,
         );
     if (!mounted) return;
 
@@ -101,6 +103,28 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
                             (t) => t.name.trim().toLowerCase() == lower,
                           );
                           if (isDuplicate) return l10n.taskErrorNameDuplicate;
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      key: const ValueKey('taskIconField'),
+                      decoration: InputDecoration(
+                        labelText: l10n.taskIconLabel,
+                        hintText: l10n.taskIconHint,
+                      ),
+                      textInputAction: TextInputAction.done,
+                      onChanged: (v) {
+                        final trimmed = v.trim();
+                        setState(() {
+                          _icon = trimmed.isEmpty ? null : trimmed;
+                        });
+                      },
+                      validator: (v) {
+                        final trimmed = v?.trim() ?? '';
+                        if (trimmed.characters.length > 1) {
+                          return l10n.taskErrorIconTooLong;
                         }
                         return null;
                       },

@@ -176,4 +176,13 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get taskErrorUnexpected =>
       'Nie udało się dodać zadania. Spróbuj ponownie.';
+
+  @override
+  String get taskIconLabel => 'Ikona';
+
+  @override
+  String get taskIconHint => 'Opcjonalne emoji';
+
+  @override
+  String get taskErrorIconTooLong => 'Wpisz jedno emoji lub zostaw puste.';
 }
