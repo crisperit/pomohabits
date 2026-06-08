@@ -14,6 +14,7 @@ class TasksController extends AsyncNotifier<void> {
     required TaskCategory category,
     required TaskBreakWindow applicableBreakWindow,
     required bool alwaysShown,
+    String? icon,
   }) async {
     state = const AsyncValue.loading();
     final result = await AsyncValue.guard<Task>(
@@ -22,6 +23,7 @@ class TasksController extends AsyncNotifier<void> {
             category: category,
             applicableBreakWindow: applicableBreakWindow,
             alwaysShown: alwaysShown,
+            icon: icon,
           ),
     );
     state = result.whenData((_) {});

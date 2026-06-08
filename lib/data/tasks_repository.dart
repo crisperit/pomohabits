@@ -17,6 +17,7 @@ class TasksRepository {
     required TaskCategory category,
     required TaskBreakWindow applicableBreakWindow,
     required bool alwaysShown,
+    String? icon,
   }) async {
     final data = await _client.rpc(
       _rpcAddTask,
@@ -25,6 +26,7 @@ class TasksRepository {
         'p_category': category.wire,
         'p_applicable_break_window': applicableBreakWindow.wire,
         'p_always_shown': alwaysShown,
+        'p_icon': icon,
       },
     );
     if (data is! Map<String, dynamic>) {

@@ -64,6 +64,21 @@ void main() {
       expect(task.updatedAt, DateTime.parse('2026-01-02T12:00:00.000Z'));
     });
 
+    test('icon is null when key is absent', () {
+      final task = Task.fromRow(baseRow);
+      expect(task.icon, isNull);
+    });
+
+    test('icon is null when key is present and null', () {
+      final task = Task.fromRow({...baseRow, 'icon': null});
+      expect(task.icon, isNull);
+    });
+
+    test('icon equals the string when present', () {
+      final task = Task.fromRow({...baseRow, 'icon': '🔥'});
+      expect(task.icon, '🔥');
+    });
+
     test('ignores extra keys completed_today and completed_ever', () {
       final rowWithExtras = {
         ...baseRow,
@@ -87,6 +102,7 @@ void main() {
           'category': 'daily',
           'applicable_break_window': 'both',
           'always_shown': true,
+          'icon': null,
           'created_at': '2026-01-01T00:00:00.000Z',
           'updated_at': '2026-01-01T00:00:00.000Z',
         },
@@ -109,6 +125,7 @@ void main() {
         'p_category': 'daily',
         'p_applicable_break_window': 'both',
         'p_always_shown': true,
+        'p_icon': null,
       });
       expect(task.id, 'new-id');
       expect(task.category, TaskCategory.daily);
@@ -123,6 +140,7 @@ void main() {
           'category': 'one_time',
           'applicable_break_window': 'short',
           'always_shown': false,
+          'icon': null,
           'created_at': '2026-01-01T00:00:00.000Z',
           'updated_at': '2026-01-01T00:00:00.000Z',
         },
@@ -141,6 +159,35 @@ void main() {
 
       expect(stub.lastRpcParams!['p_category'], 'one_time');
       expect(stub.lastRpcParams!['p_applicable_break_window'], 'short');
+    });
+
+    test('addTask forwards icon as p_icon in rpc params', () async {
+      final stub = _StubClient(
+        rpcResult: {
+          'id': 'id-3',
+          'name': 'Stretch',
+          'category': 'daily',
+          'applicable_break_window': 'both',
+          'always_shown': false,
+          'icon': '🔥',
+          'created_at': '2026-01-01T00:00:00.000Z',
+          'updated_at': '2026-01-01T00:00:00.000Z',
+        },
+      );
+      final container = ProviderContainer(
+        overrides: [supabaseClientProvider.overrideWith((ref) => stub)],
+      );
+      addTearDown(container.dispose);
+
+      await container.read(tasksRepositoryProvider).addTask(
+            name: 'Stretch',
+            category: TaskCategory.daily,
+            applicableBreakWindow: TaskBreakWindow.both,
+            alwaysShown: false,
+            icon: '🔥',
+          );
+
+      expect(stub.lastRpcParams!['p_icon'], '🔥');
     });
 
     test('fetchTasks maps a multi-row list_tasks response', () async {

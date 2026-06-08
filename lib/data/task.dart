@@ -51,6 +51,7 @@ class Task {
     required this.category,
     required this.applicableBreakWindow,
     required this.alwaysShown,
+    this.icon,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -60,6 +61,7 @@ class Task {
   final TaskCategory category;
   final TaskBreakWindow applicableBreakWindow;
   final bool alwaysShown;
+  final String? icon;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -71,6 +73,7 @@ class Task {
       applicableBreakWindow:
           TaskBreakWindow.fromWire(row['applicable_break_window'] as String),
       alwaysShown: row['always_shown'] as bool,
+      icon: row['icon'] as String?,
       createdAt: DateTime.parse(row['created_at'] as String),
       updatedAt: DateTime.parse(row['updated_at'] as String),
     );
