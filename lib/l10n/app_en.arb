@@ -228,14 +228,10 @@
   },
   "taskIconLabel": "Icon",
   "@taskIconLabel": {
-    "description": "Label for the optional emoji icon field on the Add Task form"
+    "description": "Label for the optional emoji icon picker button on the Add Task form"
   },
-  "taskIconHint": "Optional emoji",
-  "@taskIconHint": {
-    "description": "Placeholder text for the optional emoji icon field on the Add Task form"
-  },
-  "taskErrorIconTooLong": "Enter one emoji or leave empty.",
-  "@taskErrorIconTooLong": {
-    "description": "Validation error when the icon field contains more than one grapheme"
+  "taskIconRemove": "Remove",
+  "@taskIconRemove": {
+    "description": "Label for the button that clears the chosen emoji icon in the picker sheet"
   }
 }

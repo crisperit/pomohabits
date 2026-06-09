@@ -55,6 +55,5 @@
   "taskErrorNameDuplicate": "Zadanie o tej nazwie już istnieje.",
   "taskErrorUnexpected": "Nie udało się dodać zadania. Spróbuj ponownie.",
   "taskIconLabel": "Ikona",
-  "taskIconHint": "Opcjonalne emoji",
-  "taskErrorIconTooLong": "Wpisz jedno emoji lub zostaw puste."
+  "taskIconRemove": "Usuń"
 }

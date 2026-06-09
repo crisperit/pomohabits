@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -65,6 +66,68 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
     }
   }
 
+  void _openEmojiPicker(BuildContext context, AppLocalizations l10n) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (builderContext, setSheetState) {
+            return SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          l10n.taskIconLabel,
+                          style: Theme.of(builderContext).textTheme.titleMedium,
+                        ),
+                        const Spacer(),
+                        if (_icon != null)
+                          TextButton(
+                            onPressed: () {
+                              setState(() => _icon = null);
+                              Navigator.pop(sheetContext);
+                            },
+                            child: Text(l10n.taskIconRemove),
+                          ),
+                      ],
+                    ),
+                  ),
+                  EmojiPicker(
+                    onEmojiSelected: (Category? category, Emoji emoji) {
+                      setState(() => _icon = emoji.emoji);
+                      Navigator.pop(sheetContext);
+                    },
+                    config: const Config(
+                      height: 300,
+                      checkPlatformCompatibility: true,
+                      viewOrderConfig: ViewOrderConfig(
+                        top: EmojiPickerItem.searchBar,
+                        middle: EmojiPickerItem.emojiView,
+                        bottom: EmojiPickerItem.categoryBar,
+                      ),
+                      searchViewConfig: SearchViewConfig(),
+                      categoryViewConfig: CategoryViewConfig(),
+                      bottomActionBarConfig: BottomActionBarConfig(),
+                      skinToneConfig: SkinToneConfig(),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -85,49 +148,75 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    TextFormField(
-                      key: const ValueKey('taskNameField'),
-                      controller: _nameController,
-                      decoration: InputDecoration(labelText: l10n.taskNameLabel),
-                      maxLength: 200,
-                      maxLengthEnforcement: MaxLengthEnforcement.none,
-                      textInputAction: TextInputAction.done,
-                      validator: (v) {
-                        final trimmed = v?.trim() ?? '';
-                        if (trimmed.isEmpty) return l10n.taskErrorNameRequired;
-                        if (trimmed.length > 200) return l10n.taskErrorNameTooLong;
-                        final existing = ref.read(tasksListProvider).value;
-                        if (existing != null) {
-                          final lower = trimmed.toLowerCase();
-                          final isDuplicate = existing.any(
-                            (t) => t.name.trim().toLowerCase() == lower,
-                          );
-                          if (isDuplicate) return l10n.taskErrorNameDuplicate;
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      key: const ValueKey('taskIconField'),
-                      decoration: InputDecoration(
-                        labelText: l10n.taskIconLabel,
-                        hintText: l10n.taskIconHint,
-                      ),
-                      textInputAction: TextInputAction.done,
-                      onChanged: (v) {
-                        final trimmed = v.trim();
-                        setState(() {
-                          _icon = trimmed.isEmpty ? null : trimmed;
-                        });
-                      },
-                      validator: (v) {
-                        final trimmed = v?.trim() ?? '';
-                        if (trimmed.characters.length > 1) {
-                          return l10n.taskErrorIconTooLong;
-                        }
-                        return null;
-                      },
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Tooltip(
+                          message: l10n.taskIconLabel,
+                          child: InkWell(
+                            key: const ValueKey('taskIconButton'),
+                            onTap: () => _openEmojiPicker(context, l10n),
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
+                              width: 56,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .outline,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              alignment: Alignment.center,
+                              child: _icon != null
+                                  ? Text(
+                                      _icon!,
+                                      style: const TextStyle(fontSize: 24),
+                                    )
+                                  : Icon(
+                                      Icons.emoji_emotions_outlined,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                    ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextFormField(
+                            key: const ValueKey('taskNameField'),
+                            controller: _nameController,
+                            decoration: InputDecoration(
+                              labelText: l10n.taskNameLabel,
+                            ),
+                            maxLength: 200,
+                            maxLengthEnforcement: MaxLengthEnforcement.none,
+                            textInputAction: TextInputAction.done,
+                            validator: (v) {
+                              final trimmed = v?.trim() ?? '';
+                              if (trimmed.isEmpty) {
+                                return l10n.taskErrorNameRequired;
+                              }
+                              if (trimmed.length > 200) {
+                                return l10n.taskErrorNameTooLong;
+                              }
+                              final existing = ref.read(tasksListProvider).value;
+                              if (existing != null) {
+                                final lower = trimmed.toLowerCase();
+                                final isDuplicate = existing.any(
+                                  (t) => t.name.trim().toLowerCase() == lower,
+                                );
+                                if (isDuplicate) {
+                                  return l10n.taskErrorNameDuplicate;
+                                }
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     DropdownMenu<TaskCategory>(

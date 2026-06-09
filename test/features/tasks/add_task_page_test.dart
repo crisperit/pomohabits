@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,11 +28,20 @@ import '../../helpers/stub_filter_builder.dart';
 ///
 /// Pass [existingTasks] to pre-seed [tasksListProvider] with synchronous data
 /// (e.g. for duplicate-check and valid-submit tests).
+///
+/// Pass [size] to enlarge the surface so third-party widgets (e.g. EmojiPicker)
+/// have room to render.
 Future<void> _pumpAddTaskPage(
   WidgetTester tester, {
   required _StubClient stubClient,
   List<Task>? existingTasks,
+  Size size = const Size(800, 900),
 }) async {
+  tester.view.physicalSize = size;
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+
   SharedPreferences.setMockInitialValues({});
   final prefs = await SharedPreferences.getInstance();
 
@@ -209,8 +219,21 @@ void main() {
       });
     });
 
-    testWidgets('emoji entered in icon field is forwarded as p_icon',
+    testWidgets('tapping taskIconButton opens the emoji picker sheet',
         (tester) async {
+      final stub = _StubClient();
+      await _pumpAddTaskPage(tester, stubClient: stub);
+
+      await tester.tap(find.byKey(const ValueKey('taskIconButton')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(EmojiPicker), findsOneWidget);
+    });
+
+    testWidgets('selecting an emoji in the picker forwards it as p_icon',
+        (tester) async {
+      // Use a well-known emoji that appears early in the SMILEYS grid.
+      const selectedEmoji = '\u{1F642}'; // slightly smiling face
       final stub = _StubClient(
         rpcResult: {
           'id': 'new-id',
@@ -218,47 +241,59 @@ void main() {
           'category': 'daily',
           'applicable_break_window': 'both',
           'always_shown': false,
-          'icon': '\u{1F3CB}',
+          'icon': selectedEmoji,
           'created_at': '2026-01-01T00:00:00.000Z',
           'updated_at': '2026-01-01T00:00:00.000Z',
         },
       );
       await _pumpAddTaskPage(tester, stubClient: stub, existingTasks: []);
 
+      // Open picker.
+      await tester.tap(find.byKey(const ValueKey('taskIconButton')));
+      await tester.pumpAndSettle();
+
+      // Picker is in emoji-grid view. Tap the search IconButton in the
+      // BottomActionBar to switch to search view, which surfaces a TextField.
+      await tester.tap(find.byIcon(Icons.search));
+      await tester.pumpAndSettle();
+
+      // Type into the search field to filter to a single known emoji -
+      // more deterministic than scrolling the full grid.
+      final searchField = find.descendant(
+        of: find.byType(EmojiPicker),
+        matching: find.byType(TextField),
+      );
+      expect(searchField, findsOneWidget);
+      await tester.enterText(searchField, 'slightly smiling');
+      await tester.pumpAndSettle();
+
+      // Tap the emoji in the search results.
+      final emojiInResults = find.text(selectedEmoji).hitTestable();
+      expect(emojiInResults, findsAtLeastNWidgets(1));
+      await tester.tap(emojiInResults.first);
+      await tester.pumpAndSettle();
+
+      // Bottom sheet should be dismissed and icon button should now show the
+      // chosen emoji.
+      expect(find.byType(EmojiPicker), findsNothing);
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('taskIconButton')),
+          matching: find.text(selectedEmoji),
+        ),
+        findsOneWidget,
+      );
+
+      // Fill name and submit.
       await tester.enterText(
         find.byKey(const ValueKey('taskNameField')),
         'Stretch',
       );
-      await tester.enterText(
-        find.byKey(const ValueKey('taskIconField')),
-        '\u{1F3CB}',
-      );
-
       await tester.tap(find.byKey(const ValueKey('addTaskSubmitButton')));
       await tester.pumpAndSettle();
 
       expect(stub.lastRpcFn, 'add_task');
-      expect(stub.lastRpcParams!['p_icon'], '\u{1F3CB}');
-    });
-
-    testWidgets('icon field longer than one grapheme blocks submit',
-        (tester) async {
-      final stub = _StubClient();
-      await _pumpAddTaskPage(tester, stubClient: stub, existingTasks: []);
-
-      await tester.enterText(
-        find.byKey(const ValueKey('taskNameField')),
-        'Stretch',
-      );
-      await tester.enterText(
-        find.byKey(const ValueKey('taskIconField')),
-        '\u{1F3CB}\u{1F3CB}',
-      );
-      await tester.tap(find.byKey(const ValueKey('addTaskSubmitButton')));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Enter one emoji or leave empty.'), findsOneWidget);
-      expect(stub.lastRpcFn, isNull);
+      expect(stub.lastRpcParams!['p_icon'], selectedEmoji);
     });
 
     testWidgets('stubbed PostgrestException surfaces inline in _ErrorSlot',

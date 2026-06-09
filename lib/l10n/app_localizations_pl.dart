@@ -181,8 +181,5 @@ class AppLocalizationsPl extends AppLocalizations {
   String get taskIconLabel => 'Ikona';
 
   @override
-  String get taskIconHint => 'Opcjonalne emoji';
-
-  @override
-  String get taskErrorIconTooLong => 'Wpisz jedno emoji lub zostaw puste.';
+  String get taskIconRemove => 'Usuń';
 }

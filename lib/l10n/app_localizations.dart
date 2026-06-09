@@ -422,23 +422,17 @@ abstract class AppLocalizations {
   /// **'Could not add the task. Please try again.'**
   String get taskErrorUnexpected;
 
-  /// Label for the optional emoji icon field on the Add Task form
+  /// Label for the optional emoji icon picker button on the Add Task form
   ///
   /// In en, this message translates to:
   /// **'Icon'**
   String get taskIconLabel;
 
-  /// Placeholder text for the optional emoji icon field on the Add Task form
+  /// Label for the button that clears the chosen emoji icon in the picker sheet
   ///
   /// In en, this message translates to:
-  /// **'Optional emoji'**
-  String get taskIconHint;
-
-  /// Validation error when the icon field contains more than one grapheme
-  ///
-  /// In en, this message translates to:
-  /// **'Enter one emoji or leave empty.'**
-  String get taskErrorIconTooLong;
+  /// **'Remove'**
+  String get taskIconRemove;
 }
 
 class _AppLocalizationsDelegate
