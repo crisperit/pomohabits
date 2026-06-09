@@ -67,9 +67,11 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
   }
 
   void _openEmojiPicker(BuildContext context, AppLocalizations l10n) {
+    final cs = Theme.of(context).colorScheme;
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
+      backgroundColor: cs.surface,
       builder: (sheetContext) {
         return StatefulBuilder(
           builder: (builderContext, setSheetState) {
@@ -105,18 +107,47 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
                       setState(() => _icon = emoji.emoji);
                       Navigator.pop(sheetContext);
                     },
-                    config: const Config(
+                    config: Config(
                       height: 300,
                       checkPlatformCompatibility: true,
-                      viewOrderConfig: ViewOrderConfig(
+                      viewOrderConfig: const ViewOrderConfig(
                         top: EmojiPickerItem.searchBar,
                         middle: EmojiPickerItem.emojiView,
                         bottom: EmojiPickerItem.categoryBar,
                       ),
-                      searchViewConfig: SearchViewConfig(),
-                      categoryViewConfig: CategoryViewConfig(),
-                      bottomActionBarConfig: BottomActionBarConfig(),
-                      skinToneConfig: SkinToneConfig(),
+                      emojiViewConfig: EmojiViewConfig(
+                        backgroundColor: cs.surface,
+                        noRecents: Text(
+                          'No recents',
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: cs.onSurfaceVariant,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      searchViewConfig: SearchViewConfig(
+                        backgroundColor: cs.surfaceContainerHighest,
+                        buttonIconColor: cs.onSurfaceVariant,
+                        inputTextStyle: TextStyle(color: cs.onSurface),
+                        hintTextStyle: TextStyle(color: cs.onSurfaceVariant),
+                      ),
+                      categoryViewConfig: CategoryViewConfig(
+                        backgroundColor: cs.surface,
+                        iconColor: cs.onSurfaceVariant,
+                        iconColorSelected: cs.primary,
+                        indicatorColor: cs.primary,
+                        backspaceColor: cs.primary,
+                      ),
+                      bottomActionBarConfig: BottomActionBarConfig(
+                        backgroundColor: cs.surface,
+                        buttonColor: cs.surface,
+                        buttonIconColor: cs.onSurfaceVariant,
+                      ),
+                      skinToneConfig: SkinToneConfig(
+                        dialogBackgroundColor: cs.surfaceContainer,
+                        indicatorColor: cs.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ],
