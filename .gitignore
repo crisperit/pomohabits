@@ -14,9 +14,11 @@
 .zprofile
 .zshrc
 
-# Claude Code: ignore the entire directory and CLAUDE.md guidance files.
+# Claude Code: keep the private skill toolkit, machine-local notes, and planning
+# context out of the repo. The public surface is the code plus GitHub issues.
 .claude/
-CLAUDE.md
+CLAUDE.local.md
+context/
 
 # --- appended by 10x-bootstrapper from flutter scaffold ---
 # Miscellaneous
