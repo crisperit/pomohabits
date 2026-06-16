@@ -5,12 +5,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:taskodoro/app/app.dart';
-import 'package:taskodoro/app/router.dart';
-import 'package:taskodoro/core/preferences/preferences_providers.dart';
-import 'package:taskodoro/core/supabase/auth_providers.dart';
-import 'package:taskodoro/features/auth/presentation/sign_in_page.dart';
-import 'package:taskodoro/features/home/presentation/home_page.dart';
+import 'package:pomohabits/app/app.dart';
+import 'package:pomohabits/app/router.dart';
+import 'package:pomohabits/core/preferences/preferences_providers.dart';
+import 'package:pomohabits/core/supabase/auth_providers.dart';
+import 'package:pomohabits/features/auth/presentation/sign_in_page.dart';
+import 'package:pomohabits/features/home/presentation/home_page.dart';
 
 void main() {
   setUpAll(() {

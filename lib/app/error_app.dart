@@ -8,7 +8,7 @@ class ErrorApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Taskodoro - Configuration Error',
+      title: 'Pomohabits - Configuration Error',
       theme: ThemeData(useMaterial3: true),
       home: Scaffold(
         body: SingleChildScrollView(
@@ -21,7 +21,7 @@ class ErrorApp extends StatelessWidget {
                   const Icon(Icons.error_outline, size: 64, color: Colors.red),
                   const SizedBox(height: 16),
                   const SelectableText(
-                    'Taskodoro could not start',
+                    'Pomohabits could not start',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),

@@ -1,8 +1,8 @@
-# Taskodoro
+# Pomohabits
 
 A desktop Pomodoro timer that turns the break into a productive habit window. User accounts, hosted backend, per-user task sync. Desktop only for v1; other clients are v2.
 
-Traditional Pomodoro apps treat the break as a passive countdown. Taskodoro replaces that with a full-screen break presentation: every time a focus session ends, the app shows the user's always-shown habits plus one randomized habit drawn from their personal pool (falling back to a built-in suggestion when the pool is empty). The randomization rule, eligibility filtering, and daily-reset behaviour are the product's domain decisions; the break presentation is the user-visible payoff. The app is vendor-neutral by design: it owns the break-task pool and exposes a hosted integration endpoint so external clients (agents, scripts, bridges) can push tasks into the pool from whatever system the user already uses. No third-party task manager is privileged inside the app. 3-week after-hours MVP target.
+Traditional Pomodoro apps treat the break as a passive countdown. Pomohabits replaces that with a full-screen break presentation: every time a focus session ends, the app shows the user's always-shown habits plus one randomized habit drawn from their personal pool (falling back to a built-in suggestion when the pool is empty). The randomization rule, eligibility filtering, and daily-reset behaviour are the product's domain decisions; the break presentation is the user-visible payoff. The app is vendor-neutral by design: it owns the break-task pool and exposes a hosted integration endpoint so external clients (agents, scripts, bridges) can push tasks into the pool from whatever system the user already uses. No third-party task manager is privileged inside the app. 3-week after-hours MVP target.
 
 ## Project status
 
@@ -16,7 +16,7 @@ What is here now:
 ## Repository layout
 
 ```
-taskodoro/
+pomohabits/
   CLAUDE.md                         task router for the /10x-* shaping chain
   context/
     foundation/                     living documents that span the whole project
