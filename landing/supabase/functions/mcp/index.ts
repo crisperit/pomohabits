@@ -40,13 +40,13 @@ app.all("*", async (c) => {
     version: "0.1.0",
   });
 
-  // Tool: list_tasks
+  // Tool: list_habits
   server.registerTool(
-    "list_tasks",
+    "list_habits",
     {
-      title: "List Tasks",
+      title: "List Habits",
       description:
-        "List the caller's tasks with per-task completion flags for today and ever.",
+        "List the caller's habits with per-habit completion flags for today and ever.",
       inputSchema: {
         timezone: z
           .string()
@@ -59,7 +59,7 @@ app.all("*", async (c) => {
     },
     async ({ timezone }) => {
       const client = clientForUser(jwt);
-      const { data, error } = await client.rpc("list_tasks", {
+      const { data, error } = await client.rpc("list_habits", {
         p_timezone: timezone ?? "UTC",
       });
       if (error) {
@@ -74,13 +74,13 @@ app.all("*", async (c) => {
     },
   );
 
-  // Tool: add_task
+  // Tool: add_habit
   server.registerTool(
-    "add_task",
+    "add_habit",
     {
-      title: "Add Task",
+      title: "Add Habit",
       description:
-        "Insert a new task scoped to the caller. Returns the inserted row.",
+        "Insert a new habit scoped to the caller. Returns the inserted row.",
       inputSchema: {
         name: z.string().min(1),
         category: z.enum(["one_time", "daily", "unlimited"]),
@@ -91,7 +91,7 @@ app.all("*", async (c) => {
     },
     async ({ name, category, applicable_break_window, always_shown, icon }) => {
       const client = clientForUser(jwt);
-      const { data, error } = await client.rpc("add_task", {
+      const { data, error } = await client.rpc("add_habit", {
         p_name: name,
         p_category: category,
         p_applicable_break_window: applicable_break_window,
@@ -110,21 +110,21 @@ app.all("*", async (c) => {
     },
   );
 
-  // Tool: complete_task
+  // Tool: complete_habit
   server.registerTool(
-    "complete_task",
+    "complete_habit",
     {
-      title: "Complete Task",
+      title: "Complete Habit",
       description:
-        "Record a completion event for the given task. Caller must own the task.",
+        "Record a completion event for the given habit. Caller must own the habit.",
       inputSchema: {
-        task_id: z.string().uuid(),
+        habit_id: z.string().uuid(),
       },
     },
-    async ({ task_id }) => {
+    async ({ habit_id }) => {
       const client = clientForUser(jwt);
-      const { data, error } = await client.rpc("complete_task", {
-        p_task_id: task_id,
+      const { data, error } = await client.rpc("complete_habit", {
+        p_habit_id: habit_id,
       });
       if (error) {
         return {
