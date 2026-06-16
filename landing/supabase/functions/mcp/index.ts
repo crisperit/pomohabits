@@ -36,7 +36,7 @@ app.all("*", async (c) => {
 
   // 2. Build a request-scoped MCP server whose tool handlers close over jwt.
   const server = new McpServer({
-    name: "taskodoro-mcp",
+    name: "pomohabits-mcp",
     version: "0.1.0",
   });
 

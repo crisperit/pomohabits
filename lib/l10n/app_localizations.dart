@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// Application name shown in the app bar
   ///
   /// In en, this message translates to:
-  /// **'Taskodoro'**
+  /// **'Pomohabits'**
   String get appTitle;
 
   /// Title of the Settings page

@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:taskodoro/core/supabase/auth_providers.dart';
+import 'package:pomohabits/core/supabase/auth_providers.dart';
 
 // SupabaseClient and GoTrueClient are non-sealed concrete classes, so they
 // can be stubbed via `implements` + `noSuchMethod`. The constructors start

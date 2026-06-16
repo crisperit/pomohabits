@@ -1,4 +1,4 @@
-# Taskodoro Setup
+# Pomohabits Setup
 
 After scaffolding the project and completing the Supabase setup, this file is what stands between you and a working dev loop. Run through it once.
 
@@ -52,7 +52,7 @@ Plug in a device with USB debugging on (or start an emulator) and confirm with `
 
 In the Supabase dashboard:
 
-1. New project -> name `taskodoro`, choose a region close to you, set a strong DB password.
+1. New project -> name `pomohabits`, choose a region close to you, set a strong DB password.
 2. Wait for provisioning to finish (~1 minute).
 3. From Project Settings -> API, copy the **Project URL** and the **publishable key** (from the API Keys page; older dashboards label this `anon`/public). You will paste these into env files below.
 4. From Project Settings -> API -> Project ref, copy the **project ref** (the slug, not the full URL).
@@ -126,7 +126,7 @@ Flutter does not have a single canonical env-file convention. The two common pat
 
 Pick one and wire `Supabase.initialize(url: ..., anonKey: <publishable-key>)` in `lib/main.dart` before `runApp`.
 
-> VS Code shortcut: copy `env.json.example` to `env.json` (gitignored), fill in your values, then use "Run and Debug" -> "Taskodoro (Linux, --dart-define-from-file)". The Flutter extension reads `--dart-define-from-file=env.json` from `.vscode/launch.json`.
+> VS Code shortcut: copy `env.json.example` to `env.json` (gitignored), fill in your values, then use "Run and Debug" -> "Pomohabits (Linux, --dart-define-from-file)". The Flutter extension reads `--dart-define-from-file=env.json` from `.vscode/launch.json`.
 
 ## 6. Run the loop
 
@@ -197,7 +197,7 @@ The Astro landing in `landing/` is configured for `@astrojs/cloudflare` and uses
   npx wrangler secret put SUPABASE_KEY    # paste the publishable key when prompted
   ```
 
-- Build and deploy: `npx wrangler deploy`. Output prints the live URL (something like `https://taskodoro-landing.<account>.workers.dev`).
+- Build and deploy: `npx wrangler deploy`. Output prints the live URL (something like `https://pomohabits-landing.<account>.workers.dev`).
 - Back in the Supabase dashboard, add the live URL to Authentication -> URL Configuration -> Redirect URLs so signin/signup flows work in production.
 
 CI (`.github/workflows/ci.yml`) handles lint + build on push. Add a `CLOUDFLARE_API_TOKEN` GitHub Actions secret (Cloudflare dashboard -> My Profile -> API Tokens, scoped to "Edit Cloudflare Workers" on the relevant account) when you wire automated deploys.

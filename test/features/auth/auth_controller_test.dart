@@ -2,8 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:taskodoro/core/supabase/auth_providers.dart';
-import 'package:taskodoro/features/auth/auth_controller.dart';
+import 'package:pomohabits/core/supabase/auth_providers.dart';
+import 'package:pomohabits/features/auth/auth_controller.dart';
 
 void main() {
   group('AuthController', () {

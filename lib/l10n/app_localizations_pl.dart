@@ -9,7 +9,7 @@ class AppLocalizationsPl extends AppLocalizations {
   AppLocalizationsPl([String locale = 'pl']) : super(locale);
 
   @override
-  String get appTitle => 'Taskodoro';
+  String get appTitle => 'Pomohabits';
 
   @override
   String get settingsTitle => 'Ustawienia';

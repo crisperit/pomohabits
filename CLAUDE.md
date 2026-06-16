@@ -4,7 +4,7 @@ Guidance for working in this repository.
 
 ## What this repo is
 
-Taskodoro is a desktop-first Pomodoro app whose break screen surfaces the user's
+Pomohabits is a desktop-first Pomodoro app whose break screen surfaces the user's
 habits. The repo holds two apps that share one Supabase backend:
 
 - **Flutter client** (repo root) - `lib/`, `linux/`, `android/`. Targets Linux

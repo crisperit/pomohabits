@@ -1,4 +1,4 @@
-package com.example.taskodoro
+package app.pomohabits
 
 import io.flutter.embedding.android.FlutterActivity
 

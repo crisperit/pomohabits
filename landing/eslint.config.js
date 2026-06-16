@@ -70,6 +70,7 @@ const astroConfig = tseslint.config({
 
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
+  { ignores: ["supabase/functions/**"] }, // Deno edge functions: checked by the Deno toolchain, not this Node eslint pipeline
   baseConfig,
   reactConfig,
   eslintPluginAstro.configs["flat/recommended"],

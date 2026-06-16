@@ -8,13 +8,13 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:taskodoro/app/router.dart';
-import 'package:taskodoro/core/preferences/preferences_providers.dart';
-import 'package:taskodoro/core/supabase/auth_providers.dart';
-import 'package:taskodoro/data/task.dart';
-import 'package:taskodoro/features/tasks/presentation/add_task_page.dart';
-import 'package:taskodoro/features/tasks/tasks_controller.dart';
-import 'package:taskodoro/l10n/app_localizations.dart';
+import 'package:pomohabits/app/router.dart';
+import 'package:pomohabits/core/preferences/preferences_providers.dart';
+import 'package:pomohabits/core/supabase/auth_providers.dart';
+import 'package:pomohabits/data/task.dart';
+import 'package:pomohabits/features/tasks/presentation/add_task_page.dart';
+import 'package:pomohabits/features/tasks/tasks_controller.dart';
+import 'package:pomohabits/l10n/app_localizations.dart';
 
 import '../../helpers/stub_filter_builder.dart';
 

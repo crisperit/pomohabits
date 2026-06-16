@@ -6,12 +6,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:taskodoro/core/preferences/preferences_providers.dart';
-import 'package:taskodoro/data/task.dart';
-import 'package:taskodoro/data/tasks_repository.dart';
-import 'package:taskodoro/features/tasks/presentation/tasks_page.dart';
-import 'package:taskodoro/features/tasks/tasks_controller.dart';
-import 'package:taskodoro/l10n/app_localizations.dart';
+import 'package:pomohabits/core/preferences/preferences_providers.dart';
+import 'package:pomohabits/data/task.dart';
+import 'package:pomohabits/data/tasks_repository.dart';
+import 'package:pomohabits/features/tasks/presentation/tasks_page.dart';
+import 'package:pomohabits/features/tasks/tasks_controller.dart';
+import 'package:pomohabits/l10n/app_localizations.dart';
 
 // ---------------------------------------------------------------------------
 // Test harness helpers

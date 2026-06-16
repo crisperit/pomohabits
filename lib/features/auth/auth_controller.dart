@@ -6,7 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../core/supabase/auth_providers.dart';
 
-const authCallbackUrl = 'io.taskodoro.app://auth-callback';
+const authCallbackUrl = 'pl.pomohabits://auth-callback';
 const metadataFullNameKey = 'full_name';
 
 enum AuthSignUpOutcome { signedIn, awaitingConfirmation }

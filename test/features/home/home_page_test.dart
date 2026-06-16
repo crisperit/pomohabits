@@ -5,11 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:taskodoro/app/router.dart';
-import 'package:taskodoro/core/preferences/preferences_providers.dart';
-import 'package:taskodoro/core/supabase/auth_providers.dart';
-import 'package:taskodoro/features/home/presentation/home_page.dart';
-import 'package:taskodoro/l10n/app_localizations.dart';
+import 'package:pomohabits/app/router.dart';
+import 'package:pomohabits/core/preferences/preferences_providers.dart';
+import 'package:pomohabits/core/supabase/auth_providers.dart';
+import 'package:pomohabits/features/home/presentation/home_page.dart';
+import 'package:pomohabits/l10n/app_localizations.dart';
 
 // ---------------------------------------------------------------------------
 // Test harness helpers

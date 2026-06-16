@@ -2,9 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:taskodoro/core/supabase/auth_providers.dart';
-import 'package:taskodoro/data/task.dart';
-import 'package:taskodoro/data/tasks_repository.dart';
+import 'package:pomohabits/core/supabase/auth_providers.dart';
+import 'package:pomohabits/data/task.dart';
+import 'package:pomohabits/data/tasks_repository.dart';
 
 import '../helpers/stub_filter_builder.dart';
 
