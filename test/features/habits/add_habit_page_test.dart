@@ -11,9 +11,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:pomohabits/app/router.dart';
 import 'package:pomohabits/core/preferences/preferences_providers.dart';
 import 'package:pomohabits/core/supabase/auth_providers.dart';
-import 'package:pomohabits/data/task.dart';
-import 'package:pomohabits/features/tasks/presentation/add_task_page.dart';
-import 'package:pomohabits/features/tasks/tasks_controller.dart';
+import 'package:pomohabits/data/habit.dart';
+import 'package:pomohabits/features/habits/presentation/add_habit_page.dart';
+import 'package:pomohabits/features/habits/habits_controller.dart';
 import 'package:pomohabits/l10n/app_localizations.dart';
 
 import '../../helpers/stub_filter_builder.dart';
@@ -22,19 +22,19 @@ import '../../helpers/stub_filter_builder.dart';
 // Test harness helpers
 // ---------------------------------------------------------------------------
 
-/// Pumps [AddTaskPage] inside a minimal GoRouter so `context.pop()` has a
+/// Pumps [AddHabitPage] inside a minimal GoRouter so `context.pop()` has a
 /// destination. Uses [MaterialApp.router] with a two-route stack:
-/// [routeTasks] (bottom) -> [routeAddTask] (top).
+/// [routeHabits] (bottom) -> [routeAddHabit] (top).
 ///
-/// Pass [existingTasks] to pre-seed [tasksListProvider] with synchronous data
+/// Pass [existingHabits] to pre-seed [habitsListProvider] with synchronous data
 /// (e.g. for duplicate-check and valid-submit tests).
 ///
 /// Pass [size] to enlarge the surface so third-party widgets (e.g. EmojiPicker)
 /// have room to render.
-Future<void> _pumpAddTaskPage(
+Future<void> _pumpAddHabitPage(
   WidgetTester tester, {
   required _StubClient stubClient,
-  List<Task>? existingTasks,
+  List<Habit>? existingHabits,
   Size size = const Size(800, 900),
 }) async {
   tester.view.physicalSize = size;
@@ -48,20 +48,20 @@ Future<void> _pumpAddTaskPage(
   final overrides = [
     supabaseClientProvider.overrideWithValue(stubClient),
     sharedPreferencesProvider.overrideWithValue(prefs),
-    if (existingTasks != null)
-      tasksListProvider.overrideWith((_) async => existingTasks),
+    if (existingHabits != null)
+      habitsListProvider.overrideWith((_) async => existingHabits),
   ];
 
   final router = GoRouter(
-    initialLocation: routeTasks,
+    initialLocation: routeHabits,
     routes: [
       GoRoute(
-        path: routeTasks,
+        path: routeHabits,
         builder: (context, _) => const Scaffold(body: SizedBox()),
       ),
       GoRoute(
-        path: routeAddTask,
-        builder: (context, _) => const AddTaskPage(),
+        path: routeAddHabit,
+        builder: (context, _) => const AddHabitPage(),
       ),
     ],
   );
@@ -78,7 +78,7 @@ Future<void> _pumpAddTaskPage(
   );
   await tester.pumpAndSettle();
 
-  unawaited(router.push(routeAddTask));
+  unawaited(router.push(routeAddHabit));
   await tester.pumpAndSettle();
 }
 
@@ -87,17 +87,17 @@ Future<void> _pumpAddTaskPage(
 // ---------------------------------------------------------------------------
 
 void main() {
-  group('AddTaskPage', () {
+  group('AddHabitPage', () {
     testWidgets('empty name blocks submit and shows required error',
         (tester) async {
       final stub = _StubClient();
-      await _pumpAddTaskPage(tester, stubClient: stub);
+      await _pumpAddHabitPage(tester, stubClient: stub);
 
       // Submit with empty name.
-      await tester.tap(find.byKey(const ValueKey('addTaskSubmitButton')));
+      await tester.tap(find.byKey(const ValueKey('addHabitSubmitButton')));
       await tester.pumpAndSettle();
 
-      expect(find.text('Please enter a task name.'), findsOneWidget);
+      expect(find.text('Please enter a habit name.'), findsOneWidget);
       // RPC was not called.
       expect(stub.lastRpcFn, isNull);
     });
@@ -105,30 +105,30 @@ void main() {
     testWidgets('whitespace-only name blocks submit and shows required error',
         (tester) async {
       final stub = _StubClient();
-      await _pumpAddTaskPage(tester, stubClient: stub);
+      await _pumpAddHabitPage(tester, stubClient: stub);
 
       await tester.enterText(
-        find.byKey(const ValueKey('taskNameField')),
+        find.byKey(const ValueKey('habitNameField')),
         '   ',
       );
-      await tester.tap(find.byKey(const ValueKey('addTaskSubmitButton')));
+      await tester.tap(find.byKey(const ValueKey('addHabitSubmitButton')));
       await tester.pumpAndSettle();
 
-      expect(find.text('Please enter a task name.'), findsOneWidget);
+      expect(find.text('Please enter a habit name.'), findsOneWidget);
       expect(stub.lastRpcFn, isNull);
     });
 
     testWidgets('name longer than 200 chars is rejected with too-long error',
         (tester) async {
       final stub = _StubClient();
-      await _pumpAddTaskPage(tester, stubClient: stub, existingTasks: []);
+      await _pumpAddHabitPage(tester, stubClient: stub, existingHabits: []);
 
       // 201 'a' characters -- exceeds the 200-char limit.
       await tester.enterText(
-        find.byKey(const ValueKey('taskNameField')),
+        find.byKey(const ValueKey('habitNameField')),
         'a' * 201,
       );
-      await tester.tap(find.byKey(const ValueKey('addTaskSubmitButton')));
+      await tester.tap(find.byKey(const ValueKey('addHabitSubmitButton')));
       await tester.pumpAndSettle();
 
       expect(find.text('Name must be 200 characters or fewer.'), findsOneWidget);
@@ -140,48 +140,48 @@ void main() {
       final stub = _StubClient();
       // Override with synchronous data so the validator can read the list.
       final existing = [
-        Task(
+        Habit(
           id: 'id-1',
           name: 'Drink water',
-          category: TaskCategory.daily,
-          applicableBreakWindow: TaskBreakWindow.both,
+          category: HabitCategory.daily,
+          applicableBreakWindow: HabitBreakWindow.both,
           alwaysShown: true,
           createdAt: DateTime(2026),
           updatedAt: DateTime(2026),
         ),
       ];
 
-      await _pumpAddTaskPage(
+      await _pumpAddHabitPage(
         tester,
         stubClient: stub,
-        existingTasks: existing,
+        existingHabits: existing,
       );
 
       // Pre-warm the provider so its future resolves before the validator runs.
       // Without this, the first read inside the validator sees AsyncLoading and
       // .value is null, so the duplicate branch is skipped.
       final container = ProviderScope.containerOf(
-        tester.element(find.byType(AddTaskPage)),
+        tester.element(find.byType(AddHabitPage)),
       );
-      await container.read(tasksListProvider.future);
+      await container.read(habitsListProvider.future);
       await tester.pump();
 
       await tester.enterText(
-        find.byKey(const ValueKey('taskNameField')),
+        find.byKey(const ValueKey('habitNameField')),
         'drink water',
       );
-      await tester.tap(find.byKey(const ValueKey('addTaskSubmitButton')));
+      await tester.tap(find.byKey(const ValueKey('addHabitSubmitButton')));
       await tester.pumpAndSettle();
 
       expect(
-        find.text('A task with this name already exists.'),
+        find.text('A habit with this name already exists.'),
         findsOneWidget,
       );
       expect(stub.lastRpcFn, isNull);
     });
 
     testWidgets(
-        'valid submit calls rpc add_task with correct p_-prefixed params',
+        'valid submit calls rpc add_habit with correct p_-prefixed params',
         (tester) async {
       final stub = _StubClient(
         rpcResult: {
@@ -195,10 +195,10 @@ void main() {
           'updated_at': '2026-01-01T00:00:00.000Z',
         },
       );
-      await _pumpAddTaskPage(tester, stubClient: stub, existingTasks: []);
+      await _pumpAddHabitPage(tester, stubClient: stub, existingHabits: []);
 
       await tester.enterText(
-        find.byKey(const ValueKey('taskNameField')),
+        find.byKey(const ValueKey('habitNameField')),
         'Drink water',
       );
 
@@ -206,10 +206,10 @@ void main() {
       // always-shown defaults to false, icon defaults to null --
       // so no interaction needed.
 
-      await tester.tap(find.byKey(const ValueKey('addTaskSubmitButton')));
+      await tester.tap(find.byKey(const ValueKey('addHabitSubmitButton')));
       await tester.pumpAndSettle();
 
-      expect(stub.lastRpcFn, 'add_task');
+      expect(stub.lastRpcFn, 'add_habit');
       expect(stub.lastRpcParams, {
         'p_name': 'Drink water',
         'p_category': 'daily',
@@ -219,12 +219,12 @@ void main() {
       });
     });
 
-    testWidgets('tapping taskIconButton opens the emoji picker sheet',
+    testWidgets('tapping habitIconButton opens the emoji picker sheet',
         (tester) async {
       final stub = _StubClient();
-      await _pumpAddTaskPage(tester, stubClient: stub);
+      await _pumpAddHabitPage(tester, stubClient: stub);
 
-      await tester.tap(find.byKey(const ValueKey('taskIconButton')));
+      await tester.tap(find.byKey(const ValueKey('habitIconButton')));
       await tester.pumpAndSettle();
 
       expect(find.byType(EmojiPicker), findsOneWidget);
@@ -246,10 +246,10 @@ void main() {
           'updated_at': '2026-01-01T00:00:00.000Z',
         },
       );
-      await _pumpAddTaskPage(tester, stubClient: stub, existingTasks: []);
+      await _pumpAddHabitPage(tester, stubClient: stub, existingHabits: []);
 
       // Open picker.
-      await tester.tap(find.byKey(const ValueKey('taskIconButton')));
+      await tester.tap(find.byKey(const ValueKey('habitIconButton')));
       await tester.pumpAndSettle();
 
       // Picker is in emoji-grid view. Tap the search IconButton in the
@@ -278,7 +278,7 @@ void main() {
       expect(find.byType(EmojiPicker), findsNothing);
       expect(
         find.descendant(
-          of: find.byKey(const ValueKey('taskIconButton')),
+          of: find.byKey(const ValueKey('habitIconButton')),
           matching: find.text(selectedEmoji),
         ),
         findsOneWidget,
@@ -286,13 +286,13 @@ void main() {
 
       // Fill name and submit.
       await tester.enterText(
-        find.byKey(const ValueKey('taskNameField')),
+        find.byKey(const ValueKey('habitNameField')),
         'Stretch',
       );
-      await tester.tap(find.byKey(const ValueKey('addTaskSubmitButton')));
+      await tester.tap(find.byKey(const ValueKey('addHabitSubmitButton')));
       await tester.pumpAndSettle();
 
-      expect(stub.lastRpcFn, 'add_task');
+      expect(stub.lastRpcFn, 'add_habit');
       expect(stub.lastRpcParams!['p_icon'], selectedEmoji);
     });
 
@@ -301,13 +301,13 @@ void main() {
       final stub = _StubClient(
         rpcError: const PostgrestException(message: 'rpc failed'),
       );
-      await _pumpAddTaskPage(tester, stubClient: stub, existingTasks: []);
+      await _pumpAddHabitPage(tester, stubClient: stub, existingHabits: []);
 
       await tester.enterText(
-        find.byKey(const ValueKey('taskNameField')),
-        'Some task',
+        find.byKey(const ValueKey('habitNameField')),
+        'Some habit',
       );
-      await tester.tap(find.byKey(const ValueKey('addTaskSubmitButton')));
+      await tester.tap(find.byKey(const ValueKey('addHabitSubmitButton')));
       await tester.pumpAndSettle();
 
       expect(find.text('rpc failed'), findsOneWidget);
@@ -318,15 +318,15 @@ void main() {
         (tester) async {
       final completer = Completer<Map<String, dynamic>>();
       final stub = _StubClient(rpcCompleter: completer);
-      await _pumpAddTaskPage(tester, stubClient: stub, existingTasks: []);
+      await _pumpAddHabitPage(tester, stubClient: stub, existingHabits: []);
 
       await tester.enterText(
-        find.byKey(const ValueKey('taskNameField')),
+        find.byKey(const ValueKey('habitNameField')),
         'Drink water',
       );
 
       // Tap submit - do NOT settle; the stub is gated by the completer.
-      await tester.tap(find.byKey(const ValueKey('addTaskSubmitButton')));
+      await tester.tap(find.byKey(const ValueKey('addHabitSubmitButton')));
       await tester.pump();
 
       // Spinner is visible.
@@ -334,7 +334,7 @@ void main() {
 
       // Button is disabled (onPressed is null).
       final button = tester.widget<ElevatedButton>(
-        find.byKey(const ValueKey('addTaskSubmitButton')),
+        find.byKey(const ValueKey('addHabitSubmitButton')),
       );
       expect(button.onPressed, isNull);
 

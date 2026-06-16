@@ -3,14 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:pomohabits/core/supabase/auth_providers.dart';
-import 'package:pomohabits/data/task.dart';
-import 'package:pomohabits/features/tasks/tasks_controller.dart';
+import 'package:pomohabits/data/habit.dart';
+import 'package:pomohabits/features/habits/habits_controller.dart';
 
 import '../../helpers/stub_filter_builder.dart';
 
 void main() {
-  group('TasksController', () {
-    test('addTask returns Task on success and state has no error', () async {
+  group('HabitsController', () {
+    test('addHabit returns Habit on success and state has no error', () async {
       final stub = _StubClient(
         rpcResult: {
           'id': 'new-id',
@@ -28,22 +28,23 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      final task = await container
-          .read(tasksControllerProvider.notifier)
-          .addTask(
+      final habit = await container
+          .read(habitsControllerProvider.notifier)
+          .addHabit(
             name: 'Drink water',
-            category: TaskCategory.daily,
-            applicableBreakWindow: TaskBreakWindow.both,
+            category: HabitCategory.daily,
+            applicableBreakWindow: HabitBreakWindow.both,
             alwaysShown: true,
           );
 
-      expect(task, isNotNull);
-      expect(task!.id, 'new-id');
-      expect(task.name, 'Drink water');
-      expect(container.read(tasksControllerProvider).hasError, isFalse);
+      expect(habit, isNotNull);
+      expect(habit!.id, 'new-id');
+      expect(habit.name, 'Drink water');
+      expect(container.read(habitsControllerProvider).hasError, isFalse);
     });
 
-    test('addTask returns null and lands error in state when repository throws',
+    test(
+        'addHabit returns null and lands error in state when repository throws',
         () async {
       final stub = _StubClient(
         rpcError: const PostgrestException(message: 'insert failed'),
@@ -53,17 +54,17 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      final task = await container
-          .read(tasksControllerProvider.notifier)
-          .addTask(
+      final habit = await container
+          .read(habitsControllerProvider.notifier)
+          .addHabit(
             name: 'Drink water',
-            category: TaskCategory.daily,
-            applicableBreakWindow: TaskBreakWindow.both,
+            category: HabitCategory.daily,
+            applicableBreakWindow: HabitBreakWindow.both,
             alwaysShown: true,
           );
 
-      expect(task, isNull);
-      final state = container.read(tasksControllerProvider);
+      expect(habit, isNull);
+      final state = container.read(habitsControllerProvider);
       expect(state.hasError, isTrue);
       expect((state.error as PostgrestException).message, 'insert failed');
     });

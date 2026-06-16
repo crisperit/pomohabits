@@ -7,23 +7,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../data/task.dart';
+import '../../../data/habit.dart';
 import '../../../l10n/app_localizations.dart';
-import '../tasks_controller.dart';
+import '../habits_controller.dart';
 
-class AddTaskPage extends ConsumerStatefulWidget {
-  const AddTaskPage({super.key});
+class AddHabitPage extends ConsumerStatefulWidget {
+  const AddHabitPage({super.key});
 
   @override
-  ConsumerState<AddTaskPage> createState() => _AddTaskPageState();
+  ConsumerState<AddHabitPage> createState() => _AddHabitPageState();
 }
 
-class _AddTaskPageState extends ConsumerState<AddTaskPage> {
+class _AddHabitPageState extends ConsumerState<AddHabitPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
 
-  TaskCategory _category = TaskCategory.daily;
-  TaskBreakWindow _breakWindow = TaskBreakWindow.both;
+  HabitCategory _category = HabitCategory.daily;
+  HabitBreakWindow _breakWindow = HabitBreakWindow.both;
   bool _alwaysShown = false;
   String? _icon;
 
@@ -38,7 +38,7 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
     final err = state.error;
     if (err is PostgrestException) return err.message;
     if (err is AuthException) return err.message;
-    return l10n.taskErrorUnexpected;
+    return l10n.habitErrorUnexpected;
   }
 
   Future<void> _submit() async {
@@ -46,8 +46,8 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
 
     final name = _nameController.text.trim();
     final created = await ref
-        .read(tasksControllerProvider.notifier)
-        .addTask(
+        .read(habitsControllerProvider.notifier)
+        .addHabit(
           name: name,
           category: _category,
           applicableBreakWindow: _breakWindow,
@@ -57,10 +57,10 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
     if (!mounted) return;
 
     if (created != null) {
-      ref.invalidate(tasksListProvider);
+      ref.invalidate(habitsListProvider);
       final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.taskAddedSuccess)),
+        SnackBar(content: Text(l10n.habitAddedSuccess)),
       );
       context.pop();
     }
@@ -87,7 +87,7 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
                     child: Row(
                       children: [
                         Text(
-                          l10n.taskIconLabel,
+                          l10n.habitIconLabel,
                           style: Theme.of(builderContext).textTheme.titleMedium,
                         ),
                         const Spacer(),
@@ -97,7 +97,7 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
                               setState(() => _icon = null);
                               Navigator.pop(sheetContext);
                             },
-                            child: Text(l10n.taskIconRemove),
+                            child: Text(l10n.habitIconRemove),
                           ),
                       ],
                     ),
@@ -162,12 +162,12 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final tasksState = ref.watch(tasksControllerProvider);
-    final isLoading = tasksState.isLoading;
-    final errorMsg = _errorMessage(l10n, tasksState);
+    final habitsState = ref.watch(habitsControllerProvider);
+    final isLoading = habitsState.isLoading;
+    final errorMsg = _errorMessage(l10n, habitsState);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.addTaskTitle)),
+      appBar: AppBar(title: Text(l10n.addHabitTitle)),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -183,9 +183,9 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Tooltip(
-                          message: l10n.taskIconLabel,
+                          message: l10n.habitIconLabel,
                           child: InkWell(
-                            key: const ValueKey('taskIconButton'),
+                            key: const ValueKey('habitIconButton'),
                             onTap: () => _openEmojiPicker(context, l10n),
                             borderRadius: BorderRadius.circular(8),
                             child: Container(
@@ -217,10 +217,10 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: TextFormField(
-                            key: const ValueKey('taskNameField'),
+                            key: const ValueKey('habitNameField'),
                             controller: _nameController,
                             decoration: InputDecoration(
-                              labelText: l10n.taskNameLabel,
+                              labelText: l10n.habitNameLabel,
                             ),
                             maxLength: 200,
                             maxLengthEnforcement: MaxLengthEnforcement.none,
@@ -228,19 +228,19 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
                             validator: (v) {
                               final trimmed = v?.trim() ?? '';
                               if (trimmed.isEmpty) {
-                                return l10n.taskErrorNameRequired;
+                                return l10n.habitErrorNameRequired;
                               }
                               if (trimmed.length > 200) {
-                                return l10n.taskErrorNameTooLong;
+                                return l10n.habitErrorNameTooLong;
                               }
-                              final existing = ref.read(tasksListProvider).value;
+                              final existing = ref.read(habitsListProvider).value;
                               if (existing != null) {
                                 final lower = trimmed.toLowerCase();
                                 final isDuplicate = existing.any(
-                                  (t) => t.name.trim().toLowerCase() == lower,
+                                  (h) => h.name.trim().toLowerCase() == lower,
                                 );
                                 if (isDuplicate) {
-                                  return l10n.taskErrorNameDuplicate;
+                                  return l10n.habitErrorNameDuplicate;
                                 }
                               }
                               return null;
@@ -250,21 +250,21 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    DropdownMenu<TaskCategory>(
+                    DropdownMenu<HabitCategory>(
                       initialSelection: _category,
-                      label: Text(l10n.taskCategoryLabel),
+                      label: Text(l10n.habitCategoryLabel),
                       expandedInsets: EdgeInsets.zero,
                       dropdownMenuEntries: [
                         DropdownMenuEntry(
-                          value: TaskCategory.oneTime,
+                          value: HabitCategory.oneTime,
                           label: l10n.categoryOneTime,
                         ),
                         DropdownMenuEntry(
-                          value: TaskCategory.daily,
+                          value: HabitCategory.daily,
                           label: l10n.categoryDaily,
                         ),
                         DropdownMenuEntry(
-                          value: TaskCategory.unlimited,
+                          value: HabitCategory.unlimited,
                           label: l10n.categoryUnlimited,
                         ),
                       ],
@@ -273,21 +273,21 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    DropdownMenu<TaskBreakWindow>(
+                    DropdownMenu<HabitBreakWindow>(
                       initialSelection: _breakWindow,
                       label: Text(l10n.breakWindowLabel),
                       expandedInsets: EdgeInsets.zero,
                       dropdownMenuEntries: [
                         DropdownMenuEntry(
-                          value: TaskBreakWindow.short,
+                          value: HabitBreakWindow.short,
                           label: l10n.breakWindowShort,
                         ),
                         DropdownMenuEntry(
-                          value: TaskBreakWindow.long,
+                          value: HabitBreakWindow.long,
                           label: l10n.breakWindowLong,
                         ),
                         DropdownMenuEntry(
-                          value: TaskBreakWindow.both,
+                          value: HabitBreakWindow.both,
                           label: l10n.breakWindowBoth,
                         ),
                       ],
@@ -306,7 +306,7 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
                     _ErrorSlot(message: errorMsg),
                     const SizedBox(height: 8),
                     ElevatedButton(
-                      key: const ValueKey('addTaskSubmitButton'),
+                      key: const ValueKey('addHabitSubmitButton'),
                       onPressed: isLoading ? null : _submit,
                       child: isLoading
                           ? const SizedBox(
@@ -314,7 +314,7 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
                               height: 20,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                          : Text(l10n.addTaskButton),
+                          : Text(l10n.addHabitButton),
                     ),
                   ],
                 ),

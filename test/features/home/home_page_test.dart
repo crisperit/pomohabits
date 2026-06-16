@@ -80,7 +80,7 @@ void main() {
     });
 
     testWidgets(
-        'Tasks button pushes /tasks so back navigation is possible',
+        'Habits button pushes /habits so back navigation is possible',
         (tester) async {
       SharedPreferences.setMockInitialValues({});
       final prefs = await SharedPreferences.getInstance();
@@ -90,7 +90,7 @@ void main() {
       );
       final stub = _StubClient(auth: _StubAuth());
 
-      // Minimal router: /home -> HomePage, /tasks -> probe scaffold.
+      // Minimal router: /home -> HomePage, /habits -> probe scaffold.
       // No redirect guard needed; the test starts directly at /home.
       final router = GoRouter(
         initialLocation: routeHome,
@@ -100,10 +100,10 @@ void main() {
             builder: (context, state) => const HomePage(),
           ),
           GoRoute(
-            path: routeTasks,
+            path: routeHabits,
             builder: (context, state) => Scaffold(
               appBar: AppBar(),
-              body: const SizedBox(key: ValueKey('tasksProbe')),
+              body: const SizedBox(key: ValueKey('habitsProbe')),
             ),
           ),
         ],
@@ -125,14 +125,14 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Tap the Tasks icon button on the home AppBar.
+      // Tap the Habits icon button on the home AppBar.
       await tester.tap(find.widgetWithIcon(IconButton, Icons.checklist));
       await tester.pumpAndSettle();
 
       // The probe scaffold is now on screen (push succeeded).
-      expect(find.byKey(const ValueKey('tasksProbe')), findsOneWidget);
+      expect(find.byKey(const ValueKey('habitsProbe')), findsOneWidget);
 
-      // A back button is present because /tasks was pushed on top of /home.
+      // A back button is present because /habits was pushed on top of /home.
       expect(find.byType(BackButton), findsOneWidget);
     });
   });

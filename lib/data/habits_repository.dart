@@ -1,0 +1,55 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../core/supabase/auth_providers.dart';
+import 'habit.dart';
+
+const _rpcAddHabit = 'add_habit';
+const _rpcListHabits = 'list_habits';
+
+class HabitsRepository {
+  HabitsRepository(this._client);
+
+  final SupabaseClient _client;
+
+  Future<Habit> addHabit({
+    required String name,
+    required HabitCategory category,
+    required HabitBreakWindow applicableBreakWindow,
+    required bool alwaysShown,
+    String? icon,
+  }) async {
+    final data = await _client.rpc(
+      _rpcAddHabit,
+      params: {
+        'p_name': name,
+        'p_category': category.wire,
+        'p_applicable_break_window': applicableBreakWindow.wire,
+        'p_always_shown': alwaysShown,
+        'p_icon': icon,
+      },
+    );
+    if (data is! Map<String, dynamic>) {
+      throw StateError(
+        'add_habit returned an unexpected response shape: ${data.runtimeType}',
+      );
+    }
+    return Habit.fromRow(data);
+  }
+
+  Future<List<Habit>> fetchHabits() async {
+    final data = await _client.rpc(_rpcListHabits);
+    if (data is! List) {
+      throw StateError(
+        'list_habits returned an unexpected response shape: ${data.runtimeType}',
+      );
+    }
+    return data
+        .map((r) => Habit.fromRow(r as Map<String, dynamic>))
+        .toList();
+  }
+}
+
+final habitsRepositoryProvider = Provider<HabitsRepository>(
+  (ref) => HabitsRepository(ref.watch(supabaseClientProvider)),
+);

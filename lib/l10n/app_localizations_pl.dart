@@ -9,7 +9,7 @@ class AppLocalizationsPl extends AppLocalizations {
   AppLocalizationsPl([String locale = 'pl']) : super(locale);
 
   @override
-  String get appTitle => 'Pomohabits';
+  String get appTitle => 'Taskodoro';
 
   @override
   String get settingsTitle => 'Ustawienia';
@@ -111,28 +111,28 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get homeTasksTooltip => 'Zadania';
+  String get homeHabitsTooltip => 'Nawyki';
 
   @override
-  String get tasksTitle => 'Zadania';
+  String get habitsTitle => 'Nawyki';
 
   @override
-  String get tasksEmpty => 'Brak zadań.';
+  String get habitsEmpty => 'Brak nawyków.';
 
   @override
-  String get tasksRefreshTooltip => 'Odśwież';
+  String get habitsRefreshTooltip => 'Odśwież';
 
   @override
-  String get tasksLoadError => 'Nie udało się wczytać zadań.';
+  String get habitsLoadError => 'Nie udało się wczytać nawyków.';
 
   @override
-  String get addTaskTitle => 'Dodaj zadanie';
+  String get addHabitTitle => 'Dodaj nawyk';
 
   @override
-  String get taskNameLabel => 'Nazwa';
+  String get habitNameLabel => 'Nazwa';
 
   @override
-  String get taskCategoryLabel => 'Kategoria';
+  String get habitCategoryLabel => 'Kategoria';
 
   @override
   String get categoryOneTime => 'Jednorazowe';
@@ -159,27 +159,27 @@ class AppLocalizationsPl extends AppLocalizations {
   String get alwaysShownLabel => 'Zawsze widoczne';
 
   @override
-  String get addTaskButton => 'Dodaj zadanie';
+  String get addHabitButton => 'Dodaj nawyk';
 
   @override
-  String get taskAddedSuccess => 'Zadanie dodane.';
+  String get habitAddedSuccess => 'Nawyk dodany.';
 
   @override
-  String get taskErrorNameRequired => 'Podaj nazwę zadania.';
+  String get habitErrorNameRequired => 'Podaj nazwę nawyku.';
 
   @override
-  String get taskErrorNameTooLong => 'Nazwa może mieć maksymalnie 200 znaków.';
+  String get habitErrorNameTooLong => 'Nazwa może mieć maksymalnie 200 znaków.';
 
   @override
-  String get taskErrorNameDuplicate => 'Zadanie o tej nazwie już istnieje.';
+  String get habitErrorNameDuplicate => 'Nawyk o tej nazwie już istnieje.';
 
   @override
-  String get taskErrorUnexpected =>
-      'Nie udało się dodać zadania. Spróbuj ponownie.';
+  String get habitErrorUnexpected =>
+      'Nie udało się dodać nawyku. Spróbuj ponownie.';
 
   @override
-  String get taskIconLabel => 'Ikona';
+  String get habitIconLabel => 'Ikona';
 
   @override
-  String get taskIconRemove => 'Usuń';
+  String get habitIconRemove => 'Usuń';
 }

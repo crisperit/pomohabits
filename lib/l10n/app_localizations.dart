@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// Application name shown in the app bar
   ///
   /// In en, this message translates to:
-  /// **'Pomohabits'**
+  /// **'Taskodoro'**
   String get appTitle;
 
   /// Title of the Settings page
@@ -290,73 +290,73 @@ abstract class AppLocalizations {
   /// **'Hello, {name}'**
   String homeGreeting(String name);
 
-  /// Tooltip for the Tasks icon button on the home screen AppBar
+  /// Tooltip for the Habits icon button on the home screen AppBar
   ///
   /// In en, this message translates to:
-  /// **'Tasks'**
-  String get homeTasksTooltip;
+  /// **'Habits'**
+  String get homeHabitsTooltip;
 
-  /// Title of the Tasks configuration page
+  /// Title of the Habits configuration page
   ///
   /// In en, this message translates to:
-  /// **'Tasks'**
-  String get tasksTitle;
+  /// **'Habits'**
+  String get habitsTitle;
 
-  /// Message shown on the Tasks page when the list is empty
+  /// Message shown on the Habits page when the list is empty
   ///
   /// In en, this message translates to:
-  /// **'No tasks yet.'**
-  String get tasksEmpty;
+  /// **'No habits yet.'**
+  String get habitsEmpty;
 
-  /// Tooltip for the refresh icon button on the Tasks page AppBar
+  /// Tooltip for the refresh icon button on the Habits page AppBar
   ///
   /// In en, this message translates to:
   /// **'Refresh'**
-  String get tasksRefreshTooltip;
+  String get habitsRefreshTooltip;
 
-  /// Error message shown on the Tasks page when loading fails
+  /// Error message shown on the Habits page when loading fails
   ///
   /// In en, this message translates to:
-  /// **'Could not load tasks.'**
-  String get tasksLoadError;
+  /// **'Could not load habits.'**
+  String get habitsLoadError;
 
-  /// Title of the Add Task form page
+  /// Title of the Add Habit form page
   ///
   /// In en, this message translates to:
-  /// **'Add task'**
-  String get addTaskTitle;
+  /// **'Add habit'**
+  String get addHabitTitle;
 
-  /// Label for the task name text field on the Add Task form
+  /// Label for the habit name text field on the Add Habit form
   ///
   /// In en, this message translates to:
   /// **'Name'**
-  String get taskNameLabel;
+  String get habitNameLabel;
 
-  /// Label for the category dropdown on the Add Task form
+  /// Label for the category dropdown on the Add Habit form
   ///
   /// In en, this message translates to:
   /// **'Category'**
-  String get taskCategoryLabel;
+  String get habitCategoryLabel;
 
-  /// Dropdown option for the one-time task category
+  /// Dropdown option for the one-time habit category
   ///
   /// In en, this message translates to:
   /// **'One-time'**
   String get categoryOneTime;
 
-  /// Dropdown option for the daily task category
+  /// Dropdown option for the daily habit category
   ///
   /// In en, this message translates to:
   /// **'Daily'**
   String get categoryDaily;
 
-  /// Dropdown option for the unlimited task category
+  /// Dropdown option for the unlimited habit category
   ///
   /// In en, this message translates to:
   /// **'Unlimited'**
   String get categoryUnlimited;
 
-  /// Label for the break window dropdown on the Add Task form
+  /// Label for the break window dropdown on the Add Habit form
   ///
   /// In en, this message translates to:
   /// **'Break window'**
@@ -380,59 +380,59 @@ abstract class AppLocalizations {
   /// **'Both'**
   String get breakWindowBoth;
 
-  /// Label for the always-shown toggle on the Add Task form
+  /// Label for the always-shown toggle on the Add Habit form
   ///
   /// In en, this message translates to:
   /// **'Always shown'**
   String get alwaysShownLabel;
 
-  /// Label for the submit button on the Add Task form
+  /// Label for the submit button on the Add Habit form
   ///
   /// In en, this message translates to:
-  /// **'Add task'**
-  String get addTaskButton;
+  /// **'Add habit'**
+  String get addHabitButton;
 
-  /// Snackbar message shown after a task is successfully added
+  /// Snackbar message shown after a habit is successfully added
   ///
   /// In en, this message translates to:
-  /// **'Task added.'**
-  String get taskAddedSuccess;
+  /// **'Habit added.'**
+  String get habitAddedSuccess;
 
-  /// Validation error when the task name field is empty or whitespace
+  /// Validation error when the habit name field is empty or whitespace
   ///
   /// In en, this message translates to:
-  /// **'Please enter a task name.'**
-  String get taskErrorNameRequired;
+  /// **'Please enter a habit name.'**
+  String get habitErrorNameRequired;
 
-  /// Validation error when the task name exceeds 200 characters
+  /// Validation error when the habit name exceeds 200 characters
   ///
   /// In en, this message translates to:
   /// **'Name must be 200 characters or fewer.'**
-  String get taskErrorNameTooLong;
+  String get habitErrorNameTooLong;
 
-  /// Validation error when the task name matches an existing task (case-insensitive)
+  /// Validation error when the habit name matches an existing habit (case-insensitive)
   ///
   /// In en, this message translates to:
-  /// **'A task with this name already exists.'**
-  String get taskErrorNameDuplicate;
+  /// **'A habit with this name already exists.'**
+  String get habitErrorNameDuplicate;
 
-  /// Fallback error message shown when a non-PostgrestException error occurs during task add
+  /// Fallback error message shown when a non-PostgrestException error occurs during habit add
   ///
   /// In en, this message translates to:
-  /// **'Could not add the task. Please try again.'**
-  String get taskErrorUnexpected;
+  /// **'Could not add the habit. Please try again.'**
+  String get habitErrorUnexpected;
 
-  /// Label for the optional emoji icon picker button on the Add Task form
+  /// Label for the optional emoji icon picker button on the Add Habit form
   ///
   /// In en, this message translates to:
   /// **'Icon'**
-  String get taskIconLabel;
+  String get habitIconLabel;
 
   /// Label for the button that clears the chosen emoji icon in the picker sheet
   ///
   /// In en, this message translates to:
   /// **'Remove'**
-  String get taskIconRemove;
+  String get habitIconRemove;
 }
 
 class _AppLocalizationsDelegate

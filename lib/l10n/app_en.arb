@@ -138,53 +138,53 @@
       }
     }
   },
-  "homeTasksTooltip": "Tasks",
-  "@homeTasksTooltip": {
-    "description": "Tooltip for the Tasks icon button on the home screen AppBar"
+  "homeHabitsTooltip": "Habits",
+  "@homeHabitsTooltip": {
+    "description": "Tooltip for the Habits icon button on the home screen AppBar"
   },
-  "tasksTitle": "Tasks",
-  "@tasksTitle": {
-    "description": "Title of the Tasks configuration page"
+  "habitsTitle": "Habits",
+  "@habitsTitle": {
+    "description": "Title of the Habits configuration page"
   },
-  "tasksEmpty": "No tasks yet.",
-  "@tasksEmpty": {
-    "description": "Message shown on the Tasks page when the list is empty"
+  "habitsEmpty": "No habits yet.",
+  "@habitsEmpty": {
+    "description": "Message shown on the Habits page when the list is empty"
   },
-  "tasksRefreshTooltip": "Refresh",
-  "@tasksRefreshTooltip": {
-    "description": "Tooltip for the refresh icon button on the Tasks page AppBar"
+  "habitsRefreshTooltip": "Refresh",
+  "@habitsRefreshTooltip": {
+    "description": "Tooltip for the refresh icon button on the Habits page AppBar"
   },
-  "tasksLoadError": "Could not load tasks.",
-  "@tasksLoadError": {
-    "description": "Error message shown on the Tasks page when loading fails"
+  "habitsLoadError": "Could not load habits.",
+  "@habitsLoadError": {
+    "description": "Error message shown on the Habits page when loading fails"
   },
-  "addTaskTitle": "Add task",
-  "@addTaskTitle": {
-    "description": "Title of the Add Task form page"
+  "addHabitTitle": "Add habit",
+  "@addHabitTitle": {
+    "description": "Title of the Add Habit form page"
   },
-  "taskNameLabel": "Name",
-  "@taskNameLabel": {
-    "description": "Label for the task name text field on the Add Task form"
+  "habitNameLabel": "Name",
+  "@habitNameLabel": {
+    "description": "Label for the habit name text field on the Add Habit form"
   },
-  "taskCategoryLabel": "Category",
-  "@taskCategoryLabel": {
-    "description": "Label for the category dropdown on the Add Task form"
+  "habitCategoryLabel": "Category",
+  "@habitCategoryLabel": {
+    "description": "Label for the category dropdown on the Add Habit form"
   },
   "categoryOneTime": "One-time",
   "@categoryOneTime": {
-    "description": "Dropdown option for the one-time task category"
+    "description": "Dropdown option for the one-time habit category"
   },
   "categoryDaily": "Daily",
   "@categoryDaily": {
-    "description": "Dropdown option for the daily task category"
+    "description": "Dropdown option for the daily habit category"
   },
   "categoryUnlimited": "Unlimited",
   "@categoryUnlimited": {
-    "description": "Dropdown option for the unlimited task category"
+    "description": "Dropdown option for the unlimited habit category"
   },
   "breakWindowLabel": "Break window",
   "@breakWindowLabel": {
-    "description": "Label for the break window dropdown on the Add Task form"
+    "description": "Label for the break window dropdown on the Add Habit form"
   },
   "breakWindowShort": "Short",
   "@breakWindowShort": {
@@ -200,38 +200,38 @@
   },
   "alwaysShownLabel": "Always shown",
   "@alwaysShownLabel": {
-    "description": "Label for the always-shown toggle on the Add Task form"
+    "description": "Label for the always-shown toggle on the Add Habit form"
   },
-  "addTaskButton": "Add task",
-  "@addTaskButton": {
-    "description": "Label for the submit button on the Add Task form"
+  "addHabitButton": "Add habit",
+  "@addHabitButton": {
+    "description": "Label for the submit button on the Add Habit form"
   },
-  "taskAddedSuccess": "Task added.",
-  "@taskAddedSuccess": {
-    "description": "Snackbar message shown after a task is successfully added"
+  "habitAddedSuccess": "Habit added.",
+  "@habitAddedSuccess": {
+    "description": "Snackbar message shown after a habit is successfully added"
   },
-  "taskErrorNameRequired": "Please enter a task name.",
-  "@taskErrorNameRequired": {
-    "description": "Validation error when the task name field is empty or whitespace"
+  "habitErrorNameRequired": "Please enter a habit name.",
+  "@habitErrorNameRequired": {
+    "description": "Validation error when the habit name field is empty or whitespace"
   },
-  "taskErrorNameTooLong": "Name must be 200 characters or fewer.",
-  "@taskErrorNameTooLong": {
-    "description": "Validation error when the task name exceeds 200 characters"
+  "habitErrorNameTooLong": "Name must be 200 characters or fewer.",
+  "@habitErrorNameTooLong": {
+    "description": "Validation error when the habit name exceeds 200 characters"
   },
-  "taskErrorNameDuplicate": "A task with this name already exists.",
-  "@taskErrorNameDuplicate": {
-    "description": "Validation error when the task name matches an existing task (case-insensitive)"
+  "habitErrorNameDuplicate": "A habit with this name already exists.",
+  "@habitErrorNameDuplicate": {
+    "description": "Validation error when the habit name matches an existing habit (case-insensitive)"
   },
-  "taskErrorUnexpected": "Could not add the task. Please try again.",
-  "@taskErrorUnexpected": {
-    "description": "Fallback error message shown when a non-PostgrestException error occurs during task add"
+  "habitErrorUnexpected": "Could not add the habit. Please try again.",
+  "@habitErrorUnexpected": {
+    "description": "Fallback error message shown when a non-PostgrestException error occurs during habit add"
   },
-  "taskIconLabel": "Icon",
-  "@taskIconLabel": {
-    "description": "Label for the optional emoji icon picker button on the Add Task form"
+  "habitIconLabel": "Icon",
+  "@habitIconLabel": {
+    "description": "Label for the optional emoji icon picker button on the Add Habit form"
   },
-  "taskIconRemove": "Remove",
-  "@taskIconRemove": {
+  "habitIconRemove": "Remove",
+  "@habitIconRemove": {
     "description": "Label for the button that clears the chosen emoji icon in the picker sheet"
   }
 }

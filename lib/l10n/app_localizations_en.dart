@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Pomohabits';
+  String get appTitle => 'Taskodoro';
 
   @override
   String get settingsTitle => 'Settings';
@@ -110,28 +110,28 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get homeTasksTooltip => 'Tasks';
+  String get homeHabitsTooltip => 'Habits';
 
   @override
-  String get tasksTitle => 'Tasks';
+  String get habitsTitle => 'Habits';
 
   @override
-  String get tasksEmpty => 'No tasks yet.';
+  String get habitsEmpty => 'No habits yet.';
 
   @override
-  String get tasksRefreshTooltip => 'Refresh';
+  String get habitsRefreshTooltip => 'Refresh';
 
   @override
-  String get tasksLoadError => 'Could not load tasks.';
+  String get habitsLoadError => 'Could not load habits.';
 
   @override
-  String get addTaskTitle => 'Add task';
+  String get addHabitTitle => 'Add habit';
 
   @override
-  String get taskNameLabel => 'Name';
+  String get habitNameLabel => 'Name';
 
   @override
-  String get taskCategoryLabel => 'Category';
+  String get habitCategoryLabel => 'Category';
 
   @override
   String get categoryOneTime => 'One-time';
@@ -158,26 +158,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get alwaysShownLabel => 'Always shown';
 
   @override
-  String get addTaskButton => 'Add task';
+  String get addHabitButton => 'Add habit';
 
   @override
-  String get taskAddedSuccess => 'Task added.';
+  String get habitAddedSuccess => 'Habit added.';
 
   @override
-  String get taskErrorNameRequired => 'Please enter a task name.';
+  String get habitErrorNameRequired => 'Please enter a habit name.';
 
   @override
-  String get taskErrorNameTooLong => 'Name must be 200 characters or fewer.';
+  String get habitErrorNameTooLong => 'Name must be 200 characters or fewer.';
 
   @override
-  String get taskErrorNameDuplicate => 'A task with this name already exists.';
+  String get habitErrorNameDuplicate =>
+      'A habit with this name already exists.';
 
   @override
-  String get taskErrorUnexpected => 'Could not add the task. Please try again.';
+  String get habitErrorUnexpected =>
+      'Could not add the habit. Please try again.';
 
   @override
-  String get taskIconLabel => 'Icon';
+  String get habitIconLabel => 'Icon';
 
   @override
-  String get taskIconRemove => 'Remove';
+  String get habitIconRemove => 'Remove';
 }

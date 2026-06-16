@@ -3,45 +3,45 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:pomohabits/core/supabase/auth_providers.dart';
-import 'package:pomohabits/data/task.dart';
-import 'package:pomohabits/data/tasks_repository.dart';
+import 'package:pomohabits/data/habit.dart';
+import 'package:pomohabits/data/habits_repository.dart';
 
 import '../helpers/stub_filter_builder.dart';
 
 void main() {
-  group('TaskCategory', () {
+  group('HabitCategory', () {
     test('wire values round-trip for all cases', () {
-      expect(TaskCategory.oneTime.wire, 'one_time');
-      expect(TaskCategory.daily.wire, 'daily');
-      expect(TaskCategory.unlimited.wire, 'unlimited');
+      expect(HabitCategory.oneTime.wire, 'one_time');
+      expect(HabitCategory.daily.wire, 'daily');
+      expect(HabitCategory.unlimited.wire, 'unlimited');
 
-      expect(TaskCategory.fromWire('one_time'), TaskCategory.oneTime);
-      expect(TaskCategory.fromWire('daily'), TaskCategory.daily);
-      expect(TaskCategory.fromWire('unlimited'), TaskCategory.unlimited);
+      expect(HabitCategory.fromWire('one_time'), HabitCategory.oneTime);
+      expect(HabitCategory.fromWire('daily'), HabitCategory.daily);
+      expect(HabitCategory.fromWire('unlimited'), HabitCategory.unlimited);
     });
 
     test('fromWire throws ArgumentError on unknown value', () {
-      expect(() => TaskCategory.fromWire('garbage'), throwsArgumentError);
+      expect(() => HabitCategory.fromWire('garbage'), throwsArgumentError);
     });
   });
 
-  group('TaskBreakWindow', () {
+  group('HabitBreakWindow', () {
     test('wire values round-trip for all cases', () {
-      expect(TaskBreakWindow.short.wire, 'short');
-      expect(TaskBreakWindow.long.wire, 'long');
-      expect(TaskBreakWindow.both.wire, 'both');
+      expect(HabitBreakWindow.short.wire, 'short');
+      expect(HabitBreakWindow.long.wire, 'long');
+      expect(HabitBreakWindow.both.wire, 'both');
 
-      expect(TaskBreakWindow.fromWire('short'), TaskBreakWindow.short);
-      expect(TaskBreakWindow.fromWire('long'), TaskBreakWindow.long);
-      expect(TaskBreakWindow.fromWire('both'), TaskBreakWindow.both);
+      expect(HabitBreakWindow.fromWire('short'), HabitBreakWindow.short);
+      expect(HabitBreakWindow.fromWire('long'), HabitBreakWindow.long);
+      expect(HabitBreakWindow.fromWire('both'), HabitBreakWindow.both);
     });
 
     test('fromWire throws ArgumentError on unknown value', () {
-      expect(() => TaskBreakWindow.fromWire('garbage'), throwsArgumentError);
+      expect(() => HabitBreakWindow.fromWire('garbage'), throwsArgumentError);
     });
   });
 
-  group('Task.fromRow', () {
+  group('Habit.fromRow', () {
     final baseRow = <String, dynamic>{
       'id': 'abc-123',
       'name': 'Drink water',
@@ -53,30 +53,30 @@ void main() {
     };
 
     test('maps all fields correctly', () {
-      final task = Task.fromRow(baseRow);
+      final habit = Habit.fromRow(baseRow);
 
-      expect(task.id, 'abc-123');
-      expect(task.name, 'Drink water');
-      expect(task.category, TaskCategory.daily);
-      expect(task.applicableBreakWindow, TaskBreakWindow.both);
-      expect(task.alwaysShown, isTrue);
-      expect(task.createdAt, DateTime.parse('2026-01-01T00:00:00.000Z'));
-      expect(task.updatedAt, DateTime.parse('2026-01-02T12:00:00.000Z'));
+      expect(habit.id, 'abc-123');
+      expect(habit.name, 'Drink water');
+      expect(habit.category, HabitCategory.daily);
+      expect(habit.applicableBreakWindow, HabitBreakWindow.both);
+      expect(habit.alwaysShown, isTrue);
+      expect(habit.createdAt, DateTime.parse('2026-01-01T00:00:00.000Z'));
+      expect(habit.updatedAt, DateTime.parse('2026-01-02T12:00:00.000Z'));
     });
 
     test('icon is null when key is absent', () {
-      final task = Task.fromRow(baseRow);
-      expect(task.icon, isNull);
+      final habit = Habit.fromRow(baseRow);
+      expect(habit.icon, isNull);
     });
 
     test('icon is null when key is present and null', () {
-      final task = Task.fromRow({...baseRow, 'icon': null});
-      expect(task.icon, isNull);
+      final habit = Habit.fromRow({...baseRow, 'icon': null});
+      expect(habit.icon, isNull);
     });
 
     test('icon equals the string when present', () {
-      final task = Task.fromRow({...baseRow, 'icon': '🔥'});
-      expect(task.icon, '🔥');
+      final habit = Habit.fromRow({...baseRow, 'icon': '🔥'});
+      expect(habit.icon, '🔥');
     });
 
     test('ignores extra keys completed_today and completed_ever', () {
@@ -86,14 +86,14 @@ void main() {
         'completed_ever': false,
       };
 
-      expect(() => Task.fromRow(rowWithExtras), returnsNormally);
-      final task = Task.fromRow(rowWithExtras);
-      expect(task.id, 'abc-123');
+      expect(() => Habit.fromRow(rowWithExtras), returnsNormally);
+      final habit = Habit.fromRow(rowWithExtras);
+      expect(habit.id, 'abc-123');
     });
   });
 
-  group('TasksRepository', () {
-    test('addTask calls rpc with p_-prefixed keys and wire enum values',
+  group('HabitsRepository', () {
+    test('addHabit calls rpc with p_-prefixed keys and wire enum values',
         () async {
       final stub = _StubClient(
         rpcResult: {
@@ -112,14 +112,14 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      final task = await container.read(tasksRepositoryProvider).addTask(
+      final habit = await container.read(habitsRepositoryProvider).addHabit(
             name: 'Drink water',
-            category: TaskCategory.daily,
-            applicableBreakWindow: TaskBreakWindow.both,
+            category: HabitCategory.daily,
+            applicableBreakWindow: HabitBreakWindow.both,
             alwaysShown: true,
           );
 
-      expect(stub.lastRpcFn, 'add_task');
+      expect(stub.lastRpcFn, 'add_habit');
       expect(stub.lastRpcParams, {
         'p_name': 'Drink water',
         'p_category': 'daily',
@@ -127,12 +127,12 @@ void main() {
         'p_always_shown': true,
         'p_icon': null,
       });
-      expect(task.id, 'new-id');
-      expect(task.category, TaskCategory.daily);
-      expect(task.applicableBreakWindow, TaskBreakWindow.both);
+      expect(habit.id, 'new-id');
+      expect(habit.category, HabitCategory.daily);
+      expect(habit.applicableBreakWindow, HabitBreakWindow.both);
     });
 
-    test('addTask passes correct wire values for one_time + short', () async {
+    test('addHabit passes correct wire values for one_time + short', () async {
       final stub = _StubClient(
         rpcResult: {
           'id': 'id-2',
@@ -150,10 +150,10 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      await container.read(tasksRepositoryProvider).addTask(
+      await container.read(habitsRepositoryProvider).addHabit(
             name: '10 pushups',
-            category: TaskCategory.oneTime,
-            applicableBreakWindow: TaskBreakWindow.short,
+            category: HabitCategory.oneTime,
+            applicableBreakWindow: HabitBreakWindow.short,
             alwaysShown: false,
           );
 
@@ -161,7 +161,7 @@ void main() {
       expect(stub.lastRpcParams!['p_applicable_break_window'], 'short');
     });
 
-    test('addTask forwards icon as p_icon in rpc params', () async {
+    test('addHabit forwards icon as p_icon in rpc params', () async {
       final stub = _StubClient(
         rpcResult: {
           'id': 'id-3',
@@ -179,10 +179,10 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      await container.read(tasksRepositoryProvider).addTask(
+      await container.read(habitsRepositoryProvider).addHabit(
             name: 'Stretch',
-            category: TaskCategory.daily,
-            applicableBreakWindow: TaskBreakWindow.both,
+            category: HabitCategory.daily,
+            applicableBreakWindow: HabitBreakWindow.both,
             alwaysShown: false,
             icon: '🔥',
           );
@@ -190,7 +190,7 @@ void main() {
       expect(stub.lastRpcParams!['p_icon'], '🔥');
     });
 
-    test('fetchTasks maps a multi-row list_tasks response', () async {
+    test('fetchHabits maps a multi-row list_habits response', () async {
       final stub = _StubClient(
         rpcResult: [
           {
@@ -222,17 +222,18 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      final tasks = await container.read(tasksRepositoryProvider).fetchTasks();
+      final habits =
+          await container.read(habitsRepositoryProvider).fetchHabits();
 
-      expect(stub.lastRpcFn, 'list_tasks');
-      expect(tasks.length, 2);
-      expect(tasks[0].id, 'id-1');
-      expect(tasks[0].category, TaskCategory.daily);
-      expect(tasks[1].id, 'id-2');
-      expect(tasks[1].category, TaskCategory.unlimited);
+      expect(stub.lastRpcFn, 'list_habits');
+      expect(habits.length, 2);
+      expect(habits[0].id, 'id-1');
+      expect(habits[0].category, HabitCategory.daily);
+      expect(habits[1].id, 'id-2');
+      expect(habits[1].category, HabitCategory.unlimited);
     });
 
-    test('fetchTasks propagates PostgrestException without swallowing',
+    test('fetchHabits propagates PostgrestException without swallowing',
         () async {
       final stub = _StubClient(
         rpcError: const PostgrestException(message: 'db error'),
@@ -243,7 +244,7 @@ void main() {
       addTearDown(container.dispose);
 
       await expectLater(
-        container.read(tasksRepositoryProvider).fetchTasks(),
+        container.read(habitsRepositoryProvider).fetchHabits(),
         throwsA(isA<PostgrestException>()),
       );
     });
