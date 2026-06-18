@@ -433,6 +433,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove'**
   String get habitIconRemove;
+
+  /// Built-in break suggestion: prompt the user to stand and stretch
+  ///
+  /// In en, this message translates to:
+  /// **'Stand up and stretch'**
+  String get breakSuggestionStretch;
+
+  /// Built-in break suggestion: prompt the user to drink water
+  ///
+  /// In en, this message translates to:
+  /// **'Drink a glass of water'**
+  String get breakSuggestionHydrate;
+
+  /// Built-in break suggestion: 20-20-20 eye-rest rule
+  ///
+  /// In en, this message translates to:
+  /// **'Look at something 20m away for 20s'**
+  String get breakSuggestionLookAway;
+
+  /// Built-in break suggestion: prompt the user to breathe deeply
+  ///
+  /// In en, this message translates to:
+  /// **'Take five slow, deep breaths'**
+  String get breakSuggestionBreathe;
+
+  /// Built-in break suggestion: prompt the user to take a short walk
+  ///
+  /// In en, this message translates to:
+  /// **'Walk around for a minute'**
+  String get breakSuggestionWalk;
 }
 
 class _AppLocalizationsDelegate

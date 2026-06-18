@@ -182,4 +182,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get habitIconRemove => 'Remove';
+
+  @override
+  String get breakSuggestionStretch => 'Stand up and stretch';
+
+  @override
+  String get breakSuggestionHydrate => 'Drink a glass of water';
+
+  @override
+  String get breakSuggestionLookAway => 'Look at something 20m away for 20s';
+
+  @override
+  String get breakSuggestionBreathe => 'Take five slow, deep breaths';
+
+  @override
+  String get breakSuggestionWalk => 'Walk around for a minute';
 }

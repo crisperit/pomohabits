@@ -233,5 +233,25 @@
   "habitIconRemove": "Remove",
   "@habitIconRemove": {
     "description": "Label for the button that clears the chosen emoji icon in the picker sheet"
+  },
+  "breakSuggestionStretch": "Stand up and stretch",
+  "@breakSuggestionStretch": {
+    "description": "Built-in break suggestion: prompt the user to stand and stretch"
+  },
+  "breakSuggestionHydrate": "Drink a glass of water",
+  "@breakSuggestionHydrate": {
+    "description": "Built-in break suggestion: prompt the user to drink water"
+  },
+  "breakSuggestionLookAway": "Look at something 20m away for 20s",
+  "@breakSuggestionLookAway": {
+    "description": "Built-in break suggestion: 20-20-20 eye-rest rule"
+  },
+  "breakSuggestionBreathe": "Take five slow, deep breaths",
+  "@breakSuggestionBreathe": {
+    "description": "Built-in break suggestion: prompt the user to breathe deeply"
+  },
+  "breakSuggestionWalk": "Walk around for a minute",
+  "@breakSuggestionWalk": {
+    "description": "Built-in break suggestion: prompt the user to take a short walk"
   }
 }

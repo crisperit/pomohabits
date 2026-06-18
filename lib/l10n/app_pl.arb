@@ -55,5 +55,10 @@
   "habitErrorNameDuplicate": "Nawyk o tej nazwie już istnieje.",
   "habitErrorUnexpected": "Nie udało się dodać nawyku. Spróbuj ponownie.",
   "habitIconLabel": "Ikona",
-  "habitIconRemove": "Usuń"
+  "habitIconRemove": "Usuń",
+  "breakSuggestionStretch": "Wstań i rozciągnij się",
+  "breakSuggestionHydrate": "Wypij szklankę wody",
+  "breakSuggestionLookAway": "Popatrz na coś odległego przez 20 sekund",
+  "breakSuggestionBreathe": "Weź pięć głębokich, powolnych oddechów",
+  "breakSuggestionWalk": "Przejdź się przez chwilę"
 }
