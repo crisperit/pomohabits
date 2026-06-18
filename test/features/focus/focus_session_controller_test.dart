@@ -300,5 +300,110 @@ void main() {
       expect(a, equals(b));
       expect(a.hashCode, b.hashCode);
     });
+
+    group('endBreak()', () {
+      test('in shortBreak -> advances to focus, running', () {
+        final fake = FakeTickerFactory();
+        final container = makeContainer(fake);
+        addTearDown(container.dispose);
+
+        container.read(focusSessionControllerProvider.notifier).start();
+        fake.tickN(focusWorkDuration.inSeconds); // -> shortBreak
+
+        expect(
+          container.read(focusSessionControllerProvider).phase,
+          FocusPhase.shortBreak,
+        );
+
+        container.read(focusSessionControllerProvider.notifier).endBreak();
+
+        final s = container.read(focusSessionControllerProvider);
+        expect(s.phase, FocusPhase.focus);
+        expect(s.isRunning, isTrue);
+        expect(s.remaining, focusWorkDuration);
+      });
+
+      test('in longBreak -> advances to focus, running', () {
+        final fake = FakeTickerFactory();
+        final container = makeContainer(fake);
+        addTearDown(container.dispose);
+
+        container.read(focusSessionControllerProvider.notifier).start();
+        for (var cycle = 0; cycle < 3; cycle++) {
+          fake.tickN(focusWorkDuration.inSeconds);
+          fake.tickN(focusShortBreakDuration.inSeconds);
+        }
+        fake.tickN(focusWorkDuration.inSeconds); // -> longBreak
+
+        expect(
+          container.read(focusSessionControllerProvider).phase,
+          FocusPhase.longBreak,
+        );
+
+        container.read(focusSessionControllerProvider.notifier).endBreak();
+
+        final s = container.read(focusSessionControllerProvider);
+        expect(s.phase, FocusPhase.focus);
+        expect(s.isRunning, isTrue);
+        expect(s.remaining, focusWorkDuration);
+      });
+
+      test('paused break -> endBreak() transitions to running focus', () {
+        final fake = FakeTickerFactory();
+        final container = makeContainer(fake);
+        addTearDown(container.dispose);
+
+        container.read(focusSessionControllerProvider.notifier).start();
+        fake.tickN(focusWorkDuration.inSeconds); // -> shortBreak, running
+
+        expect(
+          container.read(focusSessionControllerProvider).phase,
+          FocusPhase.shortBreak,
+        );
+
+        container.read(focusSessionControllerProvider.notifier).pause();
+        expect(
+          container.read(focusSessionControllerProvider).isRunning,
+          isFalse,
+        );
+
+        container.read(focusSessionControllerProvider.notifier).endBreak();
+
+        final s = container.read(focusSessionControllerProvider);
+        expect(s.phase, FocusPhase.focus);
+        expect(s.isRunning, isTrue);
+        expect(s.remaining, focusWorkDuration);
+      });
+
+      test('no-op when idle', () {
+        final fake = FakeTickerFactory();
+        final container = makeContainer(fake);
+        addTearDown(container.dispose);
+
+        container.read(focusSessionControllerProvider.notifier).endBreak();
+
+        final s = container.read(focusSessionControllerProvider);
+        expect(s.phase, FocusPhase.idle);
+      });
+
+      test('no-op when in focus phase', () {
+        final fake = FakeTickerFactory();
+        final container = makeContainer(fake);
+        addTearDown(container.dispose);
+
+        container.read(focusSessionControllerProvider.notifier).start();
+        fake.tickN(10);
+
+        container.read(focusSessionControllerProvider.notifier).endBreak();
+
+        final s = container.read(focusSessionControllerProvider);
+        expect(s.phase, FocusPhase.focus);
+        // remaining should still be decremented by 10 ticks, not reset
+        expect(
+          s.remaining,
+          focusWorkDuration - const Duration(seconds: 10),
+        );
+      });
+    });
   });
 }

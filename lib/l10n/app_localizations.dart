@@ -517,6 +517,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stop'**
   String get focusStop;
+
+  /// Section header on the break screen for habits that are always displayed
+  ///
+  /// In en, this message translates to:
+  /// **'Always shown'**
+  String get breakAlwaysShownLabel;
+
+  /// Section header on the break screen for the single randomly chosen habit
+  ///
+  /// In en, this message translates to:
+  /// **'Your pick for this break'**
+  String get breakRandomLabel;
+
+  /// Section header on the break screen when showing a built-in suggestion (no habits in the pool)
+  ///
+  /// In en, this message translates to:
+  /// **'Try this'**
+  String get breakSuggestionLabel;
+
+  /// Button label to dismiss the break screen and return to the focus session
+  ///
+  /// In en, this message translates to:
+  /// **'End break'**
+  String get breakEndButton;
 }
 
 class _AppLocalizationsDelegate

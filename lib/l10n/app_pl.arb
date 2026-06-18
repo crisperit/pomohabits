@@ -69,5 +69,9 @@
   "focusStart": "Rozpocznij sesję skupienia",
   "focusPause": "Wstrzymaj",
   "focusResume": "Wznów",
-  "focusStop": "Zatrzymaj"
+  "focusStop": "Zatrzymaj",
+  "breakAlwaysShownLabel": "Zawsze widoczne",
+  "breakRandomLabel": "Twój wybór na tę przerwę",
+  "breakSuggestionLabel": "Spróbuj tego",
+  "breakEndButton": "Zakończ przerwę"
 }

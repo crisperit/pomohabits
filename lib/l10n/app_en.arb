@@ -289,5 +289,21 @@
   "focusStop": "Stop",
   "@focusStop": {
     "description": "Button label to stop the session and return to idle"
+  },
+  "breakAlwaysShownLabel": "Always shown",
+  "@breakAlwaysShownLabel": {
+    "description": "Section header on the break screen for habits that are always displayed"
+  },
+  "breakRandomLabel": "Your pick for this break",
+  "@breakRandomLabel": {
+    "description": "Section header on the break screen for the single randomly chosen habit"
+  },
+  "breakSuggestionLabel": "Try this",
+  "@breakSuggestionLabel": {
+    "description": "Section header on the break screen when showing a built-in suggestion (no habits in the pool)"
+  },
+  "breakEndButton": "End break",
+  "@breakEndButton": {
+    "description": "Button label to dismiss the break screen and return to the focus session"
   }
 }

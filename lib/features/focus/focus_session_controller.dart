@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'focus_session.dart';
 
 // ---------------------------------------------------------------------------
-// Ticker seam — injectable so unit tests drive transitions synchronously.
+// Ticker seam -- injectable so unit tests drive transitions synchronously.
 // ---------------------------------------------------------------------------
 
 /// A handle returned by [TickerFactory] that allows the holder to cancel the
@@ -83,8 +83,20 @@ class FocusSessionController extends Notifier<FocusSessionState> {
     state = const FocusSessionState.initial();
   }
 
-  /// Alias for [reset] — matches the plan's `stop()` name.
+  /// Alias for [reset] -- matches the plan's stop() name.
   void stop() => reset();
+
+  /// Immediately ends the current break and advances to the next focus session.
+  ///
+  /// This is the dismiss hatch that satisfies the "never trap the user behind
+  /// an unkillable full-screen surface" guardrail (FR-007). If the session is
+  /// not currently in a break phase, this is a no-op.
+  void endBreak() {
+    if (!state.phase.isBreak) return;
+    _cancelTicker();
+    _advancePhase();
+    if (state.phase != FocusPhase.idle) _startTicker();
+  }
 
   // -------------------------------------------------------------------------
   // Internal helpers
@@ -110,7 +122,7 @@ class FocusSessionController extends Notifier<FocusSessionState> {
       return;
     }
 
-    // Remaining hit zero — advance the phase.
+    // Remaining hit zero -- advance the phase.
     _cancelTicker();
     _advancePhase();
     if (state.phase != FocusPhase.idle) _startTicker();

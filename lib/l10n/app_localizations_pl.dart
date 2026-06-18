@@ -225,4 +225,16 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get focusStop => 'Zatrzymaj';
+
+  @override
+  String get breakAlwaysShownLabel => 'Zawsze widoczne';
+
+  @override
+  String get breakRandomLabel => 'Twój wybór na tę przerwę';
+
+  @override
+  String get breakSuggestionLabel => 'Spróbuj tego';
+
+  @override
+  String get breakEndButton => 'Zakończ przerwę';
 }

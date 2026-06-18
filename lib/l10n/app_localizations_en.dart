@@ -224,4 +224,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get focusStop => 'Stop';
+
+  @override
+  String get breakAlwaysShownLabel => 'Always shown';
+
+  @override
+  String get breakRandomLabel => 'Your pick for this break';
+
+  @override
+  String get breakSuggestionLabel => 'Try this';
+
+  @override
+  String get breakEndButton => 'End break';
 }
