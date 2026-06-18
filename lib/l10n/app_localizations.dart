@@ -541,6 +541,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'End break'**
   String get breakEndButton;
+
+  /// Tooltip and label for the button that marks a habit as complete on the break screen
+  ///
+  /// In en, this message translates to:
+  /// **'Mark complete'**
+  String get breakMarkComplete;
+
+  /// Label shown on a habit tile that has already been marked complete on the break screen
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get breakCompletedLabel;
+
+  /// Snackbar error message shown when marking a habit complete fails
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save that. Try again.'**
+  String get breakCompleteError;
 }
 
 class _AppLocalizationsDelegate

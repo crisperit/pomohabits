@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/time/timezone_providers.dart';
 import '../../data/habit.dart';
 import '../../data/habits_repository.dart';
 
@@ -34,6 +35,7 @@ class HabitsController extends AsyncNotifier<void> {
 final habitsControllerProvider =
     AsyncNotifierProvider<HabitsController, void>(HabitsController.new);
 
-final habitsListProvider = FutureProvider<List<Habit>>(
-  (ref) => ref.watch(habitsRepositoryProvider).fetchHabits(),
-);
+final habitsListProvider = FutureProvider<List<Habit>>((ref) async {
+  final tz = await ref.watch(localTimezoneProvider.future);
+  return ref.watch(habitsRepositoryProvider).fetchHabits(timezone: tz);
+});

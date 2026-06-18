@@ -3,8 +3,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../data/habit.dart';
+import '../../../data/habits_repository.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../habits/habits_controller.dart';
 import '../break_selection.dart';
@@ -39,6 +41,13 @@ class _BreakScreenState extends ConsumerState<BreakScreen> {
   /// Cached built-in suggestion, computed once alongside [_presentation].
   BuiltInSuggestion? _builtInSuggestion;
 
+  /// Habit ids marked complete during this break (optimistic local state only).
+  ///
+  /// Completion is recorded server-side via [_markComplete]; this set tracks
+  /// which tiles should render in their completed visual state for the
+  /// remainder of the break. It does not affect the cached [_presentation].
+  final Set<String> _completedHabitIds = {};
+
   /// Computes and caches [_presentation] and [_builtInSuggestion] from [habits].
   ///
   /// No-op if already cached -- guards against rebuilds triggered by the
@@ -51,6 +60,27 @@ class _BreakScreenState extends ConsumerState<BreakScreen> {
       random: _random,
     );
     _builtInSuggestion = pickBuiltInSuggestion(_random);
+  }
+
+  /// Optimistically marks [habitId] complete and records the completion
+  /// server-side.
+  ///
+  /// Double-tap guard: ignores the call if [habitId] is already in
+  /// [_completedHabitIds]. On [PostgrestException] the optimistic state is
+  /// reverted and a [SnackBar] surfaces the error.
+  Future<void> _markComplete(String habitId) async {
+    if (_completedHabitIds.contains(habitId)) return;
+    setState(() => _completedHabitIds.add(habitId));
+    try {
+      await ref.read(habitsRepositoryProvider).completeHabit(habitId);
+    } on PostgrestException {
+      setState(() => _completedHabitIds.remove(habitId));
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.breakCompleteError)),
+      );
+    }
   }
 
   @override
@@ -167,13 +197,23 @@ class _BreakScreenState extends ConsumerState<BreakScreen> {
         if (presentation.alwaysShownHabits.isNotEmpty) ...[
           _SectionLabel(label: l10n.breakAlwaysShownLabel),
           ...presentation.alwaysShownHabits.map(
-            (habit) => _HabitTile(habit: habit),
+            (habit) => _HabitTile(
+              habit: habit,
+              isCompleted: _completedHabitIds.contains(habit.id),
+              onComplete: () => _markComplete(habit.id),
+            ),
           ),
           const SizedBox(height: 16),
         ],
         if (presentation.randomizedHabit != null) ...[
           _SectionLabel(label: l10n.breakRandomLabel),
-          _HabitTile(habit: presentation.randomizedHabit!),
+          _HabitTile(
+            habit: presentation.randomizedHabit!,
+            isCompleted: _completedHabitIds.contains(
+              presentation.randomizedHabit!.id,
+            ),
+            onComplete: () => _markComplete(presentation.randomizedHabit!.id),
+          ),
         ] else if (presentation.useBuiltInSuggestion) ...[
           _SectionLabel(label: l10n.breakSuggestionLabel),
           Padding(
@@ -244,12 +284,46 @@ class _SectionLabel extends StatelessWidget {
   }
 }
 
+/// A single habit tile on the break presentation.
+///
+/// When [isCompleted] the tile shows a filled check icon and struck-through
+/// title text; the complete action is disabled. Otherwise the leading icon and
+/// a trailing [IconButton] with [onComplete] are shown.
 class _HabitTile extends StatelessWidget {
-  const _HabitTile({required this.habit});
+  const _HabitTile({
+    required this.habit,
+    required this.isCompleted,
+    required this.onComplete,
+  });
+
   final Habit habit;
+  final bool isCompleted;
+
+  /// Called when the user taps the mark-complete button.
+  ///
+  /// Pass `null` (via a wrapping `() =>` closure that guards) or rely on
+  /// [isCompleted] to disable the button when already complete.
+  final VoidCallback onComplete;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    if (isCompleted) {
+      return ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: Icon(
+          Icons.check_circle,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        title: Text(
+          habit.name,
+          style: const TextStyle(decoration: TextDecoration.lineThrough),
+        ),
+        subtitle: Text(l10n.breakCompletedLabel),
+      );
+    }
+
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: habit.icon != null
@@ -258,6 +332,11 @@ class _HabitTile extends StatelessWidget {
               ? const Icon(Icons.push_pin)
               : const Icon(Icons.task_alt),
       title: Text(habit.name),
+      trailing: IconButton(
+        icon: const Icon(Icons.check_circle_outline),
+        tooltip: l10n.breakMarkComplete,
+        onPressed: onComplete,
+      ),
     );
   }
 }

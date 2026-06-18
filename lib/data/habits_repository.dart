@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -6,6 +7,7 @@ import 'habit.dart';
 
 const _rpcAddHabit = 'add_habit';
 const _rpcListHabits = 'list_habits';
+const _rpcCompleteHabit = 'complete_habit';
 
 class HabitsRepository {
   HabitsRepository(this._client);
@@ -37,8 +39,11 @@ class HabitsRepository {
     return Habit.fromRow(data);
   }
 
-  Future<List<Habit>> fetchHabits() async {
-    final data = await _client.rpc(_rpcListHabits);
+  Future<List<Habit>> fetchHabits({String timezone = 'UTC'}) async {
+    final data = await _client.rpc(
+      _rpcListHabits,
+      params: {'p_timezone': timezone},
+    );
     if (data is! List) {
       throw StateError(
         'list_habits returned an unexpected response shape: ${data.runtimeType}',
@@ -47,6 +52,18 @@ class HabitsRepository {
     return data
         .map((r) => Habit.fromRow(r as Map<String, dynamic>))
         .toList();
+  }
+
+  Future<void> completeHabit(String habitId) async {
+    try {
+      await _client.rpc(
+        _rpcCompleteHabit,
+        params: {'p_habit_id': habitId},
+      );
+    } on PostgrestException catch (e) {
+      debugPrint('completeHabit failed: $e');
+      rethrow;
+    }
   }
 }
 

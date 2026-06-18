@@ -5,9 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:pomohabits/core/preferences/preferences_providers.dart';
 import 'package:pomohabits/data/habit.dart';
+import 'package:pomohabits/data/habits_repository.dart';
 import 'package:pomohabits/features/focus/focus_session.dart';
 import 'package:pomohabits/features/focus/focus_session_controller.dart';
 import 'package:pomohabits/features/focus/fullscreen_controller.dart';
@@ -61,6 +63,54 @@ class _FakeFocusController extends FocusSessionController {
   void reset() {}
 }
 
+/// Minimal [SupabaseClient] stub: all methods throw via [noSuchMethod].
+class _NullClient implements SupabaseClient {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+/// Stub [HabitsRepository] for mark-complete tests.
+///
+/// Records the ids passed to [completeHabit]. When [throwOnComplete] is true,
+/// every [completeHabit] call throws a [PostgrestException] to simulate a
+/// server failure. When [blockOn] is provided, [completeHabit] awaits that
+/// completer before recording the id -- use this to hold the call in-flight
+/// so the widget tree can be inspected while the async operation is pending.
+class _StubHabitsRepository extends HabitsRepository {
+  _StubHabitsRepository({
+    this.throwOnComplete = false,
+    this.blockOn,
+  }) : super(_NullClient());
+
+  final bool throwOnComplete;
+  final Completer<void>? blockOn;
+  final List<String> completedIds = [];
+
+  @override
+  Future<void> completeHabit(String habitId) async {
+    if (throwOnComplete) {
+      throw const PostgrestException(message: 'simulated failure');
+    }
+    if (blockOn != null) {
+      await blockOn!.future;
+    }
+    completedIds.add(habitId);
+  }
+
+  @override
+  Future<List<Habit>> fetchHabits({String timezone = 'UTC'}) async => [];
+
+  @override
+  Future<Habit> addHabit({
+    required String name,
+    required HabitCategory category,
+    required HabitBreakWindow applicableBreakWindow,
+    required bool alwaysShown,
+    String? icon,
+  }) =>
+      throw UnimplementedError('addHabit not used in break_screen tests');
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -103,35 +153,43 @@ Habit _habit({
 /// Uses the same [AsyncValue] dispatch pattern as [habits_page_test.dart]:
 /// `AsyncData` resolves immediately, `AsyncError` throws, `AsyncLoading` uses
 /// a [Completer] that never resolves (no wall-clock delay needed).
+///
+/// Pass [stubRepo] to also override [habitsRepositoryProvider] for mark-complete
+/// tests.
 Future<_FakeFocusController> _pump(
   WidgetTester tester, {
   required FocusSessionState sessionState,
   required AsyncValue<List<Habit>> habitsValue,
   bool isLongBreak = false,
   Completer<List<Habit>>? loadingCompleter,
+  _StubHabitsRepository? stubRepo,
 }) async {
   SharedPreferences.setMockInitialValues({});
   final prefs = await SharedPreferences.getInstance();
   final fakeFullscreen = _FakeFullscreenController();
   final fakeFocus = _FakeFocusController(sessionState);
 
+  final overrides = [
+    sharedPreferencesProvider.overrideWithValue(prefs),
+    fullscreenControllerProvider.overrideWithValue(fakeFullscreen),
+    focusSessionControllerProvider.overrideWith(() => fakeFocus),
+    habitsListProvider.overrideWith((ref) async {
+      if (habitsValue is AsyncData<List<Habit>>) {
+        return habitsValue.value;
+      }
+      if (habitsValue is AsyncError<List<Habit>>) {
+        throw habitsValue.error;
+      }
+      // AsyncLoading: use a never-resolving Completer.
+      return (loadingCompleter ?? Completer<List<Habit>>()).future;
+    }),
+    if (stubRepo != null)
+      habitsRepositoryProvider.overrideWithValue(stubRepo),
+  ];
+
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [
-        sharedPreferencesProvider.overrideWithValue(prefs),
-        fullscreenControllerProvider.overrideWithValue(fakeFullscreen),
-        focusSessionControllerProvider.overrideWith(() => fakeFocus),
-        habitsListProvider.overrideWith((ref) async {
-          if (habitsValue is AsyncData<List<Habit>>) {
-            return habitsValue.value;
-          }
-          if (habitsValue is AsyncError<List<Habit>>) {
-            throw habitsValue.error;
-          }
-          // AsyncLoading: use a never-resolving Completer.
-          return (loadingCompleter ?? Completer<List<Habit>>()).future;
-        }),
-      ],
+      overrides: overrides,
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
@@ -366,6 +424,165 @@ void main() {
 
         // Same habit should still be shown.
         expect(find.text(picked!), findsOneWidget);
+      });
+    });
+
+    // -------------------------------------------------------------------------
+    // Mark-complete affordance
+    // -------------------------------------------------------------------------
+
+    group('mark-complete: default state shows action control', () {
+      testWidgets('each habit tile renders check_circle_outline in default state',
+          (tester) async {
+        final habits = [
+          _habit(name: 'Drink water', alwaysShown: true),
+          _habit(name: 'Stretch', alwaysShown: false),
+        ];
+        final stub = _StubHabitsRepository();
+
+        await _pump(
+          tester,
+          sessionState: _shortBreakState,
+          habitsValue: AsyncData(habits),
+          stubRepo: stub,
+        );
+        await tester.pumpAndSettle();
+
+        // Both tiles should show the outline check icon (mark-complete button).
+        expect(
+          find.byIcon(Icons.check_circle_outline),
+          findsNWidgets(2),
+        );
+        // No filled check yet.
+        expect(find.byIcon(Icons.check_circle), findsNothing);
+      });
+    });
+
+    group('mark-complete: happy path', () {
+      testWidgets(
+          'tapping mark-complete calls completeHabit and tile shows done state',
+          (tester) async {
+        final habits = [
+          _habit(name: 'Drink water', alwaysShown: true),
+        ];
+        final stub = _StubHabitsRepository();
+
+        await _pump(
+          tester,
+          sessionState: _shortBreakState,
+          habitsValue: AsyncData(habits),
+          stubRepo: stub,
+        );
+        await tester.pumpAndSettle();
+
+        // Tap the mark-complete button on the tile.
+        await tester.tap(find.byIcon(Icons.check_circle_outline));
+        await tester.pumpAndSettle();
+
+        // completeHabit should have been called with the habit's id.
+        expect(stub.completedIds, contains('Drink water'));
+
+        // The tile should now show the filled check (completed state).
+        expect(find.byIcon(Icons.check_circle), findsOneWidget);
+        // The outline icon should be gone (button removed when completed).
+        expect(find.byIcon(Icons.check_circle_outline), findsNothing);
+
+        // Title should have strike-through decoration; verify via widget tree.
+        final titleWidget = tester.widget<Text>(find.text('Drink water'));
+        expect(
+          titleWidget.style?.decoration,
+          TextDecoration.lineThrough,
+        );
+      });
+
+      testWidgets('double-tap guard: second tap does not call completeHabit again',
+          (tester) async {
+        // Use a Completer to hold completeHabit in-flight so the widget tree
+        // can be inspected while the async call is still pending. This lets
+        // us verify the guard fires before the server round-trip finishes.
+        final completer = Completer<void>();
+        final habits = [
+          _habit(name: 'Stretch', alwaysShown: true),
+        ];
+        final stub = _StubHabitsRepository(blockOn: completer);
+
+        await _pump(
+          tester,
+          sessionState: _shortBreakState,
+          habitsValue: AsyncData(habits),
+          stubRepo: stub,
+        );
+        await tester.pumpAndSettle();
+
+        // First tap -- triggers _markComplete, which calls setState optimistically
+        // (adds the id to _completedHabitIds) then awaits completeHabit (blocked).
+        await tester.tap(find.byIcon(Icons.check_circle_outline));
+
+        // Single frame: lets the synchronous setState run so the tile rebuilds
+        // into its completed state, swapping out the mark-complete button.
+        await tester.pump();
+
+        // The guard is enforced at two levels:
+        //   1. UI-level: the optimistic setState immediately replaces the
+        //      mark-complete button with the completed tile, so the button no
+        //      longer exists in the widget tree. A second tap cannot reach the
+        //      handler because the target widget is structurally absent.
+        //   2. Code-level: _markComplete has an early-return if the id is
+        //      already in _completedHabitIds (_completedHabitIds.contains(id)).
+        //      This is the backstop for any code path that bypasses the UI.
+        //
+        // We verify level 1 here: check_circle_outline is gone and the
+        // completed state (check_circle) is in its place.
+        expect(find.byIcon(Icons.check_circle_outline), findsNothing);
+        expect(find.byIcon(Icons.check_circle), findsOneWidget);
+        // No second tester.tap is attempted: tester.tap on a finder that
+        // matches zero widgets throws "could not find any matching widgets"
+        // regardless of warnIfMissed (that flag only suppresses the warning
+        // when a widget IS found but the hit-test misses). The structural
+        // absence proven above IS the guard test: the button simply does not
+        // exist for a second tap to land on.
+
+        // Unblock the repository and let everything settle.
+        completer.complete();
+        await tester.pumpAndSettle();
+
+        // The repository must have been called exactly once: the second tap
+        // could not reach the handler because the button was already gone.
+        expect(stub.completedIds.length, 1);
+        expect(stub.completedIds, contains('Stretch'));
+      });
+    });
+
+    group('mark-complete: failure path', () {
+      testWidgets(
+          'failing completeHabit reverts tile to default state and shows snackbar',
+          (tester) async {
+        final habits = [
+          _habit(name: 'Meditate', alwaysShown: true),
+        ];
+        final stub = _StubHabitsRepository(throwOnComplete: true);
+
+        await _pump(
+          tester,
+          sessionState: _shortBreakState,
+          habitsValue: AsyncData(habits),
+          stubRepo: stub,
+        );
+        await tester.pumpAndSettle();
+
+        // Tap the mark-complete button.
+        await tester.tap(find.byIcon(Icons.check_circle_outline));
+        await tester.pumpAndSettle();
+
+        // The tile should have reverted - outline icon back, no filled check.
+        expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
+        expect(find.byIcon(Icons.check_circle), findsNothing);
+
+        // A SnackBar with the error text should be visible.
+        expect(
+          find.text("Couldn't save that. Try again."),
+          findsOneWidget,
+        );
       });
     });
   });

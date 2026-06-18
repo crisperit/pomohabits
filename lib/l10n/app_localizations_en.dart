@@ -236,4 +236,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get breakEndButton => 'End break';
+
+  @override
+  String get breakMarkComplete => 'Mark complete';
+
+  @override
+  String get breakCompletedLabel => 'Done';
+
+  @override
+  String get breakCompleteError => 'Couldn\'t save that. Try again.';
 }

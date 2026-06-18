@@ -305,5 +305,17 @@
   "breakEndButton": "End break",
   "@breakEndButton": {
     "description": "Button label to dismiss the break screen and return to the focus session"
+  },
+  "breakMarkComplete": "Mark complete",
+  "@breakMarkComplete": {
+    "description": "Tooltip and label for the button that marks a habit as complete on the break screen"
+  },
+  "breakCompletedLabel": "Done",
+  "@breakCompletedLabel": {
+    "description": "Label shown on a habit tile that has already been marked complete on the break screen"
+  },
+  "breakCompleteError": "Couldn't save that. Try again.",
+  "@breakCompleteError": {
+    "description": "Snackbar error message shown when marking a habit complete fails"
   }
 }

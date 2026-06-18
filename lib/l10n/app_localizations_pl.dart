@@ -237,4 +237,13 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get breakEndButton => 'Zakończ przerwę';
+
+  @override
+  String get breakMarkComplete => 'Oznacz jako zrobione';
+
+  @override
+  String get breakCompletedLabel => 'Zrobione';
+
+  @override
+  String get breakCompleteError => 'Nie udało się zapisać. Spróbuj ponownie.';
 }

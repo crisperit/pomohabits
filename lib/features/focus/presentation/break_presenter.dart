@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../habits/habits_controller.dart';
 import '../focus_session.dart';
 import '../focus_session_controller.dart';
 import '../fullscreen_controller.dart';
@@ -57,6 +58,11 @@ class _BreakPresenterState extends ConsumerState<BreakPresenter> {
             _isLongBreak =
                 ref.read(focusSessionControllerProvider).isLongBreak;
           });
+          // Invalidate the habits list so the next BreakScreen build fetches
+          // fresh eligibility flags (completed_today / completed_ever).
+          // Invalidating on entry rather than mid-break prevents the current
+          // break's cached presentation from flashing to the loading state.
+          ref.invalidate(habitsListProvider);
           // Fire-and-forget per unawaited_futures convention (Future discarded
           // intentionally -- fullscreen toggling is best-effort).
           // ignore: discarded_futures

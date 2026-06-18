@@ -25,6 +25,22 @@ class BreakPresentation {
   final bool useBuiltInSuggestion;
 }
 
+/// Returns `true` when [habit] may be shown on a break according to its
+/// completion state and category rules:
+///
+/// - [HabitCategory.oneTime]: eligible only when the habit has never been
+///   completed (`!habit.completedEver`).
+/// - [HabitCategory.daily]: eligible only when the habit has not been
+///   completed today (`!habit.completedToday`); `completedEver` is irrelevant
+///   because the daily flag resets at local midnight.
+/// - [HabitCategory.unlimited]: always eligible regardless of completion
+///   state.
+bool isHabitEligible(Habit habit) => switch (habit.category) {
+      HabitCategory.oneTime => !habit.completedEver,
+      HabitCategory.daily => !habit.completedToday,
+      HabitCategory.unlimited => true,
+    };
+
 /// Returns `true` if [habit] is eligible for display in the current break
 /// window described by [isLongBreak].
 ///
@@ -59,6 +75,7 @@ BreakPresentation selectBreakPresentation({
 
   for (final habit in habits) {
     if (!_windowMatches(habit, isLongBreak: isLongBreak)) continue;
+    if (!isHabitEligible(habit)) continue;
     if (habit.alwaysShown) {
       alwaysShown.add(habit);
     } else {
