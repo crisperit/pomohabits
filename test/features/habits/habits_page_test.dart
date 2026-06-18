@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:pomohabits/core/preferences/preferences_providers.dart';
+import 'package:pomohabits/core/time/timezone_providers.dart';
 import 'package:pomohabits/data/habit.dart';
 import 'package:pomohabits/data/habits_repository.dart';
 import 'package:pomohabits/features/habits/presentation/habits_page.dart';
@@ -222,6 +223,7 @@ void main() {
             habitsRepositoryProvider.overrideWith(
               (ref) => _CountingRepository(onFetch: () => ++fetchCount),
             ),
+            localTimezoneProvider.overrideWith((ref) async => 'UTC'),
             sharedPreferencesProvider.overrideWithValue(prefs),
           ],
           child: const MaterialApp(
@@ -257,7 +259,7 @@ class _CountingRepository extends HabitsRepository {
   final int Function() onFetch;
 
   @override
-  Future<List<Habit>> fetchHabits() async {
+  Future<List<Habit>> fetchHabits({String timezone = 'UTC'}) async {
     onFetch();
     return [];
   }

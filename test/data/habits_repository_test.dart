@@ -79,16 +79,22 @@ void main() {
       expect(habit.icon, '🔥');
     });
 
-    test('ignores extra keys completed_today and completed_ever', () {
-      final rowWithExtras = {
+    test('completed_today and completed_ever are parsed when present', () {
+      final habit = Habit.fromRow({
         ...baseRow,
         'completed_today': true,
-        'completed_ever': false,
-      };
+        'completed_ever': true,
+      });
 
-      expect(() => Habit.fromRow(rowWithExtras), returnsNormally);
-      final habit = Habit.fromRow(rowWithExtras);
-      expect(habit.id, 'abc-123');
+      expect(habit.completedToday, isTrue);
+      expect(habit.completedEver, isTrue);
+    });
+
+    test('completed_today and completed_ever default to false when absent', () {
+      final habit = Habit.fromRow(baseRow);
+
+      expect(habit.completedToday, isFalse);
+      expect(habit.completedEver, isFalse);
     });
   });
 
@@ -245,6 +251,63 @@ void main() {
 
       await expectLater(
         container.read(habitsRepositoryProvider).fetchHabits(),
+        throwsA(isA<PostgrestException>()),
+      );
+    });
+
+    test('fetchHabits forwards timezone as p_timezone param', () async {
+      final stub = _StubClient(rpcResult: <dynamic>[]);
+      final container = ProviderContainer(
+        overrides: [supabaseClientProvider.overrideWith((ref) => stub)],
+      );
+      addTearDown(container.dispose);
+
+      await container
+          .read(habitsRepositoryProvider)
+          .fetchHabits(timezone: 'Europe/Warsaw');
+
+      expect(stub.lastRpcFn, 'list_habits');
+      expect(stub.lastRpcParams, {'p_timezone': 'Europe/Warsaw'});
+    });
+
+    test('fetchHabits defaults timezone to UTC', () async {
+      final stub = _StubClient(rpcResult: <dynamic>[]);
+      final container = ProviderContainer(
+        overrides: [supabaseClientProvider.overrideWith((ref) => stub)],
+      );
+      addTearDown(container.dispose);
+
+      await container.read(habitsRepositoryProvider).fetchHabits();
+
+      expect(stub.lastRpcParams, {'p_timezone': 'UTC'});
+    });
+
+    test('completeHabit calls complete_habit rpc with p_habit_id', () async {
+      final stub = _StubClient(rpcResult: null);
+      final container = ProviderContainer(
+        overrides: [supabaseClientProvider.overrideWith((ref) => stub)],
+      );
+      addTearDown(container.dispose);
+
+      await container
+          .read(habitsRepositoryProvider)
+          .completeHabit('some-id');
+
+      expect(stub.lastRpcFn, 'complete_habit');
+      expect(stub.lastRpcParams, {'p_habit_id': 'some-id'});
+    });
+
+    test('completeHabit propagates PostgrestException', () async {
+      final stub = _StubClient(
+        rpcError: const PostgrestException(message: 'rpc error'),
+      );
+      final container = ProviderContainer(
+        overrides: [supabaseClientProvider.overrideWith((ref) => stub)],
+      );
+      addTearDown(container.dispose);
+
+      await expectLater(
+        container.read(habitsRepositoryProvider).completeHabit('some-id'),
         throwsA(isA<PostgrestException>()),
       );
     });

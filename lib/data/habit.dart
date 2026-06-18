@@ -54,6 +54,8 @@ class Habit {
     this.icon,
     required this.createdAt,
     required this.updatedAt,
+    this.completedToday = false,
+    this.completedEver = false,
   });
 
   final String id;
@@ -64,6 +66,8 @@ class Habit {
   final String? icon;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final bool completedToday;
+  final bool completedEver;
 
   factory Habit.fromRow(Map<String, dynamic> row) {
     return Habit(
@@ -76,6 +80,8 @@ class Habit {
       icon: row['icon'] as String?,
       createdAt: DateTime.parse(row['created_at'] as String),
       updatedAt: DateTime.parse(row['updated_at'] as String),
+      completedToday: row['completed_today'] as bool? ?? false,
+      completedEver: row['completed_ever'] as bool? ?? false,
     );
   }
 }
