@@ -14,15 +14,20 @@ Habit _makeHabit({
   required String name,
   required HabitBreakWindow window,
   required bool alwaysShown,
+  HabitCategory category = HabitCategory.daily,
+  bool completedToday = false,
+  bool completedEver = false,
 }) {
   return Habit(
     id: id,
     name: name,
-    category: HabitCategory.daily,
+    category: category,
     applicableBreakWindow: window,
     alwaysShown: alwaysShown,
     createdAt: DateTime(2026),
     updatedAt: DateTime(2026),
+    completedToday: completedToday,
+    completedEver: completedEver,
   );
 }
 
@@ -31,6 +36,298 @@ Habit _makeHabit({
 // ---------------------------------------------------------------------------
 
 void main() {
+  group('isHabitEligible: category x completion flag truth table', () {
+    test('daily, not completed today, not completed ever: eligible', () {
+      final habit = _makeHabit(
+        id: 'e1',
+        name: 'h',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+        category: HabitCategory.daily,
+        completedToday: false,
+        completedEver: false,
+      );
+      expect(isHabitEligible(habit), isTrue);
+    });
+
+    test('daily, completed today: not eligible', () {
+      final habit = _makeHabit(
+        id: 'e2',
+        name: 'h',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+        category: HabitCategory.daily,
+        completedToday: true,
+        completedEver: false,
+      );
+      expect(isHabitEligible(habit), isFalse);
+    });
+
+    test('daily, completedEver true but not completedToday: eligible (reset semantics)', () {
+      final habit = _makeHabit(
+        id: 'e3',
+        name: 'h',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+        category: HabitCategory.daily,
+        completedToday: false,
+        completedEver: true,
+      );
+      expect(isHabitEligible(habit), isTrue);
+    });
+
+    test('daily, completedToday true AND completedEver true: not eligible', () {
+      final habit = _makeHabit(
+        id: 'e4',
+        name: 'h',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+        category: HabitCategory.daily,
+        completedToday: true,
+        completedEver: true,
+      );
+      expect(isHabitEligible(habit), isFalse);
+    });
+
+    test('oneTime, never completed: eligible', () {
+      final habit = _makeHabit(
+        id: 'e5',
+        name: 'h',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+        category: HabitCategory.oneTime,
+        completedToday: false,
+        completedEver: false,
+      );
+      expect(isHabitEligible(habit), isTrue);
+    });
+
+    test('oneTime, completedToday only (not completedEver): eligible', () {
+      final habit = _makeHabit(
+        id: 'e6',
+        name: 'h',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+        category: HabitCategory.oneTime,
+        completedToday: true,
+        completedEver: false,
+      );
+      expect(isHabitEligible(habit), isTrue);
+    });
+
+    test('oneTime, completedEver true: not eligible', () {
+      final habit = _makeHabit(
+        id: 'e7',
+        name: 'h',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+        category: HabitCategory.oneTime,
+        completedToday: false,
+        completedEver: true,
+      );
+      expect(isHabitEligible(habit), isFalse);
+    });
+
+    test('oneTime, completedToday true AND completedEver true: not eligible', () {
+      final habit = _makeHabit(
+        id: 'e8',
+        name: 'h',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+        category: HabitCategory.oneTime,
+        completedToday: true,
+        completedEver: true,
+      );
+      expect(isHabitEligible(habit), isFalse);
+    });
+
+    test('unlimited, not completed: eligible', () {
+      final habit = _makeHabit(
+        id: 'e9',
+        name: 'h',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+        category: HabitCategory.unlimited,
+        completedToday: false,
+        completedEver: false,
+      );
+      expect(isHabitEligible(habit), isTrue);
+    });
+
+    test('unlimited, completedToday true AND completedEver true: still eligible', () {
+      final habit = _makeHabit(
+        id: 'e10',
+        name: 'h',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+        category: HabitCategory.unlimited,
+        completedToday: true,
+        completedEver: true,
+      );
+      expect(isHabitEligible(habit), isTrue);
+    });
+  });
+
+  group('selectBreakPresentation: eligibility filtering', () {
+    test('daily completed today is excluded from random pool', () {
+      final habit = _makeHabit(
+        id: 'f1',
+        name: 'Morning run',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+        category: HabitCategory.daily,
+        completedToday: true,
+      );
+      final result = selectBreakPresentation(
+        habits: [habit],
+        isLongBreak: false,
+        random: Random(0),
+      );
+      expect(result.randomizedHabit, isNull);
+      expect(result.useBuiltInSuggestion, isTrue);
+    });
+
+    test('daily NOT completed today is included in random pool', () {
+      final habit = _makeHabit(
+        id: 'f2',
+        name: 'Morning run',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+        category: HabitCategory.daily,
+        completedToday: false,
+      );
+      final result = selectBreakPresentation(
+        habits: [habit],
+        isLongBreak: false,
+        random: Random(0),
+      );
+      expect(result.randomizedHabit, equals(habit));
+      expect(result.useBuiltInSuggestion, isFalse);
+    });
+
+    test('daily completedEver but NOT completedToday is included (reset semantics)', () {
+      final habit = _makeHabit(
+        id: 'f3',
+        name: 'Morning run',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+        category: HabitCategory.daily,
+        completedToday: false,
+        completedEver: true,
+      );
+      final result = selectBreakPresentation(
+        habits: [habit],
+        isLongBreak: false,
+        random: Random(0),
+      );
+      expect(result.randomizedHabit, equals(habit));
+      expect(result.useBuiltInSuggestion, isFalse);
+    });
+
+    test('oneTime completedEver is excluded from random pool', () {
+      final habit = _makeHabit(
+        id: 'f4',
+        name: 'Write a letter',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+        category: HabitCategory.oneTime,
+        completedEver: true,
+      );
+      final result = selectBreakPresentation(
+        habits: [habit],
+        isLongBreak: false,
+        random: Random(0),
+      );
+      expect(result.randomizedHabit, isNull);
+      expect(result.useBuiltInSuggestion, isTrue);
+    });
+
+    test('oneTime never completed is included in random pool', () {
+      final habit = _makeHabit(
+        id: 'f5',
+        name: 'Write a letter',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+        category: HabitCategory.oneTime,
+        completedEver: false,
+      );
+      final result = selectBreakPresentation(
+        habits: [habit],
+        isLongBreak: false,
+        random: Random(0),
+      );
+      expect(result.randomizedHabit, equals(habit));
+      expect(result.useBuiltInSuggestion, isFalse);
+    });
+
+    test('unlimited with completedToday and completedEver true is still included', () {
+      final habit = _makeHabit(
+        id: 'f6',
+        name: 'Breathe',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+        category: HabitCategory.unlimited,
+        completedToday: true,
+        completedEver: true,
+      );
+      final result = selectBreakPresentation(
+        habits: [habit],
+        isLongBreak: false,
+        random: Random(0),
+      );
+      expect(result.randomizedHabit, equals(habit));
+      expect(result.useBuiltInSuggestion, isFalse);
+    });
+
+    test('completed always-shown daily habit is excluded from alwaysShownHabits', () {
+      final completed = _makeHabit(
+        id: 'f7',
+        name: 'Stretch',
+        window: HabitBreakWindow.both,
+        alwaysShown: true,
+        category: HabitCategory.daily,
+        completedToday: true,
+      );
+      final result = selectBreakPresentation(
+        habits: [completed],
+        isLongBreak: false,
+        random: Random(0),
+      );
+      expect(result.alwaysShownHabits, isEmpty);
+      expect(result.randomizedHabit, isNull);
+      expect(result.useBuiltInSuggestion, isTrue);
+    });
+
+    test('pool where every eligible habit is completed yields useBuiltInSuggestion true', () {
+      final habits = [
+        _makeHabit(
+          id: 'f8a',
+          name: 'Pushups',
+          window: HabitBreakWindow.both,
+          alwaysShown: false,
+          category: HabitCategory.daily,
+          completedToday: true,
+        ),
+        _makeHabit(
+          id: 'f8b',
+          name: 'Sit-ups',
+          window: HabitBreakWindow.both,
+          alwaysShown: false,
+          category: HabitCategory.oneTime,
+          completedEver: true,
+        ),
+      ];
+      final result = selectBreakPresentation(
+        habits: habits,
+        isLongBreak: false,
+        random: Random(0),
+      );
+      expect(result.randomizedHabit, isNull);
+      expect(result.useBuiltInSuggestion, isTrue);
+      expect(result.alwaysShownHabits, isEmpty);
+    });
+  });
+
   group('selectBreakPresentation: short-break window filtering', () {
     test('includes habits with window=short in a short break', () {
       final habit = _makeHabit(
