@@ -79,6 +79,66 @@ void main() {
       expect(auth.signOutCallCount, 1);
     });
 
+    testWidgets('Start focus session button is present on the home screen',
+        (tester) async {
+      final session = _FakeSession(
+        fullName: 'Test User',
+        email: 'test@example.com',
+      );
+      final stub = _StubClient(auth: _StubAuth());
+      await _pumpHomePage(tester, session: session, stubClient: stub);
+
+      expect(find.text('Start focus session'), findsOneWidget);
+    });
+
+    testWidgets('Start focus session button pushes /focus', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      final session = _FakeSession(
+        fullName: 'Test User',
+        email: 'test@example.com',
+      );
+      final stub = _StubClient(auth: _StubAuth());
+
+      final router = GoRouter(
+        initialLocation: routeHome,
+        routes: [
+          GoRoute(
+            path: routeHome,
+            builder: (context, state) => const HomePage(),
+          ),
+          GoRoute(
+            path: routeFocus,
+            builder: (context, state) => Scaffold(
+              appBar: AppBar(),
+              body: const SizedBox(key: ValueKey('focusProbe')),
+            ),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            currentSessionProvider.overrideWithValue(session),
+            supabaseClientProvider.overrideWith((ref) => stub),
+            sharedPreferencesProvider.overrideWithValue(prefs),
+          ],
+          child: MaterialApp.router(
+            routerConfig: router,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Start focus session'));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const ValueKey('focusProbe')), findsOneWidget);
+    });
+
     testWidgets(
         'Habits button pushes /habits so back navigation is possible',
         (tester) async {

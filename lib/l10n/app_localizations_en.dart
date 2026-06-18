@@ -197,4 +197,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get breakSuggestionWalk => 'Walk around for a minute';
+
+  @override
+  String get focusTitle => 'Focus';
+
+  @override
+  String get focusReady => 'Ready';
+
+  @override
+  String get focusPhaseFocus => 'Focus';
+
+  @override
+  String get focusPhaseShortBreak => 'Short break';
+
+  @override
+  String get focusPhaseLongBreak => 'Long break';
+
+  @override
+  String get focusStart => 'Start focus session';
+
+  @override
+  String get focusPause => 'Pause';
+
+  @override
+  String get focusResume => 'Resume';
+
+  @override
+  String get focusStop => 'Stop';
 }

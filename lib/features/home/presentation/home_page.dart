@@ -58,7 +58,19 @@ class HomePage extends ConsumerWidget {
           ),
         ],
       ),
-      body: Center(child: Text(l10n.homeGreeting(name))),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(l10n.homeGreeting(name)),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => unawaited(context.push(routeFocus)),
+              child: Text(l10n.focusStart),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

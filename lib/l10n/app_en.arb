@@ -253,5 +253,41 @@
   "breakSuggestionWalk": "Walk around for a minute",
   "@breakSuggestionWalk": {
     "description": "Built-in break suggestion: prompt the user to take a short walk"
+  },
+  "focusTitle": "Focus",
+  "@focusTitle": {
+    "description": "Title shown in the AppBar of the Focus timer page"
+  },
+  "focusReady": "Ready",
+  "@focusReady": {
+    "description": "Phase label shown on the Focus page when the session has not started yet (idle)"
+  },
+  "focusPhaseFocus": "Focus",
+  "@focusPhaseFocus": {
+    "description": "Phase label shown on the Focus page during the active focus period"
+  },
+  "focusPhaseShortBreak": "Short break",
+  "@focusPhaseShortBreak": {
+    "description": "Phase label shown on the Focus page during a short break"
+  },
+  "focusPhaseLongBreak": "Long break",
+  "@focusPhaseLongBreak": {
+    "description": "Phase label shown on the Focus page during a long break"
+  },
+  "focusStart": "Start focus session",
+  "@focusStart": {
+    "description": "Button label to start a new focus session; also used as the Home entry-point button"
+  },
+  "focusPause": "Pause",
+  "@focusPause": {
+    "description": "Button label to pause the running focus countdown"
+  },
+  "focusResume": "Resume",
+  "@focusResume": {
+    "description": "Button label to resume a paused focus countdown"
+  },
+  "focusStop": "Stop",
+  "@focusStop": {
+    "description": "Button label to stop the session and return to idle"
   }
 }

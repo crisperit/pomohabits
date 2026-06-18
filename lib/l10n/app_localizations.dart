@@ -463,6 +463,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Walk around for a minute'**
   String get breakSuggestionWalk;
+
+  /// Title shown in the AppBar of the Focus timer page
+  ///
+  /// In en, this message translates to:
+  /// **'Focus'**
+  String get focusTitle;
+
+  /// Phase label shown on the Focus page when the session has not started yet (idle)
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get focusReady;
+
+  /// Phase label shown on the Focus page during the active focus period
+  ///
+  /// In en, this message translates to:
+  /// **'Focus'**
+  String get focusPhaseFocus;
+
+  /// Phase label shown on the Focus page during a short break
+  ///
+  /// In en, this message translates to:
+  /// **'Short break'**
+  String get focusPhaseShortBreak;
+
+  /// Phase label shown on the Focus page during a long break
+  ///
+  /// In en, this message translates to:
+  /// **'Long break'**
+  String get focusPhaseLongBreak;
+
+  /// Button label to start a new focus session; also used as the Home entry-point button
+  ///
+  /// In en, this message translates to:
+  /// **'Start focus session'**
+  String get focusStart;
+
+  /// Button label to pause the running focus countdown
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get focusPause;
+
+  /// Button label to resume a paused focus countdown
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get focusResume;
+
+  /// Button label to stop the session and return to idle
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get focusStop;
 }
 
 class _AppLocalizationsDelegate

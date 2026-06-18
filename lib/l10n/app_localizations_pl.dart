@@ -198,4 +198,31 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get breakSuggestionWalk => 'Przejdź się przez chwilę';
+
+  @override
+  String get focusTitle => 'Skupienie';
+
+  @override
+  String get focusReady => 'Gotowy';
+
+  @override
+  String get focusPhaseFocus => 'Skupienie';
+
+  @override
+  String get focusPhaseShortBreak => 'Krótka przerwa';
+
+  @override
+  String get focusPhaseLongBreak => 'Długa przerwa';
+
+  @override
+  String get focusStart => 'Rozpocznij sesję skupienia';
+
+  @override
+  String get focusPause => 'Wstrzymaj';
+
+  @override
+  String get focusResume => 'Wznów';
+
+  @override
+  String get focusStop => 'Zatrzymaj';
 }

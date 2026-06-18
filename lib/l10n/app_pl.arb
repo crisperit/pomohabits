@@ -60,5 +60,14 @@
   "breakSuggestionHydrate": "Wypij szklankę wody",
   "breakSuggestionLookAway": "Popatrz na coś odległego przez 20 sekund",
   "breakSuggestionBreathe": "Weź pięć głębokich, powolnych oddechów",
-  "breakSuggestionWalk": "Przejdź się przez chwilę"
+  "breakSuggestionWalk": "Przejdź się przez chwilę",
+  "focusTitle": "Skupienie",
+  "focusReady": "Gotowy",
+  "focusPhaseFocus": "Skupienie",
+  "focusPhaseShortBreak": "Krótka przerwa",
+  "focusPhaseLongBreak": "Długa przerwa",
+  "focusStart": "Rozpocznij sesję skupienia",
+  "focusPause": "Wstrzymaj",
+  "focusResume": "Wznów",
+  "focusStop": "Zatrzymaj"
 }

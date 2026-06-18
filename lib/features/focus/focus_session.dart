@@ -1,3 +1,16 @@
+/// Formats a [Duration] as zero-padded `mm:ss`.
+///
+/// Seconds past 59 overflow into the minutes field; minutes are not capped.
+/// Examples: `Duration(minutes: 25)` → `'25:00'`,
+///           `Duration(minutes: 5, seconds: 9)` → `'05:09'`,
+///           `Duration.zero` → `'00:00'`.
+String formatRemaining(Duration d) {
+  final totalSeconds = d.inSeconds.clamp(0, 99 * 60 + 59);
+  final minutes = totalSeconds ~/ 60;
+  final seconds = totalSeconds % 60;
+  return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+}
+
 /// Canonical Pomodoro configuration constants.
 ///
 /// All durations live here so S-07 can later make them user-configurable
