@@ -35,4 +35,4 @@ project link + migration push.
   introduce `flutter_dotenv` without revisiting that choice.
 - Supabase schema changes go through `landing/supabase/migrations/` using the
   `YYYYMMDDHHmmss_short_description.sql` naming convention. The Flutter client
-  consumes the schema via PostgREST RPC (`list_tasks`, `add_task`, `complete_task`).
+  consumes the schema via PostgREST RPC (`list_habits`, `add_habit`, `complete_habit`).

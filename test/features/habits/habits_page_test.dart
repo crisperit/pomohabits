@@ -7,20 +7,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:pomohabits/core/preferences/preferences_providers.dart';
-import 'package:pomohabits/data/task.dart';
-import 'package:pomohabits/data/tasks_repository.dart';
-import 'package:pomohabits/features/tasks/presentation/tasks_page.dart';
-import 'package:pomohabits/features/tasks/tasks_controller.dart';
+import 'package:pomohabits/data/habit.dart';
+import 'package:pomohabits/data/habits_repository.dart';
+import 'package:pomohabits/features/habits/presentation/habits_page.dart';
+import 'package:pomohabits/features/habits/habits_controller.dart';
 import 'package:pomohabits/l10n/app_localizations.dart';
 
 // ---------------------------------------------------------------------------
 // Test harness helpers
 // ---------------------------------------------------------------------------
 
-/// Pumps [TasksPage] in a minimal [MaterialApp] with full l10n + Riverpod.
-Future<void> _pumpTasksPage(
+/// Pumps [HabitsPage] in a minimal [MaterialApp] with full l10n + Riverpod.
+Future<void> _pumpHabitsPage(
   WidgetTester tester, {
-  required AsyncValue<List<Task>> tasksValue,
+  required AsyncValue<List<Habit>> habitsValue,
 }) async {
   SharedPreferences.setMockInitialValues({});
   final prefs = await SharedPreferences.getInstance();
@@ -28,19 +28,19 @@ Future<void> _pumpTasksPage(
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
-        tasksListProvider.overrideWith((ref) async {
-          final value = tasksValue;
-          if (value is AsyncData<List<Task>>) return value.value;
-          if (value is AsyncError<List<Task>>) throw value.error;
+        habitsListProvider.overrideWith((ref) async {
+          final value = habitsValue;
+          if (value is AsyncData<List<Habit>>) return value.value;
+          if (value is AsyncError<List<Habit>>) throw value.error;
           // loading: never-completing future via Completer (no Timer)
-          return Completer<List<Task>>().future;
+          return Completer<List<Habit>>().future;
         }),
         sharedPreferencesProvider.overrideWithValue(prefs),
       ],
       child: const MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        home: TasksPage(),
+        home: HabitsPage(),
       ),
     ),
   );
@@ -52,26 +52,26 @@ Future<void> _pumpTasksPage(
 // ---------------------------------------------------------------------------
 
 void main() {
-  group('TasksPage', () {
+  group('HabitsPage', () {
     testWidgets('shows spinner while loading', (tester) async {
-      final completer = Completer<List<Task>>();
+      final completer = Completer<List<Habit>>();
       SharedPreferences.setMockInitialValues({});
       final prefs = await SharedPreferences.getInstance();
 
       addTearDown(() {
-        if (!completer.isCompleted) completer.complete(<Task>[]);
+        if (!completer.isCompleted) completer.complete(<Habit>[]);
       });
 
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            tasksListProvider.overrideWith((_) => completer.future),
+            habitsListProvider.overrideWith((_) => completer.future),
             sharedPreferencesProvider.overrideWithValue(prefs),
           ],
           child: const MaterialApp(
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: TasksPage(),
+            home: HabitsPage(),
           ),
         ),
       );
@@ -80,51 +80,51 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
 
-    testWidgets('shows empty message when task list is empty', (tester) async {
-      await _pumpTasksPage(
+    testWidgets('shows empty message when habit list is empty', (tester) async {
+      await _pumpHabitsPage(
         tester,
-        tasksValue: const AsyncData([]),
+        habitsValue: const AsyncData([]),
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('No tasks yet.'), findsOneWidget);
+      expect(find.text('No habits yet.'), findsOneWidget);
     });
 
     testWidgets('shows error message when loading fails', (tester) async {
-      await _pumpTasksPage(
+      await _pumpHabitsPage(
         tester,
-        tasksValue: AsyncError(Exception('boom'), StackTrace.empty),
+        habitsValue: AsyncError(Exception('boom'), StackTrace.empty),
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Could not load tasks.'), findsOneWidget);
+      expect(find.text('Could not load habits.'), findsOneWidget);
     });
 
-    testWidgets('renders a tile for each task in the list', (tester) async {
-      final tasks = [
-        Task(
+    testWidgets('renders a tile for each habit in the list', (tester) async {
+      final habits = [
+        Habit(
           id: 'id-1',
           name: 'Drink water',
-          category: TaskCategory.daily,
-          applicableBreakWindow: TaskBreakWindow.both,
+          category: HabitCategory.daily,
+          applicableBreakWindow: HabitBreakWindow.both,
           alwaysShown: true,
           createdAt: DateTime(2026),
           updatedAt: DateTime(2026),
         ),
-        Task(
+        Habit(
           id: 'id-2',
           name: '10 pushups',
-          category: TaskCategory.unlimited,
-          applicableBreakWindow: TaskBreakWindow.short,
+          category: HabitCategory.unlimited,
+          applicableBreakWindow: HabitBreakWindow.short,
           alwaysShown: false,
           createdAt: DateTime(2026),
           updatedAt: DateTime(2026),
         ),
       ];
 
-      await _pumpTasksPage(
+      await _pumpHabitsPage(
         tester,
-        tasksValue: AsyncData(tasks),
+        habitsValue: AsyncData(habits),
       );
       await tester.pumpAndSettle();
 
@@ -135,9 +135,9 @@ void main() {
     });
 
     testWidgets('refresh action exists in AppBar', (tester) async {
-      await _pumpTasksPage(
+      await _pumpHabitsPage(
         tester,
-        tasksValue: const AsyncData([]),
+        habitsValue: const AsyncData([]),
       );
       await tester.pumpAndSettle();
 
@@ -145,9 +145,9 @@ void main() {
     });
 
     testWidgets('Add FAB exists', (tester) async {
-      await _pumpTasksPage(
+      await _pumpHabitsPage(
         tester,
-        tasksValue: const AsyncData([]),
+        habitsValue: const AsyncData([]),
       );
       await tester.pumpAndSettle();
 
@@ -155,14 +155,14 @@ void main() {
       expect(find.byIcon(Icons.add), findsOneWidget);
     });
 
-    testWidgets('task with icon renders emoji in leading slot', (tester) async {
+    testWidgets('habit with icon renders emoji in leading slot', (tester) async {
       const emoji = '\u{1F3CB}';
-      final tasks = [
-        Task(
+      final habits = [
+        Habit(
           id: 'id-1',
           name: 'Lift weights',
-          category: TaskCategory.daily,
-          applicableBreakWindow: TaskBreakWindow.both,
+          category: HabitCategory.daily,
+          applicableBreakWindow: HabitBreakWindow.both,
           alwaysShown: false,
           icon: emoji,
           createdAt: DateTime(2026),
@@ -170,7 +170,7 @@ void main() {
         ),
       ];
 
-      await _pumpTasksPage(tester, tasksValue: AsyncData(tasks));
+      await _pumpHabitsPage(tester, habitsValue: AsyncData(habits));
       await tester.pumpAndSettle();
 
       // The emoji should appear as a Text widget in the leading slot.
@@ -180,38 +180,38 @@ void main() {
       expect(find.byIcon(Icons.task_alt), findsNothing);
     });
 
-    testWidgets('task without icon shows Material fallback icon',
+    testWidgets('habit without icon shows Material fallback icon',
         (tester) async {
-      final tasks = [
-        Task(
+      final habits = [
+        Habit(
           id: 'id-1',
           name: 'Drink water',
-          category: TaskCategory.daily,
-          applicableBreakWindow: TaskBreakWindow.both,
+          category: HabitCategory.daily,
+          applicableBreakWindow: HabitBreakWindow.both,
           alwaysShown: true,
           createdAt: DateTime(2026),
           updatedAt: DateTime(2026),
         ),
-        Task(
+        Habit(
           id: 'id-2',
           name: '10 pushups',
-          category: TaskCategory.unlimited,
-          applicableBreakWindow: TaskBreakWindow.short,
+          category: HabitCategory.unlimited,
+          applicableBreakWindow: HabitBreakWindow.short,
           alwaysShown: false,
           createdAt: DateTime(2026),
           updatedAt: DateTime(2026),
         ),
       ];
 
-      await _pumpTasksPage(tester, tasksValue: AsyncData(tasks));
+      await _pumpHabitsPage(tester, habitsValue: AsyncData(habits));
       await tester.pumpAndSettle();
 
-      // alwaysShown task gets pin icon, non-always-shown gets task_alt.
+      // alwaysShown habit gets pin icon, non-always-shown gets task_alt.
       expect(find.byIcon(Icons.push_pin), findsOneWidget);
       expect(find.byIcon(Icons.task_alt), findsOneWidget);
     });
 
-    testWidgets('tapping refresh re-fetches tasks', (tester) async {
+    testWidgets('tapping refresh re-fetches habits', (tester) async {
       SharedPreferences.setMockInitialValues({});
       final prefs = await SharedPreferences.getInstance();
       var fetchCount = 0;
@@ -219,7 +219,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            tasksRepositoryProvider.overrideWith(
+            habitsRepositoryProvider.overrideWith(
               (ref) => _CountingRepository(onFetch: () => ++fetchCount),
             ),
             sharedPreferencesProvider.overrideWithValue(prefs),
@@ -227,7 +227,7 @@ void main() {
           child: const MaterialApp(
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: TasksPage(),
+            home: HabitsPage(),
           ),
         ),
       );
@@ -247,30 +247,30 @@ void main() {
 // Fake repository for the refresh test (no mock library).
 // ---------------------------------------------------------------------------
 
-/// A [TasksRepository] subclass that counts [fetchTasks] calls.
+/// A [HabitsRepository] subclass that counts [fetchHabits] calls.
 /// Passes a no-op stub client to super; overrides both methods so
 /// [_client] is never accessed.
-class _CountingRepository extends TasksRepository {
+class _CountingRepository extends HabitsRepository {
   _CountingRepository({required this.onFetch})
       : super(_NullClient());
 
   final int Function() onFetch;
 
   @override
-  Future<List<Task>> fetchTasks() async {
+  Future<List<Habit>> fetchHabits() async {
     onFetch();
     return [];
   }
 
   @override
-  Future<Task> addTask({
+  Future<Habit> addHabit({
     required String name,
-    required TaskCategory category,
-    required TaskBreakWindow applicableBreakWindow,
+    required HabitCategory category,
+    required HabitBreakWindow applicableBreakWindow,
     required bool alwaysShown,
     String? icon,
   }) =>
-      throw UnimplementedError('addTask not used in refresh test');
+      throw UnimplementedError('addHabit not used in refresh test');
 }
 
 /// Minimal [SupabaseClient] stub - all methods throw via [noSuchMethod].

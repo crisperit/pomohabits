@@ -79,9 +79,19 @@ void main() {
       expect(auth.signOutCallCount, 1);
     });
 
-    testWidgets(
-        'Tasks button pushes /tasks so back navigation is possible',
+    testWidgets('Start focus session button is present on the home screen',
         (tester) async {
+      final session = _FakeSession(
+        fullName: 'Test User',
+        email: 'test@example.com',
+      );
+      final stub = _StubClient(auth: _StubAuth());
+      await _pumpHomePage(tester, session: session, stubClient: stub);
+
+      expect(find.text('Start focus session'), findsOneWidget);
+    });
+
+    testWidgets('Start focus session button pushes /focus', (tester) async {
       SharedPreferences.setMockInitialValues({});
       final prefs = await SharedPreferences.getInstance();
       final session = _FakeSession(
@@ -90,8 +100,6 @@ void main() {
       );
       final stub = _StubClient(auth: _StubAuth());
 
-      // Minimal router: /home -> HomePage, /tasks -> probe scaffold.
-      // No redirect guard needed; the test starts directly at /home.
       final router = GoRouter(
         initialLocation: routeHome,
         routes: [
@@ -100,10 +108,10 @@ void main() {
             builder: (context, state) => const HomePage(),
           ),
           GoRoute(
-            path: routeTasks,
+            path: routeFocus,
             builder: (context, state) => Scaffold(
               appBar: AppBar(),
-              body: const SizedBox(key: ValueKey('tasksProbe')),
+              body: const SizedBox(key: ValueKey('focusProbe')),
             ),
           ),
         ],
@@ -125,14 +133,66 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Tap the Tasks icon button on the home AppBar.
+      await tester.tap(find.text('Start focus session'));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const ValueKey('focusProbe')), findsOneWidget);
+    });
+
+    testWidgets(
+        'Habits button pushes /habits so back navigation is possible',
+        (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      final session = _FakeSession(
+        fullName: 'Test User',
+        email: 'test@example.com',
+      );
+      final stub = _StubClient(auth: _StubAuth());
+
+      // Minimal router: /home -> HomePage, /habits -> probe scaffold.
+      // No redirect guard needed; the test starts directly at /home.
+      final router = GoRouter(
+        initialLocation: routeHome,
+        routes: [
+          GoRoute(
+            path: routeHome,
+            builder: (context, state) => const HomePage(),
+          ),
+          GoRoute(
+            path: routeHabits,
+            builder: (context, state) => Scaffold(
+              appBar: AppBar(),
+              body: const SizedBox(key: ValueKey('habitsProbe')),
+            ),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            currentSessionProvider.overrideWithValue(session),
+            supabaseClientProvider.overrideWith((ref) => stub),
+            sharedPreferencesProvider.overrideWithValue(prefs),
+          ],
+          child: MaterialApp.router(
+            routerConfig: router,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap the Habits icon button on the home AppBar.
       await tester.tap(find.widgetWithIcon(IconButton, Icons.checklist));
       await tester.pumpAndSettle();
 
       // The probe scaffold is now on screen (push succeeded).
-      expect(find.byKey(const ValueKey('tasksProbe')), findsOneWidget);
+      expect(find.byKey(const ValueKey('habitsProbe')), findsOneWidget);
 
-      // A back button is present because /tasks was pushed on top of /home.
+      // A back button is present because /habits was pushed on top of /home.
       expect(find.byType(BackButton), findsOneWidget);
     });
   });

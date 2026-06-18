@@ -77,9 +77,9 @@ Still inside `landing/`:
 npx supabase db push
 ```
 
-This applies `landing/supabase/migrations/20260522170000_initial_schema.sql` to your cloud database: creates the `tasks` and `task_completions` tables, the enums, RLS policies, and the three RPC functions (`list_tasks`, `add_task`, `complete_task`).
+This applies the migrations under `landing/supabase/migrations/` to your cloud database: the `habits` and `habit_completions` tables, the enums, RLS policies, and the three RPC functions (`list_habits`, `add_habit`, `complete_habit`).
 
-Verify in the dashboard -> Database -> Tables: you should see `tasks` and `task_completions` under the `public` schema, both with RLS enabled.
+Verify in the dashboard -> Database -> Tables: you should see `habits` and `habit_completions` under the `public` schema, both with RLS enabled.
 
 ## 4. Configure auth
 
@@ -150,7 +150,7 @@ Goal: scaffold a TypeScript MCP server that runs on a Supabase Edge Function, ta
 All `supabase` CLI commands in this section run from `landing/`.
 
 - Scaffold the function: `cd landing && npx supabase functions new mcp`. This creates `landing/supabase/functions/mcp/index.ts`.
-- Implement the handler following Supabase's official BYO MCP guide (https://supabase.com/docs/guides/getting-started/byo-mcp): MCP TypeScript SDK + Hono + `WebStandardStreamableHTTPServerTransport`. Register `list_tasks` / `add_task` / `complete_task` as MCP tools; each delegates to the matching PostgREST RPC.
+- Implement the handler following Supabase's official BYO MCP guide (https://supabase.com/docs/guides/getting-started/byo-mcp): MCP TypeScript SDK + Hono + `WebStandardStreamableHTTPServerTransport`. Register `list_habits` / `add_habit` / `complete_habit` as MCP tools; each delegates to the matching PostgREST RPC.
 - Put the JWT check in a shared helper at `landing/supabase/functions/_shared/auth.ts`. It extracts the Bearer token from the request, calls `supabase.auth.getUser(token)`, and returns the user (or rejects with 401). The MCP handler calls this helper before dispatching any tool call.
 - In `landing/supabase/config.toml`, set the `mcp` function's `verify_jwt = false` (auth runs in handler code, not at the platform gate). Edge Functions automatically run in the project's region, so the function and Postgres share a region with no extra config.
 - Local dev (already `cd`'d into `landing/`): `npx supabase functions serve mcp --env-file ./supabase/functions/.env.local`. The function will be available at `http://127.0.0.1:54321/functions/v1/mcp`.

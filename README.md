@@ -1,8 +1,8 @@
 # Pomohabits
 
-A desktop Pomodoro timer that turns the break into a productive habit window. User accounts, hosted backend, per-user task sync. Desktop only for v1; other clients are v2.
+A desktop Pomodoro timer that turns the break into a productive habit window. User accounts, hosted backend, per-user habit sync. Desktop only for v1; other clients are v2.
 
-Traditional Pomodoro apps treat the break as a passive countdown. Pomohabits replaces that with a full-screen break presentation: every time a focus session ends, the app shows the user's always-shown habits plus one randomized habit drawn from their personal pool (falling back to a built-in suggestion when the pool is empty). The randomization rule, eligibility filtering, and daily-reset behaviour are the product's domain decisions; the break presentation is the user-visible payoff. The app is vendor-neutral by design: it owns the break-task pool and exposes a hosted integration endpoint so external clients (agents, scripts, bridges) can push tasks into the pool from whatever system the user already uses. No third-party task manager is privileged inside the app. 3-week after-hours MVP target.
+Traditional Pomodoro apps treat the break as a passive countdown. Pomohabits replaces that with a full-screen break presentation: every time a focus session ends, the app shows the user's always-shown habits plus one randomized habit drawn from their personal pool (falling back to a built-in suggestion when the pool is empty). The randomization rule, eligibility filtering, and daily-reset behaviour are the product's domain decisions; the break presentation is the user-visible payoff. The app is vendor-neutral by design: it owns the habit pool and exposes a hosted integration endpoint so external clients (agents, scripts, bridges) can push habits into the pool from whatever system the user already uses. No third-party task manager is privileged inside the app. 3-week after-hours MVP target.
 
 ## Project status
 
@@ -67,9 +67,9 @@ The following are settled non-goals that constrain the integration surface and a
 
 - No offline-first or local-cache mode in v1. The desktop client is online-first; offline operation is a v2 capability.
 - No vendor-specific integrations baked into the app. External clients handle bridging; the app exposes the surface.
-- No focus-task linking or external time recording in v1. The integration surface is for break-task data only.
+- No focus-task linking or external time recording in v1. The integration surface is for habit data only.
 - No non-English locales in v1.
-- No rich task details (description, image, links, notes) in v1.
+- No rich habit details (description, image, links, notes) in v1.
 
 ## Contributing
 

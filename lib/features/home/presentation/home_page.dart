@@ -37,8 +37,8 @@ class HomePage extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.checklist),
-            tooltip: l10n.homeTasksTooltip,
-            onPressed: () => unawaited(context.push(routeTasks)),
+            tooltip: l10n.homeHabitsTooltip,
+            onPressed: () => unawaited(context.push(routeHabits)),
           ),
           IconButton(
             icon: const Icon(Icons.logout),
@@ -58,7 +58,19 @@ class HomePage extends ConsumerWidget {
           ),
         ],
       ),
-      body: Center(child: Text(l10n.homeGreeting(name))),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(l10n.homeGreeting(name)),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => unawaited(context.push(routeFocus)),
+              child: Text(l10n.focusStart),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
