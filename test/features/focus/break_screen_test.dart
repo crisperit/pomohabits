@@ -585,5 +585,226 @@ void main() {
         );
       });
     });
+
+    // -------------------------------------------------------------------------
+    // Roll-again affordance
+    // -------------------------------------------------------------------------
+
+    group('roll-again', () {
+      testWidgets(
+          'with 2+ eligible randomized habits: control is present and enabled',
+          (tester) async {
+        // Build a pool large enough that a swap is virtually certain.
+        final poolNames = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon'];
+        final habits = poolNames
+            .map((n) => _habit(name: n, alwaysShown: false))
+            .toList();
+
+        await _pump(
+          tester,
+          sessionState: _shortBreakState,
+          habitsValue: AsyncData(habits),
+        );
+        await tester.pumpAndSettle();
+
+        // Roll-again button must exist.
+        final rollFinder = find.widgetWithText(TextButton, 'Roll again');
+        expect(rollFinder, findsOneWidget);
+
+        // Button must be enabled (onPressed is non-null).
+        final btn = tester.widget<TextButton>(rollFinder);
+        expect(btn.onPressed, isNotNull);
+      });
+
+      testWidgets(
+          'with 2+ eligible randomized habits: tapping roll-again keeps exactly '
+          'one randomized habit tile visible and it remains a pool member',
+          (tester) async {
+        final poolNames = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon'];
+        final habits = poolNames
+            .map((n) => _habit(name: n, alwaysShown: false))
+            .toList();
+
+        await _pump(
+          tester,
+          sessionState: _shortBreakState,
+          habitsValue: AsyncData(habits),
+        );
+        await tester.pumpAndSettle();
+
+        // Determine which habit was initially shown.
+        String? initialName;
+        for (final n in poolNames) {
+          if (tester.any(find.text(n))) {
+            initialName = n;
+            break;
+          }
+        }
+        expect(initialName, isNotNull,
+            reason: 'one pool habit should be visible before rolling');
+
+        // Tap Roll-again.
+        await tester.tap(find.widgetWithText(TextButton, 'Roll again'));
+        await tester.pumpAndSettle();
+
+        // Exactly one pool habit should still be visible.
+        final visibleAfter =
+            poolNames.where((n) => tester.any(find.text(n))).toList();
+        expect(visibleAfter, hasLength(1),
+            reason: 'exactly one randomized tile should show after a roll');
+
+        // The visible habit must be one of the pool names.
+        expect(poolNames, contains(visibleAfter.first));
+      });
+
+      testWidgets(
+          'with 2+ eligible randomized habits: always-shown section and '
+          'countdown are untouched after a roll', (tester) async {
+        final habits = [
+          _habit(name: 'Always One', alwaysShown: true),
+          _habit(name: 'Pool A', alwaysShown: false),
+          _habit(name: 'Pool B', alwaysShown: false),
+        ];
+
+        await _pump(
+          tester,
+          sessionState: _shortBreakState,
+          habitsValue: AsyncData(habits),
+        );
+        await tester.pumpAndSettle();
+
+        // Confirm always-shown is present before roll.
+        expect(find.text('Always One'), findsOneWidget);
+        expect(find.text('04:00'), findsOneWidget);
+
+        // Tap Roll-again.
+        await tester.tap(find.widgetWithText(TextButton, 'Roll again'));
+        await tester.pumpAndSettle();
+
+        // Always-shown and countdown must be unchanged.
+        expect(find.text('Always One'), findsOneWidget);
+        expect(find.text('04:00'), findsOneWidget);
+      });
+
+      testWidgets(
+          'with exactly one eligible randomized habit: control is present but '
+          'disabled', (tester) async {
+        final habits = [
+          _habit(name: 'Only Pick', alwaysShown: false),
+        ];
+
+        await _pump(
+          tester,
+          sessionState: _shortBreakState,
+          habitsValue: AsyncData(habits),
+        );
+        await tester.pumpAndSettle();
+
+        // Roll-again button must exist.
+        final rollFinder = find.widgetWithText(TextButton, 'Roll again');
+        expect(rollFinder, findsOneWidget);
+
+        // Button must be disabled (onPressed is null).
+        final btn = tester.widget<TextButton>(rollFinder);
+        expect(btn.onPressed, isNull);
+      });
+
+      testWidgets(
+          'with empty pool (suggestion shown): Roll-again control is absent',
+          (tester) async {
+        await _pump(
+          tester,
+          sessionState: _shortBreakState,
+          habitsValue: const AsyncData([]),
+        );
+        await tester.pumpAndSettle();
+
+        // Suggestion shown, no Roll-again button.
+        expect(find.text('Try this'), findsOneWidget);
+        expect(find.widgetWithText(TextButton, 'Roll again'), findsNothing);
+      });
+
+      testWidgets(
+          'with all-always-shown habits (empty random pool): Roll-again absent',
+          (tester) async {
+        final habits = [
+          _habit(name: 'Always A', alwaysShown: true),
+          _habit(name: 'Always B', alwaysShown: true),
+        ];
+
+        await _pump(
+          tester,
+          sessionState: _shortBreakState,
+          habitsValue: AsyncData(habits),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.widgetWithText(TextButton, 'Roll again'), findsNothing);
+      });
+
+      testWidgets(
+          'second roll moves away from first rolled pick, not just from '
+          'the original (roll-again passes current displayed habit as current)',
+          (tester) async {
+        // Pool of 5: all non-always-shown, window both. With 5 candidates,
+        // rollRandomizedHabit always has 4 alternatives, so each tap is
+        // guaranteed to produce a name different from the immediately preceding
+        // visible pick.
+        final poolNames = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon'];
+        final habits =
+            poolNames.map((n) => _habit(name: n, alwaysShown: false)).toList();
+
+        await _pump(
+          tester,
+          sessionState: _shortBreakState,
+          habitsValue: AsyncData(habits),
+        );
+        await tester.pumpAndSettle();
+
+        // Read the initially visible randomized pick.
+        String? name1;
+        for (final n in poolNames) {
+          if (tester.any(find.text(n))) {
+            name1 = n;
+            break;
+          }
+        }
+        expect(name1, isNotNull, reason: 'one pool habit should be visible initially');
+
+        // First Roll-again tap.
+        await tester.tap(find.widgetWithText(TextButton, 'Roll again'));
+        await tester.pumpAndSettle();
+
+        String? name2;
+        for (final n in poolNames) {
+          if (tester.any(find.text(n))) {
+            name2 = n;
+            break;
+          }
+        }
+        expect(name2, isNotNull, reason: 'one pool habit should be visible after first roll');
+        // Must differ from the pick that was showing before this tap.
+        expect(name2, isNot(name1),
+            reason: 'first roll should move away from the initial pick');
+
+        // Second Roll-again tap.
+        await tester.tap(find.widgetWithText(TextButton, 'Roll again'));
+        await tester.pumpAndSettle();
+
+        String? name3;
+        for (final n in poolNames) {
+          if (tester.any(find.text(n))) {
+            name3 = n;
+            break;
+          }
+        }
+        expect(name3, isNotNull, reason: 'one pool habit should be visible after second roll');
+        // Must differ from the pick that was showing before this tap (name2),
+        // not just from the original pick. This guards that _rolledHabit is
+        // passed as current to rollRandomizedHabit on the second call.
+        expect(name3, isNot(name2),
+            reason: 'second roll should move away from the first rolled pick');
+      });
+    });
   });
 }

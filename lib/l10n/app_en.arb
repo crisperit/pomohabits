@@ -306,6 +306,10 @@
   "@breakEndButton": {
     "description": "Button label to dismiss the break screen and return to the focus session"
   },
+  "breakRollAgain": "Roll again",
+  "@breakRollAgain": {
+    "description": "Button label to swap the randomized habit on the break screen for a different eligible one"
+  },
   "breakMarkComplete": "Mark complete",
   "@breakMarkComplete": {
     "description": "Tooltip and label for the button that marks a habit as complete on the break screen"

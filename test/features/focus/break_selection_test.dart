@@ -635,4 +635,293 @@ void main() {
       expect(result.alwaysShownHabits, isEmpty);
     });
   });
+
+  group('BreakPresentation.eligibleRandomPool population', () {
+    test('contains exactly the eligible non-always-shown habits for the window',
+        () {
+      final eligible1 = _makeHabit(
+        id: 'ep1',
+        name: 'Pushups',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+      );
+      final eligible2 = _makeHabit(
+        id: 'ep2',
+        name: 'Squats',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+      );
+      final result = selectBreakPresentation(
+        habits: [eligible1, eligible2],
+        isLongBreak: false,
+        random: Random(0),
+      );
+      expect(result.eligibleRandomPool, containsAll([eligible1, eligible2]));
+      expect(result.eligibleRandomPool.length, 2);
+    });
+
+    test('excludes always-shown habits from eligibleRandomPool', () {
+      final always = _makeHabit(
+        id: 'ep3',
+        name: 'Stretch',
+        window: HabitBreakWindow.both,
+        alwaysShown: true,
+      );
+      final rand = _makeHabit(
+        id: 'ep4',
+        name: 'Walk',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+      );
+      final result = selectBreakPresentation(
+        habits: [always, rand],
+        isLongBreak: false,
+        random: Random(0),
+      );
+      expect(result.eligibleRandomPool, equals([rand]));
+      expect(result.eligibleRandomPool, isNot(contains(always)));
+    });
+
+    test('excludes daily completedToday habit from eligibleRandomPool', () {
+      final completed = _makeHabit(
+        id: 'ep5',
+        name: 'Morning run',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+        category: HabitCategory.daily,
+        completedToday: true,
+      );
+      final result = selectBreakPresentation(
+        habits: [completed],
+        isLongBreak: false,
+        random: Random(0),
+      );
+      expect(result.eligibleRandomPool, isEmpty);
+      expect(result.useBuiltInSuggestion, isTrue);
+    });
+
+    test('excludes oneTime completedEver habit from eligibleRandomPool', () {
+      final done = _makeHabit(
+        id: 'ep6',
+        name: 'Write will',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+        category: HabitCategory.oneTime,
+        completedEver: true,
+      );
+      final result = selectBreakPresentation(
+        habits: [done],
+        isLongBreak: false,
+        random: Random(0),
+      );
+      expect(result.eligibleRandomPool, isEmpty);
+      expect(result.useBuiltInSuggestion, isTrue);
+    });
+
+    test('excludes wrong-window habits from eligibleRandomPool', () {
+      final longOnly = _makeHabit(
+        id: 'ep7',
+        name: 'Long walk',
+        window: HabitBreakWindow.long,
+        alwaysShown: false,
+      );
+      final result = selectBreakPresentation(
+        habits: [longOnly],
+        isLongBreak: false, // short break
+        random: Random(0),
+      );
+      expect(result.eligibleRandomPool, isEmpty);
+      expect(result.useBuiltInSuggestion, isTrue);
+    });
+
+    test('randomizedHabit is an element of eligibleRandomPool when non-null',
+        () {
+      final pool = List.generate(
+        4,
+        (i) => _makeHabit(
+          id: 'ep8_$i',
+          name: 'Habit $i',
+          window: HabitBreakWindow.both,
+          alwaysShown: false,
+        ),
+      );
+      final result = selectBreakPresentation(
+        habits: pool,
+        isLongBreak: false,
+        random: Random(42),
+      );
+      expect(result.randomizedHabit, isNotNull);
+      expect(result.eligibleRandomPool, contains(result.randomizedHabit));
+    });
+
+    test('eligibleRandomPool is empty and randomizedHabit is null when pool empty',
+        () {
+      final result = selectBreakPresentation(
+        habits: [],
+        isLongBreak: false,
+        random: Random(0),
+      );
+      expect(result.eligibleRandomPool, isEmpty);
+      expect(result.randomizedHabit, isNull);
+      expect(result.useBuiltInSuggestion, isTrue);
+    });
+  });
+
+  group('rollRandomizedHabit', () {
+    test('returns a habit with id different from current when 2+ candidates exist',
+        () {
+      final current = _makeHabit(
+        id: 'rr1',
+        name: 'Current',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+      );
+      final other = _makeHabit(
+        id: 'rr2',
+        name: 'Other',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+      );
+      final pool = [current, other];
+      final rolled = rollRandomizedHabit(
+        pool: pool,
+        current: current,
+        random: Random(0),
+      );
+      expect(rolled.id, isNot(equals(current.id)));
+      expect(rolled.id, equals(other.id));
+    });
+
+    test('returns current when pool holds only current (length 1)', () {
+      final current = _makeHabit(
+        id: 'rr3',
+        name: 'Alone',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+      );
+      final rolled = rollRandomizedHabit(
+        pool: [current],
+        current: current,
+        random: Random(0),
+      );
+      expect(rolled.id, equals(current.id));
+    });
+
+    test('returns current when pool is [current] only', () {
+      final current = _makeHabit(
+        id: 'rr4',
+        name: 'Solo',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+      );
+      final rolled = rollRandomizedHabit(
+        pool: [current],
+        current: current,
+        random: Random(99),
+      );
+      expect(rolled, equals(current));
+    });
+
+    test('never returns current across a range of seeds when 2+ candidates exist',
+        () {
+      final current = _makeHabit(
+        id: 'rr5',
+        name: 'Current',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+      );
+      final others = List.generate(
+        3,
+        (i) => _makeHabit(
+          id: 'rr5_other_$i',
+          name: 'Other $i',
+          window: HabitBreakWindow.both,
+          alwaysShown: false,
+        ),
+      );
+      final pool = [current, ...others];
+      for (var seed = 0; seed < 20; seed++) {
+        final rolled = rollRandomizedHabit(
+          pool: pool,
+          current: current,
+          random: Random(seed),
+        );
+        expect(
+          rolled.id,
+          isNot(equals(current.id)),
+          reason: 'seed $seed returned current',
+        );
+      }
+    });
+
+    test('does not mutate the passed pool', () {
+      final current = _makeHabit(
+        id: 'rr6',
+        name: 'Current',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+      );
+      final other = _makeHabit(
+        id: 'rr6b',
+        name: 'Other',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+      );
+      final pool = [current, other];
+      final originalLength = pool.length;
+      final originalIds = pool.map((h) => h.id).toList();
+
+      rollRandomizedHabit(pool: pool, current: current, random: Random(0));
+
+      expect(pool.length, equals(originalLength));
+      expect(pool.map((h) => h.id).toList(), equals(originalIds));
+    });
+
+    test('returns current when pool is empty', () {
+      final current = _makeHabit(
+        id: 'rr_empty',
+        name: 'Alone',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+      );
+      final rolled = rollRandomizedHabit(pool: [], current: current, random: Random(0));
+      expect(rolled.id, equals(current.id));
+    });
+
+    test('rolled result is always an element of the original pool', () {
+      final current = _makeHabit(
+        id: 'rr7',
+        name: 'Current',
+        window: HabitBreakWindow.both,
+        alwaysShown: false,
+      );
+      final pool = [
+        current,
+        _makeHabit(
+          id: 'rr7a',
+          name: 'A',
+          window: HabitBreakWindow.both,
+          alwaysShown: false,
+        ),
+        _makeHabit(
+          id: 'rr7b',
+          name: 'B',
+          window: HabitBreakWindow.both,
+          alwaysShown: false,
+        ),
+      ];
+      for (var seed = 0; seed < 10; seed++) {
+        final rolled = rollRandomizedHabit(
+          pool: pool,
+          current: current,
+          random: Random(seed),
+        );
+        expect(
+          pool.any((h) => h.id == rolled.id),
+          isTrue,
+          reason: 'seed $seed returned a habit not in pool',
+        );
+      }
+    });
+  });
 }

@@ -74,6 +74,7 @@
   "breakRandomLabel": "Twój wybór na tę przerwę",
   "breakSuggestionLabel": "Spróbuj tego",
   "breakEndButton": "Zakończ przerwę",
+  "breakRollAgain": "Losuj ponownie",
   "breakMarkComplete": "Oznacz jako zrobione",
   "breakCompletedLabel": "Zrobione",
   "breakCompleteError": "Nie udało się zapisać. Spróbuj ponownie."

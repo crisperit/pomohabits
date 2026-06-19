@@ -41,6 +41,13 @@ class _BreakScreenState extends ConsumerState<BreakScreen> {
   /// Cached built-in suggestion, computed once alongside [_presentation].
   BuiltInSuggestion? _builtInSuggestion;
 
+  /// The randomized habit currently displayed, set by a Roll-again tap.
+  ///
+  /// `null` until the user taps Roll-again; at that point it holds the
+  /// newly drawn habit and survives countdown-tick rebuilds. The displayed
+  /// habit is `_rolledHabit ?? presentation.randomizedHabit`.
+  Habit? _rolledHabit;
+
   /// Habit ids marked complete during this break (optimistic local state only).
   ///
   /// Completion is recorded server-side via [_markComplete]; this set tracks
@@ -208,11 +215,28 @@ class _BreakScreenState extends ConsumerState<BreakScreen> {
         if (presentation.randomizedHabit != null) ...[
           _SectionLabel(label: l10n.breakRandomLabel),
           _HabitTile(
-            habit: presentation.randomizedHabit!,
+            habit: _rolledHabit ?? presentation.randomizedHabit!,
             isCompleted: _completedHabitIds.contains(
-              presentation.randomizedHabit!.id,
+              (_rolledHabit ?? presentation.randomizedHabit!).id,
             ),
-            onComplete: () => _markComplete(presentation.randomizedHabit!.id),
+            onComplete: () => _markComplete(
+              (_rolledHabit ?? presentation.randomizedHabit!).id,
+            ),
+          ),
+          TextButton.icon(
+            onPressed: presentation.eligibleRandomPool.length >= 2
+                ? () {
+                    setState(() {
+                      _rolledHabit = rollRandomizedHabit(
+                        pool: presentation.eligibleRandomPool,
+                        current: _rolledHabit ?? presentation.randomizedHabit!,
+                        random: _random,
+                      );
+                    });
+                  }
+                : null,
+            icon: const Icon(Icons.casino),
+            label: Text(l10n.breakRollAgain),
           ),
         ] else if (presentation.useBuiltInSuggestion) ...[
           _SectionLabel(label: l10n.breakSuggestionLabel),
