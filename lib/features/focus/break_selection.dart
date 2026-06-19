@@ -4,12 +4,14 @@ import '../../data/habit.dart';
 
 /// The result of [selectBreakPresentation]: the ordered list of always-shown
 /// eligible habits, an optional single randomized habit from the eligible pool,
-/// and a flag indicating whether a built-in suggestion should be shown instead.
+/// the full eligible random pool (for Roll-again), and a flag indicating
+/// whether a built-in suggestion should be shown instead.
 class BreakPresentation {
   const BreakPresentation({
     required this.alwaysShownHabits,
     required this.randomizedHabit,
     required this.useBuiltInSuggestion,
+    required this.eligibleRandomPool,
   });
 
   /// Habits that are [Habit.alwaysShown] and eligible for the current break
@@ -23,6 +25,15 @@ class BreakPresentation {
   /// `true` when the randomized pool is empty and the UI should fall back to
   /// displaying a built-in suggestion (FR-011 never-blank guarantee).
   final bool useBuiltInSuggestion;
+
+  /// The full set of eligible non-always-shown habits for the current break
+  /// window, regardless of which one was initially picked.
+  ///
+  /// Callers (e.g. Roll-again) can use this pool to draw a different habit via
+  /// [rollRandomizedHabit] without re-running the always-shown filter. When
+  /// [randomizedHabit] is non-null it is an element of this list. When
+  /// [useBuiltInSuggestion] is `true` this list is empty.
+  final List<Habit> eligibleRandomPool;
 }
 
 /// Returns `true` when [habit] may be shown on a break according to its
@@ -88,6 +99,7 @@ BreakPresentation selectBreakPresentation({
       alwaysShownHabits: alwaysShown,
       randomizedHabit: null,
       useBuiltInSuggestion: true,
+      eligibleRandomPool: randomPool,
     );
   }
 
@@ -96,5 +108,31 @@ BreakPresentation selectBreakPresentation({
     alwaysShownHabits: alwaysShown,
     randomizedHabit: picked,
     useBuiltInSuggestion: false,
+    eligibleRandomPool: randomPool,
   );
+}
+
+/// Picks a different eligible habit than [current] from [pool], drawn
+/// uniformly at random.
+///
+/// The rolled-out habit ([current]) stays in [pool] - it is excluded from
+/// this draw only, so it can reappear on a subsequent call. The draw is
+/// performed over `pool.where((h) => h.id != current.id)`.
+///
+/// Returns [current] unchanged when no other candidate exists (i.e. [pool]
+/// contains only [current], or [pool] has length ≤ 1). When [pool] is empty,
+/// [current] is returned as-is: [current] is not itself a pool member in that
+/// case, so callers should only invoke this function when a randomized habit is
+/// already being shown.
+///
+/// [pool] is never mutated. [random] is injected for deterministic tests,
+/// matching the seam used by [selectBreakPresentation].
+Habit rollRandomizedHabit({
+  required List<Habit> pool,
+  required Habit current,
+  required Random random,
+}) {
+  final candidates = pool.where((h) => h.id != current.id).toList();
+  if (candidates.isEmpty) return current;
+  return candidates[random.nextInt(candidates.length)];
 }
