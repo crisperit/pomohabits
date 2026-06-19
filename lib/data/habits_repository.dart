@@ -76,23 +76,28 @@ class HabitsRepository {
     required bool alwaysShown,
     String? icon,
   }) async {
-    final data = await _client.rpc(
-      _rpcUpdateHabit,
-      params: {
-        'p_id': id,
-        'p_name': name,
-        'p_category': category.wire,
-        'p_applicable_break_window': applicableBreakWindow.wire,
-        'p_always_shown': alwaysShown,
-        'p_icon': icon,
-      },
-    );
-    if (data is! Map<String, dynamic>) {
-      throw StateError(
-        'update_habit returned an unexpected response shape: ${data.runtimeType}',
+    try {
+      final data = await _client.rpc(
+        _rpcUpdateHabit,
+        params: {
+          'p_id': id,
+          'p_name': name,
+          'p_category': category.wire,
+          'p_applicable_break_window': applicableBreakWindow.wire,
+          'p_always_shown': alwaysShown,
+          'p_icon': icon,
+        },
       );
+      if (data is! Map<String, dynamic>) {
+        throw StateError(
+          'update_habit returned an unexpected response shape: ${data.runtimeType}',
+        );
+      }
+      return Habit.fromRow(data);
+    } on PostgrestException catch (e) {
+      debugPrint('updateHabit failed: $e');
+      rethrow;
     }
-    return Habit.fromRow(data);
   }
 
   Future<void> deleteHabit(String id) async {

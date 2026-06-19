@@ -61,7 +61,7 @@ begin
     name                    = p_name,
     category                = p_category,
     applicable_break_window = p_applicable_break_window,
-    always_shown            = coalesce(p_always_shown, false),
+    always_shown            = p_always_shown,
     icon                    = p_icon
   where id = p_id
   returning * into updated;
