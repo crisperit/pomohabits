@@ -239,6 +239,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get breakEndButton => 'Zakończ przerwę';
 
   @override
+  String get breakRollAgain => 'Losuj ponownie';
+
+  @override
   String get breakMarkComplete => 'Oznacz jako zrobione';
 
   @override

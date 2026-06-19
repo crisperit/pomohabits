@@ -238,6 +238,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get breakEndButton => 'End break';
 
   @override
+  String get breakRollAgain => 'Roll again';
+
+  @override
   String get breakMarkComplete => 'Mark complete';
 
   @override

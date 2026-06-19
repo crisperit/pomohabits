@@ -542,6 +542,12 @@ abstract class AppLocalizations {
   /// **'End break'**
   String get breakEndButton;
 
+  /// Button label to swap the randomized habit on the break screen for a different eligible one
+  ///
+  /// In en, this message translates to:
+  /// **'Roll again'**
+  String get breakRollAgain;
+
   /// Tooltip and label for the button that marks a habit as complete on the break screen
   ///
   /// In en, this message translates to:
