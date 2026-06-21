@@ -11,21 +11,51 @@ import '../../../data/habit.dart';
 import '../../../l10n/app_localizations.dart';
 import '../habits_controller.dart';
 
-class AddHabitPage extends ConsumerStatefulWidget {
-  const AddHabitPage({super.key});
+/// A mode-aware habit form.
+///
+/// Add mode (default): [habit] is null. Calls [HabitsController.addHabit] on
+/// submit and shows [AppLocalizations.addHabitTitle] / [AppLocalizations.addHabitButton].
+///
+/// Edit mode: [habit] is non-null. Pre-fills every field from [habit], calls
+/// [HabitsController.updateHabit] on submit, and shows
+/// [AppLocalizations.editHabitTitle] / [AppLocalizations.saveHabitButton].
+/// The duplicate-name check skips the habit being edited.
+class HabitFormPage extends ConsumerStatefulWidget {
+  const HabitFormPage({super.key, this.habit});
+
+  final Habit? habit;
 
   @override
-  ConsumerState<AddHabitPage> createState() => _AddHabitPageState();
+  ConsumerState<HabitFormPage> createState() => _HabitFormPageState();
 }
 
-class _AddHabitPageState extends ConsumerState<AddHabitPage> {
+class _HabitFormPageState extends ConsumerState<HabitFormPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
 
-  HabitCategory _category = HabitCategory.daily;
-  HabitBreakWindow _breakWindow = HabitBreakWindow.both;
-  bool _alwaysShown = false;
+  late HabitCategory _category;
+  late HabitBreakWindow _breakWindow;
+  late bool _alwaysShown;
   String? _icon;
+
+  bool get _isEditMode => widget.habit != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_isEditMode) {
+      _nameController.text = widget.habit!.name;
+      _category = widget.habit!.category;
+      _breakWindow = widget.habit!.applicableBreakWindow;
+      _alwaysShown = widget.habit!.alwaysShown;
+      _icon = widget.habit!.icon;
+    } else {
+      _category = HabitCategory.daily;
+      _breakWindow = HabitBreakWindow.both;
+      _alwaysShown = false;
+      _icon = null;
+    }
+  }
 
   @override
   void dispose() {
@@ -45,24 +75,48 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     final name = _nameController.text.trim();
-    final created = await ref
-        .read(habitsControllerProvider.notifier)
-        .addHabit(
-          name: name,
-          category: _category,
-          applicableBreakWindow: _breakWindow,
-          alwaysShown: _alwaysShown,
-          icon: _icon,
-        );
-    if (!mounted) return;
 
-    if (created != null) {
-      ref.invalidate(habitsListProvider);
-      final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.habitAddedSuccess)),
-      );
-      context.pop();
+    if (_isEditMode) {
+      final updated = await ref
+          .read(habitsControllerProvider.notifier)
+          .updateHabit(
+            id: widget.habit!.id,
+            name: name,
+            category: _category,
+            applicableBreakWindow: _breakWindow,
+            alwaysShown: _alwaysShown,
+            icon: _icon,
+          );
+      if (!mounted) return;
+
+      if (updated != null) {
+        ref.invalidate(habitsListProvider);
+        final l10n = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.habitUpdatedSuccess)),
+        );
+        context.pop();
+      }
+    } else {
+      final created = await ref
+          .read(habitsControllerProvider.notifier)
+          .addHabit(
+            name: name,
+            category: _category,
+            applicableBreakWindow: _breakWindow,
+            alwaysShown: _alwaysShown,
+            icon: _icon,
+          );
+      if (!mounted) return;
+
+      if (created != null) {
+        ref.invalidate(habitsListProvider);
+        final l10n = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.habitAddedSuccess)),
+        );
+        context.pop();
+      }
     }
   }
 
@@ -167,7 +221,9 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
     final errorMsg = _errorMessage(l10n, habitsState);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.addHabitTitle)),
+      appBar: AppBar(
+        title: Text(_isEditMode ? l10n.editHabitTitle : l10n.addHabitTitle),
+      ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -237,7 +293,11 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
                               if (existing != null) {
                                 final lower = trimmed.toLowerCase();
                                 final isDuplicate = existing.any(
-                                  (h) => h.name.trim().toLowerCase() == lower,
+                                  (h) =>
+                                      h.name.trim().toLowerCase() == lower &&
+                                      (_isEditMode
+                                          ? h.id != widget.habit!.id
+                                          : true),
                                 );
                                 if (isDuplicate) {
                                   return l10n.habitErrorNameDuplicate;
@@ -306,7 +366,11 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
                     _ErrorSlot(message: errorMsg),
                     const SizedBox(height: 8),
                     ElevatedButton(
-                      key: const ValueKey('addHabitSubmitButton'),
+                      key: ValueKey(
+                        _isEditMode
+                            ? 'saveHabitSubmitButton'
+                            : 'addHabitSubmitButton',
+                      ),
                       onPressed: isLoading ? null : _submit,
                       child: isLoading
                           ? const SizedBox(
@@ -314,7 +378,11 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
                               height: 20,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                          : Text(l10n.addHabitButton),
+                          : Text(
+                              _isEditMode
+                                  ? l10n.saveHabitButton
+                                  : l10n.addHabitButton,
+                            ),
                     ),
                   ],
                 ),

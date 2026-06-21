@@ -175,7 +175,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get habitErrorUnexpected =>
-      'Could not add the habit. Please try again.';
+      'Could not save the habit. Please try again.';
 
   @override
   String get habitIconLabel => 'Icon';
@@ -245,4 +245,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get breakCompleteError => 'Couldn\'t save that. Try again.';
+
+  @override
+  String get editHabitTitle => 'Edit habit';
+
+  @override
+  String get saveHabitButton => 'Save';
+
+  @override
+  String get habitUpdatedSuccess => 'Habit updated.';
+
+  @override
+  String get habitsGroupAlwaysShown => 'Always shown';
+
+  @override
+  String get habitsGroupRandomized => 'Randomized';
+
+  @override
+  String get habitEditAction => 'Edit';
+
+  @override
+  String get habitDeleteAction => 'Delete';
+
+  @override
+  String get habitDeleteConfirmTitle => 'Delete habit?';
+
+  @override
+  String habitDeleteConfirmBody(String name) {
+    return 'Delete \"$name\"? This can\'t be undone.';
+  }
+
+  @override
+  String get habitDeleteConfirmCancel => 'Cancel';
+
+  @override
+  String get habitDeletedSuccess => 'Habit deleted.';
+
+  @override
+  String get habitDeleteError => 'Could not delete the habit.';
 }

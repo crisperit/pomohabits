@@ -48,6 +48,34 @@ Future<void> _pumpHabitsPage(
   await tester.pump();
 }
 
+/// Pumps [HabitsPage] with a custom [HabitsController] override in addition
+/// to the standard habitsListProvider override. Used for tests that need to
+/// inspect controller interactions (e.g. deleteHabit).
+Future<void> _pumpHabitsPageWithController(
+  WidgetTester tester, {
+  required List<Habit> habits,
+  required HabitsController controller,
+}) async {
+  SharedPreferences.setMockInitialValues({});
+  final prefs = await SharedPreferences.getInstance();
+
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [
+        habitsListProvider.overrideWith((_) async => habits),
+        sharedPreferencesProvider.overrideWithValue(prefs),
+        habitsControllerProvider.overrideWith(() => controller),
+      ],
+      child: const MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: HabitsPage(),
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -242,6 +270,197 @@ void main() {
 
       expect(fetchCount, 2);
     });
+
+    // -----------------------------------------------------------------------
+    // Grouped list tests
+    // -----------------------------------------------------------------------
+
+    testWidgets('renders Always shown and Randomized section headers',
+        (tester) async {
+      final habits = [
+        Habit(
+          id: 'id-1',
+          name: 'Drink water',
+          category: HabitCategory.daily,
+          applicableBreakWindow: HabitBreakWindow.both,
+          alwaysShown: true,
+          createdAt: DateTime(2026),
+          updatedAt: DateTime(2026),
+        ),
+        Habit(
+          id: 'id-2',
+          name: '10 pushups',
+          category: HabitCategory.unlimited,
+          applicableBreakWindow: HabitBreakWindow.short,
+          alwaysShown: false,
+          createdAt: DateTime(2026),
+          updatedAt: DateTime(2026),
+        ),
+      ];
+
+      await _pumpHabitsPage(tester, habitsValue: AsyncData(habits));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Always shown'), findsOneWidget);
+      expect(find.text('Randomized'), findsOneWidget);
+    });
+
+    testWidgets(
+        'alwaysShown habit in Always shown section, randomized in Randomized',
+        (tester) async {
+      final habits = [
+        Habit(
+          id: 'id-1',
+          name: 'Drink water',
+          category: HabitCategory.daily,
+          applicableBreakWindow: HabitBreakWindow.both,
+          alwaysShown: true,
+          createdAt: DateTime(2026),
+          updatedAt: DateTime(2026),
+        ),
+        Habit(
+          id: 'id-2',
+          name: '10 pushups',
+          category: HabitCategory.unlimited,
+          applicableBreakWindow: HabitBreakWindow.short,
+          alwaysShown: false,
+          createdAt: DateTime(2026),
+          updatedAt: DateTime(2026),
+        ),
+      ];
+
+      await _pumpHabitsPage(tester, habitsValue: AsyncData(habits));
+      await tester.pumpAndSettle();
+
+      // Both names visible, headers in correct positions.
+      expect(find.text('Drink water'), findsOneWidget);
+      expect(find.text('10 pushups'), findsOneWidget);
+
+      // 'Always shown' header appears before 'Randomized' in the list.
+      final alwaysPos = tester.getTopLeft(find.text('Always shown')).dy;
+      final randomPos = tester.getTopLeft(find.text('Randomized')).dy;
+      expect(alwaysPos, lessThan(randomPos));
+
+      // 'Drink water' (alwaysShown) appears before 'Randomized' header.
+      final drinkPos = tester.getTopLeft(find.text('Drink water')).dy;
+      expect(drinkPos, lessThan(randomPos));
+
+      // '10 pushups' (randomized) appears after 'Randomized' header.
+      final pushupsPos = tester.getTopLeft(find.text('10 pushups')).dy;
+      expect(pushupsPos, greaterThan(randomPos));
+    });
+
+    testWidgets('only Always shown header when all habits are alwaysShown',
+        (tester) async {
+      final habits = [
+        Habit(
+          id: 'id-1',
+          name: 'Drink water',
+          category: HabitCategory.daily,
+          applicableBreakWindow: HabitBreakWindow.both,
+          alwaysShown: true,
+          createdAt: DateTime(2026),
+          updatedAt: DateTime(2026),
+        ),
+      ];
+
+      await _pumpHabitsPage(tester, habitsValue: AsyncData(habits));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Always shown'), findsOneWidget);
+      expect(find.text('Randomized'), findsNothing);
+    });
+
+    testWidgets('only Randomized header when no habits are alwaysShown',
+        (tester) async {
+      final habits = [
+        Habit(
+          id: 'id-1',
+          name: '10 pushups',
+          category: HabitCategory.unlimited,
+          applicableBreakWindow: HabitBreakWindow.short,
+          alwaysShown: false,
+          createdAt: DateTime(2026),
+          updatedAt: DateTime(2026),
+        ),
+      ];
+
+      await _pumpHabitsPage(tester, habitsValue: AsyncData(habits));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Always shown'), findsNothing);
+      expect(find.text('Randomized'), findsOneWidget);
+    });
+
+    // -----------------------------------------------------------------------
+    // Overflow menu tests
+    // -----------------------------------------------------------------------
+
+    testWidgets('overflow menu shows Edit and Delete items', (tester) async {
+      final habits = [
+        Habit(
+          id: 'id-1',
+          name: 'Drink water',
+          category: HabitCategory.daily,
+          applicableBreakWindow: HabitBreakWindow.both,
+          alwaysShown: false,
+          createdAt: DateTime(2026),
+          updatedAt: DateTime(2026),
+        ),
+      ];
+
+      await _pumpHabitsPage(tester, habitsValue: AsyncData(habits));
+      await tester.pumpAndSettle();
+
+      // Open the PopupMenuButton on the habit tile.
+      // Use the unparameterized type: the widget is PopupMenuButton<_HabitAction>
+      // where _HabitAction is private, so PopupMenuButton<dynamic> won't match.
+      await tester.tap(find.byWidgetPredicate(
+        (w) => w is PopupMenuButton,
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Edit'), findsOneWidget);
+      expect(find.text('Delete'), findsOneWidget);
+    });
+
+    testWidgets('confirming delete calls deleteHabit on the controller',
+        (tester) async {
+      final habit = Habit(
+        id: 'habit-99',
+        name: 'Drink water',
+        category: HabitCategory.daily,
+        applicableBreakWindow: HabitBreakWindow.both,
+        alwaysShown: false,
+        createdAt: DateTime(2026),
+        updatedAt: DateTime(2026),
+      );
+
+      final stubController = _StubHabitsController();
+
+      await _pumpHabitsPageWithController(
+        tester,
+        habits: [habit],
+        controller: stubController,
+      );
+
+      // Open the overflow menu.
+      await tester.tap(find.byWidgetPredicate((w) => w is PopupMenuButton));
+      await tester.pumpAndSettle();
+
+      // Tap Delete in the overflow menu.
+      await tester.tap(find.text('Delete'));
+      await tester.pumpAndSettle();
+
+      // Confirm dialog is visible.
+      expect(find.text('Delete habit?'), findsOneWidget);
+
+      // Tap the confirm Delete button inside the dialog.
+      await tester.tap(find.text('Delete'));
+      await tester.pumpAndSettle();
+
+      expect(stubController.deletedId, 'habit-99');
+    });
   });
 }
 
@@ -279,4 +498,20 @@ class _CountingRepository extends HabitsRepository {
 class _NullClient implements SupabaseClient {
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+// ---------------------------------------------------------------------------
+// Stub HabitsController for delete interaction tests.
+// ---------------------------------------------------------------------------
+
+/// Extends [HabitsController] and records the id passed to [deleteHabit].
+/// Returns true so the page proceeds to show the snackbar.
+class _StubHabitsController extends HabitsController {
+  String? deletedId;
+
+  @override
+  Future<bool> deleteHabit(String id) async {
+    deletedId = id;
+    return true;
+  }
 }

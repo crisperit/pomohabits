@@ -222,9 +222,9 @@
   "@habitErrorNameDuplicate": {
     "description": "Validation error when the habit name matches an existing habit (case-insensitive)"
   },
-  "habitErrorUnexpected": "Could not add the habit. Please try again.",
+  "habitErrorUnexpected": "Could not save the habit. Please try again.",
   "@habitErrorUnexpected": {
-    "description": "Fallback error message shown when a non-PostgrestException error occurs during habit add"
+    "description": "Generic fallback error shown when adding or editing a habit fails unexpectedly."
   },
   "habitIconLabel": "Icon",
   "@habitIconLabel": {
@@ -317,5 +317,58 @@
   "breakCompleteError": "Couldn't save that. Try again.",
   "@breakCompleteError": {
     "description": "Snackbar error message shown when marking a habit complete fails"
+  },
+  "editHabitTitle": "Edit habit",
+  "@editHabitTitle": {
+    "description": "Title of the Edit Habit form page"
+  },
+  "saveHabitButton": "Save",
+  "@saveHabitButton": {
+    "description": "Label for the submit button on the Edit Habit form"
+  },
+  "habitUpdatedSuccess": "Habit updated.",
+  "@habitUpdatedSuccess": {
+    "description": "Snackbar message shown after a habit is successfully updated"
+  },
+  "habitsGroupAlwaysShown": "Always shown",
+  "@habitsGroupAlwaysShown": {
+    "description": "Section header on the Habits page for habits that are always displayed"
+  },
+  "habitsGroupRandomized": "Randomized",
+  "@habitsGroupRandomized": {
+    "description": "Section header on the Habits page for habits that are randomly selected"
+  },
+  "habitEditAction": "Edit",
+  "@habitEditAction": {
+    "description": "Label for the Edit option in the habit row overflow menu"
+  },
+  "habitDeleteAction": "Delete",
+  "@habitDeleteAction": {
+    "description": "Label for the Delete option in the habit row overflow menu and confirm dialog"
+  },
+  "habitDeleteConfirmTitle": "Delete habit?",
+  "@habitDeleteConfirmTitle": {
+    "description": "Title of the delete confirmation dialog"
+  },
+  "habitDeleteConfirmBody": "Delete \"{name}\"? This can't be undone.",
+  "@habitDeleteConfirmBody": {
+    "description": "Body text of the delete confirmation dialog, naming the habit",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "habitDeleteConfirmCancel": "Cancel",
+  "@habitDeleteConfirmCancel": {
+    "description": "Cancel button label in the delete confirmation dialog"
+  },
+  "habitDeletedSuccess": "Habit deleted.",
+  "@habitDeletedSuccess": {
+    "description": "Snackbar message shown after a habit is successfully deleted"
+  },
+  "habitDeleteError": "Could not delete the habit.",
+  "@habitDeleteError": {
+    "description": "Snackbar error message shown when deleting a habit fails."
   }
 }

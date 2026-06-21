@@ -175,7 +175,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get habitErrorUnexpected =>
-      'Nie udało się dodać nawyku. Spróbuj ponownie.';
+      'Nie udało się zapisać nawyku. Spróbuj ponownie.';
 
   @override
   String get habitIconLabel => 'Ikona';
@@ -246,4 +246,42 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get breakCompleteError => 'Nie udało się zapisać. Spróbuj ponownie.';
+
+  @override
+  String get editHabitTitle => 'Edytuj nawyk';
+
+  @override
+  String get saveHabitButton => 'Zapisz';
+
+  @override
+  String get habitUpdatedSuccess => 'Nawyk zaktualizowany.';
+
+  @override
+  String get habitsGroupAlwaysShown => 'Zawsze widoczne';
+
+  @override
+  String get habitsGroupRandomized => 'Losowe';
+
+  @override
+  String get habitEditAction => 'Edytuj';
+
+  @override
+  String get habitDeleteAction => 'Usuń';
+
+  @override
+  String get habitDeleteConfirmTitle => 'Usunąć nawyk?';
+
+  @override
+  String habitDeleteConfirmBody(String name) {
+    return 'Usunąć \"$name\"? Tego nie można cofnąć.';
+  }
+
+  @override
+  String get habitDeleteConfirmCancel => 'Anuluj';
+
+  @override
+  String get habitDeletedSuccess => 'Nawyk usunięty.';
+
+  @override
+  String get habitDeleteError => 'Nie udało się usunąć nawyku.';
 }
