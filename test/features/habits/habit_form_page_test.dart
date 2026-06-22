@@ -12,7 +12,7 @@ import 'package:pomohabits/app/router.dart';
 import 'package:pomohabits/core/preferences/preferences_providers.dart';
 import 'package:pomohabits/core/supabase/auth_providers.dart';
 import 'package:pomohabits/data/habit.dart';
-import 'package:pomohabits/features/habits/presentation/add_habit_page.dart';
+import 'package:pomohabits/features/habits/presentation/habit_form_page.dart';
 import 'package:pomohabits/features/habits/habits_controller.dart';
 import 'package:pomohabits/l10n/app_localizations.dart';
 
@@ -22,18 +22,16 @@ import '../../helpers/stub_filter_builder.dart';
 // Test harness helpers
 // ---------------------------------------------------------------------------
 
-/// Pumps [AddHabitPage] inside a minimal GoRouter so `context.pop()` has a
-/// destination. Uses [MaterialApp.router] with a two-route stack:
-/// [routeHabits] (bottom) -> [routeAddHabit] (top).
+/// Pumps [HabitFormPage] inside a minimal GoRouter so `context.pop()` has a
+/// destination.
 ///
-/// Pass [existingHabits] to pre-seed [habitsListProvider] with synchronous data
-/// (e.g. for duplicate-check and valid-submit tests).
-///
-/// Pass [size] to enlarge the surface so third-party widgets (e.g. EmojiPicker)
-/// have room to render.
-Future<void> _pumpAddHabitPage(
+/// Pass [habit] to pump in edit mode; omit (null) for add mode.
+/// Pass [existingHabits] to pre-seed [habitsListProvider] with synchronous
+/// data (e.g. for duplicate-check and valid-submit tests).
+Future<void> _pumpHabitFormPage(
   WidgetTester tester, {
   required _StubClient stubClient,
+  Habit? habit,
   List<Habit>? existingHabits,
   Size size = const Size(800, 900),
 }) async {
@@ -61,7 +59,7 @@ Future<void> _pumpAddHabitPage(
       ),
       GoRoute(
         path: routeAddHabit,
-        builder: (context, _) => const AddHabitPage(),
+        builder: (context, _) => HabitFormPage(habit: habit),
       ),
     ],
   );
@@ -87,25 +85,26 @@ Future<void> _pumpAddHabitPage(
 // ---------------------------------------------------------------------------
 
 void main() {
-  group('AddHabitPage', () {
+  // ---------------------------------------------------------------------------
+  // Add mode tests
+  // ---------------------------------------------------------------------------
+  group('HabitFormPage – add mode', () {
     testWidgets('empty name blocks submit and shows required error',
         (tester) async {
       final stub = _StubClient();
-      await _pumpAddHabitPage(tester, stubClient: stub);
+      await _pumpHabitFormPage(tester, stubClient: stub);
 
-      // Submit with empty name.
       await tester.tap(find.byKey(const ValueKey('addHabitSubmitButton')));
       await tester.pumpAndSettle();
 
       expect(find.text('Please enter a habit name.'), findsOneWidget);
-      // RPC was not called.
       expect(stub.lastRpcFn, isNull);
     });
 
     testWidgets('whitespace-only name blocks submit and shows required error',
         (tester) async {
       final stub = _StubClient();
-      await _pumpAddHabitPage(tester, stubClient: stub);
+      await _pumpHabitFormPage(tester, stubClient: stub);
 
       await tester.enterText(
         find.byKey(const ValueKey('habitNameField')),
@@ -121,9 +120,12 @@ void main() {
     testWidgets('name longer than 200 chars is rejected with too-long error',
         (tester) async {
       final stub = _StubClient();
-      await _pumpAddHabitPage(tester, stubClient: stub, existingHabits: []);
+      await _pumpHabitFormPage(
+        tester,
+        stubClient: stub,
+        existingHabits: [],
+      );
 
-      // 201 'a' characters -- exceeds the 200-char limit.
       await tester.enterText(
         find.byKey(const ValueKey('habitNameField')),
         'a' * 201,
@@ -138,7 +140,6 @@ void main() {
     testWidgets('duplicate name (case-insensitive) is rejected client-side',
         (tester) async {
       final stub = _StubClient();
-      // Override with synchronous data so the validator can read the list.
       final existing = [
         Habit(
           id: 'id-1',
@@ -151,17 +152,14 @@ void main() {
         ),
       ];
 
-      await _pumpAddHabitPage(
+      await _pumpHabitFormPage(
         tester,
         stubClient: stub,
         existingHabits: existing,
       );
 
-      // Pre-warm the provider so its future resolves before the validator runs.
-      // Without this, the first read inside the validator sees AsyncLoading and
-      // .value is null, so the duplicate branch is skipped.
       final container = ProviderScope.containerOf(
-        tester.element(find.byType(AddHabitPage)),
+        tester.element(find.byType(HabitFormPage)),
       );
       await container.read(habitsListProvider.future);
       await tester.pump();
@@ -195,17 +193,16 @@ void main() {
           'updated_at': '2026-01-01T00:00:00.000Z',
         },
       );
-      await _pumpAddHabitPage(tester, stubClient: stub, existingHabits: []);
+      await _pumpHabitFormPage(
+        tester,
+        stubClient: stub,
+        existingHabits: [],
+      );
 
       await tester.enterText(
         find.byKey(const ValueKey('habitNameField')),
         'Drink water',
       );
-
-      // Category defaults to daily, break window defaults to both,
-      // always-shown defaults to false, icon defaults to null --
-      // so no interaction needed.
-
       await tester.tap(find.byKey(const ValueKey('addHabitSubmitButton')));
       await tester.pumpAndSettle();
 
@@ -222,7 +219,7 @@ void main() {
     testWidgets('tapping habitIconButton opens the emoji picker sheet',
         (tester) async {
       final stub = _StubClient();
-      await _pumpAddHabitPage(tester, stubClient: stub);
+      await _pumpHabitFormPage(tester, stubClient: stub);
 
       await tester.tap(find.byKey(const ValueKey('habitIconButton')));
       await tester.pumpAndSettle();
@@ -232,7 +229,6 @@ void main() {
 
     testWidgets('selecting an emoji in the picker forwards it as p_icon',
         (tester) async {
-      // Use a well-known emoji that appears early in the SMILEYS grid.
       const selectedEmoji = '\u{1F642}'; // slightly smiling face
       final stub = _StubClient(
         rpcResult: {
@@ -246,19 +242,18 @@ void main() {
           'updated_at': '2026-01-01T00:00:00.000Z',
         },
       );
-      await _pumpAddHabitPage(tester, stubClient: stub, existingHabits: []);
+      await _pumpHabitFormPage(tester, stubClient: stub, existingHabits: []);
 
       // Open picker.
       await tester.tap(find.byKey(const ValueKey('habitIconButton')));
       await tester.pumpAndSettle();
 
-      // Picker is in emoji-grid view. Tap the search IconButton in the
-      // BottomActionBar to switch to search view, which surfaces a TextField.
+      // Switch to search view via the search icon in the BottomActionBar.
       await tester.tap(find.byIcon(Icons.search));
       await tester.pumpAndSettle();
 
-      // Type into the search field to filter to a single known emoji -
-      // more deterministic than scrolling the full grid.
+      // Type to filter to a single known emoji, more deterministic than
+      // scrolling the full grid.
       final searchField = find.descendant(
         of: find.byType(EmojiPicker),
         matching: find.byType(TextField),
@@ -273,8 +268,7 @@ void main() {
       await tester.tap(emojiInResults.first);
       await tester.pumpAndSettle();
 
-      // Bottom sheet should be dismissed and icon button should now show the
-      // chosen emoji.
+      // Bottom sheet should be dismissed and icon button should show the emoji.
       expect(find.byType(EmojiPicker), findsNothing);
       expect(
         find.descendant(
@@ -301,7 +295,11 @@ void main() {
       final stub = _StubClient(
         rpcError: const PostgrestException(message: 'rpc failed'),
       );
-      await _pumpAddHabitPage(tester, stubClient: stub, existingHabits: []);
+      await _pumpHabitFormPage(
+        tester,
+        stubClient: stub,
+        existingHabits: [],
+      );
 
       await tester.enterText(
         find.byKey(const ValueKey('habitNameField')),
@@ -318,28 +316,27 @@ void main() {
         (tester) async {
       final completer = Completer<Map<String, dynamic>>();
       final stub = _StubClient(rpcCompleter: completer);
-      await _pumpAddHabitPage(tester, stubClient: stub, existingHabits: []);
+      await _pumpHabitFormPage(
+        tester,
+        stubClient: stub,
+        existingHabits: [],
+      );
 
       await tester.enterText(
         find.byKey(const ValueKey('habitNameField')),
         'Drink water',
       );
 
-      // Tap submit - do NOT settle; the stub is gated by the completer.
       await tester.tap(find.byKey(const ValueKey('addHabitSubmitButton')));
       await tester.pump();
 
-      // Spinner is visible.
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
-      // Button is disabled (onPressed is null).
       final button = tester.widget<ElevatedButton>(
         find.byKey(const ValueKey('addHabitSubmitButton')),
       );
       expect(button.onPressed, isNull);
 
-      // Complete the in-flight call so the post-await context.pop() runs
-      // and teardown is clean.
       completer.complete({
         'id': 'x',
         'name': 'Drink water',
@@ -353,11 +350,123 @@ void main() {
       await tester.pumpAndSettle();
     });
   });
+
+  // ---------------------------------------------------------------------------
+  // Edit mode tests
+  // ---------------------------------------------------------------------------
+  group('HabitFormPage – edit mode', () {
+    final existingHabit = Habit(
+      id: 'habit-42',
+      name: 'Drink water',
+      category: HabitCategory.daily,
+      applicableBreakWindow: HabitBreakWindow.both,
+      alwaysShown: true,
+      createdAt: DateTime(2026),
+      updatedAt: DateTime(2026),
+    );
+
+    testWidgets('pre-fills name field from the passed habit', (tester) async {
+      final stub = _StubClient();
+      await _pumpHabitFormPage(
+        tester,
+        stubClient: stub,
+        habit: existingHabit,
+        existingHabits: [existingHabit],
+      );
+
+      final nameField = tester.widget<EditableText>(
+        find.descendant(
+          of: find.byKey(const ValueKey('habitNameField')),
+          matching: find.byType(EditableText),
+        ),
+      );
+      expect(nameField.controller.text, 'Drink water');
+    });
+
+    testWidgets(
+        "allows the habit's own unchanged name (self excluded from duplicate check)",
+        (tester) async {
+      final stub = _StubClient(
+        rpcResult: {
+          'id': existingHabit.id,
+          'name': existingHabit.name,
+          'category': 'daily',
+          'applicable_break_window': 'both',
+          'always_shown': true,
+          'icon': null,
+          'created_at': '2026-01-01T00:00:00.000Z',
+          'updated_at': '2026-01-01T00:00:00.000Z',
+        },
+      );
+      // existingHabits contains the habit being edited; self must be excluded.
+      await _pumpHabitFormPage(
+        tester,
+        stubClient: stub,
+        habit: existingHabit,
+        existingHabits: [existingHabit],
+      );
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(HabitFormPage)),
+      );
+      await container.read(habitsListProvider.future);
+      await tester.pump();
+
+      // Name is already pre-filled; just submit without changing it.
+      await tester.tap(find.byKey(const ValueKey('saveHabitSubmitButton')));
+      await tester.pumpAndSettle();
+
+      // No duplicate error shown; the RPC was called.
+      expect(
+        find.text('A habit with this name already exists.'),
+        findsNothing,
+      );
+      expect(stub.lastRpcFn, 'update_habit');
+    });
+
+    testWidgets(
+        'submit calls rpc update_habit with correct p_-prefixed params',
+        (tester) async {
+      final stub = _StubClient(
+        rpcResult: {
+          'id': existingHabit.id,
+          'name': 'Drink sparkling water',
+          'category': 'daily',
+          'applicable_break_window': 'both',
+          'always_shown': true,
+          'icon': null,
+          'created_at': '2026-01-01T00:00:00.000Z',
+          'updated_at': '2026-01-01T00:00:00.000Z',
+        },
+      );
+      await _pumpHabitFormPage(
+        tester,
+        stubClient: stub,
+        habit: existingHabit,
+        existingHabits: [],
+      );
+
+      // Change the name.
+      await tester.enterText(
+        find.byKey(const ValueKey('habitNameField')),
+        'Drink sparkling water',
+      );
+      await tester.tap(find.byKey(const ValueKey('saveHabitSubmitButton')));
+      await tester.pumpAndSettle();
+
+      expect(stub.lastRpcFn, 'update_habit');
+      expect(stub.lastRpcParams!['p_id'], existingHabit.id);
+      expect(stub.lastRpcParams!['p_name'], 'Drink sparkling water');
+      expect(stub.lastRpcParams!['p_category'], 'daily');
+      expect(stub.lastRpcParams!['p_applicable_break_window'], 'both');
+      expect(stub.lastRpcParams!['p_always_shown'], true);
+      expect(stub.lastRpcParams!['p_icon'], isNull);
+    });
+  });
 }
 
 // ---------------------------------------------------------------------------
-// Hand-rolled stubs - no mocking library; StubFilterBuilder from
-// test/helpers/stub_filter_builder.dart.
+// Hand-rolled stubs - no mocking library.
 // ---------------------------------------------------------------------------
 
 class _StubClient implements SupabaseClient {
@@ -369,8 +478,6 @@ class _StubClient implements SupabaseClient {
 
   final dynamic rpcResult;
   final PostgrestException? rpcError;
-
-  /// When set, rpc waits for this completer - used to hold the call in-flight.
   final Completer<Map<String, dynamic>>? rpcCompleter;
 
   String? lastRpcFn;

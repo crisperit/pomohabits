@@ -416,10 +416,10 @@ abstract class AppLocalizations {
   /// **'A habit with this name already exists.'**
   String get habitErrorNameDuplicate;
 
-  /// Fallback error message shown when a non-PostgrestException error occurs during habit add
+  /// Generic fallback error shown when adding or editing a habit fails unexpectedly.
   ///
   /// In en, this message translates to:
-  /// **'Could not add the habit. Please try again.'**
+  /// **'Could not save the habit. Please try again.'**
   String get habitErrorUnexpected;
 
   /// Label for the optional emoji icon picker button on the Add Habit form
@@ -565,6 +565,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t save that. Try again.'**
   String get breakCompleteError;
+
+  /// Title of the Edit Habit form page
+  ///
+  /// In en, this message translates to:
+  /// **'Edit habit'**
+  String get editHabitTitle;
+
+  /// Label for the submit button on the Edit Habit form
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get saveHabitButton;
+
+  /// Snackbar message shown after a habit is successfully updated
+  ///
+  /// In en, this message translates to:
+  /// **'Habit updated.'**
+  String get habitUpdatedSuccess;
+
+  /// Section header on the Habits page for habits that are always displayed
+  ///
+  /// In en, this message translates to:
+  /// **'Always shown'**
+  String get habitsGroupAlwaysShown;
+
+  /// Section header on the Habits page for habits that are randomly selected
+  ///
+  /// In en, this message translates to:
+  /// **'Randomized'**
+  String get habitsGroupRandomized;
+
+  /// Label for the Edit option in the habit row overflow menu
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get habitEditAction;
+
+  /// Label for the Delete option in the habit row overflow menu and confirm dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get habitDeleteAction;
+
+  /// Title of the delete confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Delete habit?'**
+  String get habitDeleteConfirmTitle;
+
+  /// Body text of the delete confirmation dialog, naming the habit
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{name}\"? This can\'t be undone.'**
+  String habitDeleteConfirmBody(String name);
+
+  /// Cancel button label in the delete confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get habitDeleteConfirmCancel;
+
+  /// Snackbar message shown after a habit is successfully deleted
+  ///
+  /// In en, this message translates to:
+  /// **'Habit deleted.'**
+  String get habitDeletedSuccess;
+
+  /// Snackbar error message shown when deleting a habit fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete the habit.'**
+  String get habitDeleteError;
 }
 
 class _AppLocalizationsDelegate

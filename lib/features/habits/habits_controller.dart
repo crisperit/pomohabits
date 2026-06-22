@@ -30,6 +30,42 @@ class HabitsController extends AsyncNotifier<void> {
     state = result.whenData((_) {});
     return result.value;
   }
+
+  /// Returns the updated [Habit] on success, or null if the call failed
+  /// (state will be [AsyncError] in that case).
+  Future<Habit?> updateHabit({
+    required String id,
+    required String name,
+    required HabitCategory category,
+    required HabitBreakWindow applicableBreakWindow,
+    required bool alwaysShown,
+    String? icon,
+  }) async {
+    state = const AsyncValue.loading();
+    final result = await AsyncValue.guard<Habit>(
+      () => ref.read(habitsRepositoryProvider).updateHabit(
+            id: id,
+            name: name,
+            category: category,
+            applicableBreakWindow: applicableBreakWindow,
+            alwaysShown: alwaysShown,
+            icon: icon,
+          ),
+    );
+    state = result.whenData((_) {});
+    return result.value;
+  }
+
+  /// Returns true if the delete succeeded, false if it failed
+  /// (state will be [AsyncError] on failure).
+  Future<bool> deleteHabit(String id) async {
+    state = const AsyncValue.loading();
+    final result = await AsyncValue.guard<void>(
+      () => ref.read(habitsRepositoryProvider).deleteHabit(id),
+    );
+    state = result.whenData((_) {});
+    return !result.hasError;
+  }
 }
 
 final habitsControllerProvider =

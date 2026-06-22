@@ -68,6 +68,105 @@ void main() {
       expect(state.hasError, isTrue);
       expect((state.error as PostgrestException).message, 'insert failed');
     });
+
+    test('updateHabit returns Habit on success and state has no error',
+        () async {
+      final stub = _StubClient(
+        rpcResult: {
+          'id': 'existing-id',
+          'name': 'Updated name',
+          'category': 'daily',
+          'applicable_break_window': 'both',
+          'always_shown': false,
+          'icon': null,
+          'created_at': '2026-01-01T00:00:00.000Z',
+          'updated_at': '2026-06-19T00:00:00.000Z',
+        },
+      );
+      final container = ProviderContainer(
+        overrides: [supabaseClientProvider.overrideWith((ref) => stub)],
+      );
+      addTearDown(container.dispose);
+
+      final habit = await container
+          .read(habitsControllerProvider.notifier)
+          .updateHabit(
+            id: 'existing-id',
+            name: 'Updated name',
+            category: HabitCategory.daily,
+            applicableBreakWindow: HabitBreakWindow.both,
+            alwaysShown: false,
+          );
+
+      expect(habit, isNotNull);
+      expect(habit!.id, 'existing-id');
+      expect(habit.name, 'Updated name');
+      expect(container.read(habitsControllerProvider).hasError, isFalse);
+    });
+
+    test(
+        'updateHabit returns null and lands error in state when repository throws',
+        () async {
+      final stub = _StubClient(
+        rpcError: const PostgrestException(message: 'update failed'),
+      );
+      final container = ProviderContainer(
+        overrides: [supabaseClientProvider.overrideWith((ref) => stub)],
+      );
+      addTearDown(container.dispose);
+
+      final habit = await container
+          .read(habitsControllerProvider.notifier)
+          .updateHabit(
+            id: 'some-id',
+            name: 'x',
+            category: HabitCategory.daily,
+            applicableBreakWindow: HabitBreakWindow.both,
+            alwaysShown: false,
+          );
+
+      expect(habit, isNull);
+      final state = container.read(habitsControllerProvider);
+      expect(state.hasError, isTrue);
+      expect((state.error as PostgrestException).message, 'update failed');
+    });
+
+    test('deleteHabit returns true on success and state has no error',
+        () async {
+      final stub = _StubClient(rpcResult: null);
+      final container = ProviderContainer(
+        overrides: [supabaseClientProvider.overrideWith((ref) => stub)],
+      );
+      addTearDown(container.dispose);
+
+      final success = await container
+          .read(habitsControllerProvider.notifier)
+          .deleteHabit('del-id');
+
+      expect(success, isTrue);
+      expect(container.read(habitsControllerProvider).hasError, isFalse);
+    });
+
+    test(
+        'deleteHabit returns false and lands error in state when repository throws',
+        () async {
+      final stub = _StubClient(
+        rpcError: const PostgrestException(message: 'delete failed'),
+      );
+      final container = ProviderContainer(
+        overrides: [supabaseClientProvider.overrideWith((ref) => stub)],
+      );
+      addTearDown(container.dispose);
+
+      final success = await container
+          .read(habitsControllerProvider.notifier)
+          .deleteHabit('some-id');
+
+      expect(success, isFalse);
+      final state = container.read(habitsControllerProvider);
+      expect(state.hasError, isTrue);
+      expect((state.error as PostgrestException).message, 'delete failed');
+    });
   });
 }
 

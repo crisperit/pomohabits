@@ -53,7 +53,7 @@
   "habitErrorNameRequired": "Podaj nazwę nawyku.",
   "habitErrorNameTooLong": "Nazwa może mieć maksymalnie 200 znaków.",
   "habitErrorNameDuplicate": "Nawyk o tej nazwie już istnieje.",
-  "habitErrorUnexpected": "Nie udało się dodać nawyku. Spróbuj ponownie.",
+  "habitErrorUnexpected": "Nie udało się zapisać nawyku. Spróbuj ponownie.",
   "habitIconLabel": "Ikona",
   "habitIconRemove": "Usuń",
   "breakSuggestionStretch": "Wstań i rozciągnij się",
@@ -77,5 +77,17 @@
   "breakRollAgain": "Losuj ponownie",
   "breakMarkComplete": "Oznacz jako zrobione",
   "breakCompletedLabel": "Zrobione",
-  "breakCompleteError": "Nie udało się zapisać. Spróbuj ponownie."
+  "breakCompleteError": "Nie udało się zapisać. Spróbuj ponownie.",
+  "editHabitTitle": "Edytuj nawyk",
+  "saveHabitButton": "Zapisz",
+  "habitUpdatedSuccess": "Nawyk zaktualizowany.",
+  "habitsGroupAlwaysShown": "Zawsze widoczne",
+  "habitsGroupRandomized": "Losowe",
+  "habitEditAction": "Edytuj",
+  "habitDeleteAction": "Usuń",
+  "habitDeleteConfirmTitle": "Usunąć nawyk?",
+  "habitDeleteConfirmBody": "Usunąć \"{name}\"? Tego nie można cofnąć.",
+  "habitDeleteConfirmCancel": "Anuluj",
+  "habitDeletedSuccess": "Nawyk usunięty.",
+  "habitDeleteError": "Nie udało się usunąć nawyku."
 }

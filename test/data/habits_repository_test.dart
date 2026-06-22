@@ -311,6 +311,125 @@ void main() {
         throwsA(isA<PostgrestException>()),
       );
     });
+
+    test('updateHabit calls rpc with p_-prefixed keys and wire enum values',
+        () async {
+      final stub = _StubClient(
+        rpcResult: {
+          'id': 'existing-id',
+          'name': 'Updated name',
+          'category': 'daily',
+          'applicable_break_window': 'both',
+          'always_shown': false,
+          'icon': null,
+          'created_at': '2026-01-01T00:00:00.000Z',
+          'updated_at': '2026-06-19T00:00:00.000Z',
+        },
+      );
+      final container = ProviderContainer(
+        overrides: [supabaseClientProvider.overrideWith((ref) => stub)],
+      );
+      addTearDown(container.dispose);
+
+      final habit = await container.read(habitsRepositoryProvider).updateHabit(
+            id: 'existing-id',
+            name: 'Updated name',
+            category: HabitCategory.daily,
+            applicableBreakWindow: HabitBreakWindow.both,
+            alwaysShown: false,
+          );
+
+      expect(stub.lastRpcFn, 'update_habit');
+      expect(stub.lastRpcParams, {
+        'p_id': 'existing-id',
+        'p_name': 'Updated name',
+        'p_category': 'daily',
+        'p_applicable_break_window': 'both',
+        'p_always_shown': false,
+        'p_icon': null,
+      });
+      expect(habit.id, 'existing-id');
+      expect(habit.name, 'Updated name');
+    });
+
+    test('updateHabit forwards icon as p_icon in rpc params', () async {
+      final stub = _StubClient(
+        rpcResult: {
+          'id': 'id-4',
+          'name': 'Meditate',
+          'category': 'daily',
+          'applicable_break_window': 'long',
+          'always_shown': true,
+          'icon': '🧘',
+          'created_at': '2026-01-01T00:00:00.000Z',
+          'updated_at': '2026-06-19T00:00:00.000Z',
+        },
+      );
+      final container = ProviderContainer(
+        overrides: [supabaseClientProvider.overrideWith((ref) => stub)],
+      );
+      addTearDown(container.dispose);
+
+      await container.read(habitsRepositoryProvider).updateHabit(
+            id: 'id-4',
+            name: 'Meditate',
+            category: HabitCategory.daily,
+            applicableBreakWindow: HabitBreakWindow.long,
+            alwaysShown: true,
+            icon: '🧘',
+          );
+
+      expect(stub.lastRpcParams!['p_icon'], '🧘');
+    });
+
+    test('updateHabit propagates PostgrestException', () async {
+      final stub = _StubClient(
+        rpcError: const PostgrestException(message: 'update failed'),
+      );
+      final container = ProviderContainer(
+        overrides: [supabaseClientProvider.overrideWith((ref) => stub)],
+      );
+      addTearDown(container.dispose);
+
+      await expectLater(
+        container.read(habitsRepositoryProvider).updateHabit(
+              id: 'some-id',
+              name: 'x',
+              category: HabitCategory.daily,
+              applicableBreakWindow: HabitBreakWindow.both,
+              alwaysShown: false,
+            ),
+        throwsA(isA<PostgrestException>()),
+      );
+    });
+
+    test('deleteHabit calls delete_habit rpc with p_id', () async {
+      final stub = _StubClient(rpcResult: null);
+      final container = ProviderContainer(
+        overrides: [supabaseClientProvider.overrideWith((ref) => stub)],
+      );
+      addTearDown(container.dispose);
+
+      await container.read(habitsRepositoryProvider).deleteHabit('del-id');
+
+      expect(stub.lastRpcFn, 'delete_habit');
+      expect(stub.lastRpcParams, {'p_id': 'del-id'});
+    });
+
+    test('deleteHabit propagates PostgrestException', () async {
+      final stub = _StubClient(
+        rpcError: const PostgrestException(message: 'delete failed'),
+      );
+      final container = ProviderContainer(
+        overrides: [supabaseClientProvider.overrideWith((ref) => stub)],
+      );
+      addTearDown(container.dispose);
+
+      await expectLater(
+        container.read(habitsRepositoryProvider).deleteHabit('some-id'),
+        throwsA(isA<PostgrestException>()),
+      );
+    });
   });
 }
 
