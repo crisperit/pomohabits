@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../features/focus/timer_config.dart';
 
 final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
   throw UnimplementedError('sharedPreferencesProvider must be overridden in main()');
@@ -68,3 +72,36 @@ class LocaleNotifier extends Notifier<Locale?> {
 }
 
 final localeProvider = NotifierProvider<LocaleNotifier, Locale?>(LocaleNotifier.new);
+
+class TimerConfigNotifier extends Notifier<TimerConfig> {
+  static const _key = 'timer_config';
+
+  @override
+  TimerConfig build() {
+    final prefs = ref.read(sharedPreferencesProvider);
+    final raw = prefs.getString(_key);
+    if (raw == null || raw.isEmpty) return const TimerConfig.defaults();
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map<String, dynamic>) return const TimerConfig.defaults();
+      return TimerConfig.fromJson(decoded);
+    } catch (_) {
+      return const TimerConfig.defaults();
+    }
+  }
+
+  Future<void> set(TimerConfig config) async {
+    final previous = state;
+    state = config;
+    try {
+      final prefs = ref.read(sharedPreferencesProvider);
+      await prefs.setString(_key, jsonEncode(config.toJson()));
+    } catch (_) {
+      state = previous;
+      rethrow;
+    }
+  }
+}
+
+final timerConfigProvider =
+    NotifierProvider<TimerConfigNotifier, TimerConfig>(TimerConfigNotifier.new);
