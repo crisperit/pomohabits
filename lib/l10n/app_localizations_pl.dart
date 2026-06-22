@@ -287,4 +287,24 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get habitDeleteError => 'Nie udało się usunąć nawyku.';
+
+  @override
+  String get timerSectionLabel => 'Stoper';
+
+  @override
+  String get timerWorkLabel => 'Praca (min)';
+
+  @override
+  String get timerShortBreakLabel => 'Krótka przerwa (min)';
+
+  @override
+  String get timerLongBreakLabel => 'Długa przerwa (min)';
+
+  @override
+  String get timerSessionsLabel => 'Sesje przed długą przerwą';
+
+  @override
+  String timerRangeError(int min, int max) {
+    return 'Podaj liczbę od $min do $max.';
+  }
 }

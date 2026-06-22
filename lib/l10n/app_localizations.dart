@@ -637,6 +637,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not delete the habit.'**
   String get habitDeleteError;
+
+  /// Section header for the timer configuration section in Settings
+  ///
+  /// In en, this message translates to:
+  /// **'Timer'**
+  String get timerSectionLabel;
+
+  /// Label for the work duration input in the Timer settings section
+  ///
+  /// In en, this message translates to:
+  /// **'Work (min)'**
+  String get timerWorkLabel;
+
+  /// Label for the short break duration input in the Timer settings section
+  ///
+  /// In en, this message translates to:
+  /// **'Short break (min)'**
+  String get timerShortBreakLabel;
+
+  /// Label for the long break duration input in the Timer settings section
+  ///
+  /// In en, this message translates to:
+  /// **'Long break (min)'**
+  String get timerLongBreakLabel;
+
+  /// Label for the sessions-until-long-break input in the Timer settings section
+  ///
+  /// In en, this message translates to:
+  /// **'Sessions before long break'**
+  String get timerSessionsLabel;
+
+  /// Validation error shown when a timer field value is outside the allowed range
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number between {min} and {max}.'**
+  String timerRangeError(int min, int max);
 }
 
 class _AppLocalizationsDelegate

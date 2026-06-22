@@ -89,5 +89,11 @@
   "habitDeleteConfirmBody": "Usunąć \"{name}\"? Tego nie można cofnąć.",
   "habitDeleteConfirmCancel": "Anuluj",
   "habitDeletedSuccess": "Nawyk usunięty.",
-  "habitDeleteError": "Nie udało się usunąć nawyku."
+  "habitDeleteError": "Nie udało się usunąć nawyku.",
+  "timerSectionLabel": "Stoper",
+  "timerWorkLabel": "Praca (min)",
+  "timerShortBreakLabel": "Krótka przerwa (min)",
+  "timerLongBreakLabel": "Długa przerwa (min)",
+  "timerSessionsLabel": "Sesje przed długą przerwą",
+  "timerRangeError": "Podaj liczbę od {min} do {max}."
 }

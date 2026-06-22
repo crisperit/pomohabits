@@ -374,5 +374,37 @@
   "habitDeleteError": "Could not delete the habit.",
   "@habitDeleteError": {
     "description": "Snackbar error message shown when deleting a habit fails."
+  },
+  "timerSectionLabel": "Timer",
+  "@timerSectionLabel": {
+    "description": "Section header for the timer configuration section in Settings"
+  },
+  "timerWorkLabel": "Work (min)",
+  "@timerWorkLabel": {
+    "description": "Label for the work duration input in the Timer settings section"
+  },
+  "timerShortBreakLabel": "Short break (min)",
+  "@timerShortBreakLabel": {
+    "description": "Label for the short break duration input in the Timer settings section"
+  },
+  "timerLongBreakLabel": "Long break (min)",
+  "@timerLongBreakLabel": {
+    "description": "Label for the long break duration input in the Timer settings section"
+  },
+  "timerSessionsLabel": "Sessions before long break",
+  "@timerSessionsLabel": {
+    "description": "Label for the sessions-until-long-break input in the Timer settings section"
+  },
+  "timerRangeError": "Enter a number between {min} and {max}.",
+  "@timerRangeError": {
+    "description": "Validation error shown when a timer field value is outside the allowed range",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
   }
 }
