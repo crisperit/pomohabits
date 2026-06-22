@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -10,6 +12,7 @@ const _rpcListHabits = 'list_habits';
 const _rpcCompleteHabit = 'complete_habit';
 const _rpcUpdateHabit = 'update_habit';
 const _rpcDeleteHabit = 'delete_habit';
+const _channelHabitsPrefix = 'public:habits:';
 
 class HabitsRepository {
   HabitsRepository(this._client);
@@ -110,6 +113,39 @@ class HabitsRepository {
       debugPrint('deleteHabit failed: $e');
       rethrow;
     }
+  }
+
+  /// Returns a stream that emits a signal whenever a row in the `habits` table
+  /// changes for [userId]. Uses the lower-level realtime channel notification
+  /// API: no `.from('habits')` table read is performed; all data still flows
+  /// through [fetchHabits] (RPC-only contract).
+  Stream<void> habitChanges({required String userId}) {
+    final controller = StreamController<void>();
+
+    final channel = _client
+        .channel('$_channelHabitsPrefix$userId')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'habits',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'user_id',
+            value: userId,
+          ),
+          callback: (_) => controller.add(null),
+        )
+        .subscribe();
+
+    controller.onCancel = () async {
+      try {
+        await _client.removeChannel(channel);
+      } on Exception catch (e) {
+        debugPrint('habitChanges: removeChannel failed: $e');
+      }
+    };
+
+    return controller.stream;
   }
 }
 

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../core/preferences/preferences_providers.dart';
 import '../core/theme/app_theme.dart';
 import '../features/focus/presentation/break_presenter.dart';
+import '../features/habits/habits_realtime_controller.dart';
 import '../l10n/app_localizations.dart';
 
 class MainApp extends ConsumerWidget {
@@ -14,6 +15,8 @@ class MainApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Keep the realtime subscription alive for the app lifetime.
+    ref.watch(habitsRealtimeControllerProvider);
     final themeMode = ref.watch(themeModeProvider);
     final locale = ref.watch(localeProvider);
     return MaterialApp.router(

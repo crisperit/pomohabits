@@ -17,3 +17,7 @@ final currentSessionProvider = Provider<Session?>((ref) {
     orElse: () => client.auth.currentSession,
   );
 });
+
+final currentUserIdProvider = Provider<String?>(
+  (ref) => ref.watch(currentSessionProvider)?.user.id,
+);
