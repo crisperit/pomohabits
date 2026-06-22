@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/preferences/preferences_providers.dart';
 import 'focus_session.dart';
 
 // ---------------------------------------------------------------------------
@@ -53,10 +54,11 @@ class FocusSessionController extends Notifier<FocusSessionState> {
 
   /// Starts a new focus session from idle (or restarts from any phase).
   void start() {
+    final config = ref.read(timerConfigProvider);
     _cancelTicker();
     state = FocusSessionState(
       phase: FocusPhase.focus,
-      remaining: focusWorkDuration,
+      remaining: config.workDuration,
       isRunning: true,
       completedFocusSessions: state.completedFocusSessions,
     );
@@ -129,15 +131,16 @@ class FocusSessionController extends Notifier<FocusSessionState> {
   }
 
   void _advancePhase() {
+    final config = ref.read(timerConfigProvider);
     switch (state.phase) {
       case FocusPhase.focus:
         final completed = state.completedFocusSessions + 1;
-        final nextPhase = completed % sessionsUntilLongBreak == 0
+        final nextPhase = completed % config.sessionsUntilLongBreak == 0
             ? FocusPhase.longBreak
             : FocusPhase.shortBreak;
         final breakDuration = nextPhase == FocusPhase.longBreak
-            ? focusLongBreakDuration
-            : focusShortBreakDuration;
+            ? config.longBreakDuration
+            : config.shortBreakDuration;
         state = FocusSessionState(
           phase: nextPhase,
           remaining: breakDuration,
@@ -149,7 +152,7 @@ class FocusSessionController extends Notifier<FocusSessionState> {
       case FocusPhase.longBreak:
         state = FocusSessionState(
           phase: FocusPhase.focus,
-          remaining: focusWorkDuration,
+          remaining: config.workDuration,
           isRunning: true,
           completedFocusSessions: state.completedFocusSessions,
         );

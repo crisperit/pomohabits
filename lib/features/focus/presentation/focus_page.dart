@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/preferences/preferences_providers.dart';
 import '../../../l10n/app_localizations.dart';
 import '../focus_session.dart';
 import '../focus_session_controller.dart';
@@ -12,6 +13,7 @@ class FocusPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final session = ref.watch(focusSessionControllerProvider);
+    final idlePreview = ref.watch(timerConfigProvider).workDuration;
 
     return Scaffold(
       appBar: AppBar(
@@ -27,7 +29,7 @@ class FocusPage extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              _countdownText(session),
+              _countdownText(session, idlePreview),
               style: Theme.of(context).textTheme.displayLarge,
             ),
             const SizedBox(height: 32),
@@ -40,11 +42,11 @@ class FocusPage extends ConsumerWidget {
 
   /// Returns the formatted countdown string.
   ///
-  /// While idle, shows the upcoming work duration as a preview instead of
+  /// While idle, shows [idlePreview] (the configured work duration) instead of
   /// `00:00` so the user knows how long the session will be.
-  String _countdownText(FocusSessionState session) {
+  String _countdownText(FocusSessionState session, Duration idlePreview) {
     if (session.phase == FocusPhase.idle) {
-      return formatRemaining(focusWorkDuration);
+      return formatRemaining(idlePreview);
     }
     return formatRemaining(session.remaining);
   }

@@ -286,4 +286,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get habitDeleteError => 'Could not delete the habit.';
+
+  @override
+  String get timerSectionLabel => 'Timer';
+
+  @override
+  String get timerWorkLabel => 'Work (min)';
+
+  @override
+  String get timerShortBreakLabel => 'Short break (min)';
+
+  @override
+  String get timerLongBreakLabel => 'Long break (min)';
+
+  @override
+  String get timerSessionsLabel => 'Sessions before long break';
+
+  @override
+  String timerRangeError(int min, int max) {
+    return 'Enter a number between $min and $max.';
+  }
 }
