@@ -1,8 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:pomohabits/core/preferences/preferences_providers.dart';
 import 'package:pomohabits/features/focus/focus_session.dart';
 import 'package:pomohabits/features/focus/focus_session_controller.dart';
+import 'package:pomohabits/features/focus/timer_config.dart';
 
 // ---------------------------------------------------------------------------
 // Fake ticker -- fires ticks on demand, no wall-clock waits.
@@ -47,13 +49,28 @@ class FakeTickerFactory {
 // Helper to build a container wired to the fake ticker.
 // ---------------------------------------------------------------------------
 
-ProviderContainer makeContainer(FakeTickerFactory fake) {
-  final container = ProviderContainer(
+/// Builds a [ProviderContainer] with the fake ticker and an optional
+/// [TimerConfig] override (defaults to [TimerConfig.defaults()]).
+ProviderContainer makeContainer(
+  FakeTickerFactory fake, {
+  TimerConfig config = const TimerConfig.defaults(),
+}) {
+  return ProviderContainer(
     overrides: [
       tickerFactoryProvider.overrideWithValue(fake.call),
+      timerConfigProvider.overrideWith(() => _FixedTimerConfigNotifier(config)),
     ],
   );
-  return container;
+}
+
+/// A [TimerConfigNotifier] subclass that always returns a fixed [TimerConfig]
+/// without touching SharedPreferences. Used by tests that need a specific config.
+class _FixedTimerConfigNotifier extends TimerConfigNotifier {
+  _FixedTimerConfigNotifier(this._config);
+  final TimerConfig _config;
+
+  @override
+  TimerConfig build() => _config;
 }
 
 // ---------------------------------------------------------------------------
@@ -84,7 +101,7 @@ void main() {
       final s = container.read(focusSessionControllerProvider);
       expect(s.phase, FocusPhase.focus);
       expect(s.isRunning, isTrue);
-      expect(s.remaining, focusWorkDuration);
+      expect(s.remaining, const TimerConfig.defaults().workDuration);
       expect(s.completedFocusSessions, 0);
     });
 
@@ -97,7 +114,7 @@ void main() {
       fake.tickN(3);
 
       final s = container.read(focusSessionControllerProvider);
-      expect(s.remaining, focusWorkDuration - const Duration(seconds: 3));
+      expect(s.remaining, const TimerConfig.defaults().workDuration - const Duration(seconds: 3));
     });
 
     test('pause() stops decrementing and sets isRunning false', () {
@@ -117,13 +134,13 @@ void main() {
       final afterPause = container.read(focusSessionControllerProvider);
       expect(afterPause.isRunning, isFalse);
       expect(afterPause.remaining,
-          focusWorkDuration - const Duration(seconds: 5));
+          const TimerConfig.defaults().workDuration - const Duration(seconds: 5));
 
       // Ticking after pause should have no effect (ticker was cancelled).
       fake.tickN(10);
       final afterExtraTicks = container.read(focusSessionControllerProvider);
       expect(afterExtraTicks.remaining,
-          focusWorkDuration - const Duration(seconds: 5));
+          const TimerConfig.defaults().workDuration - const Duration(seconds: 5));
     });
 
     test('resume() continues from paused remaining', () {
@@ -142,7 +159,7 @@ void main() {
       fake.tickN(3);
       final after = container.read(focusSessionControllerProvider);
       expect(after.remaining,
-          focusWorkDuration - const Duration(seconds: 8));
+          const TimerConfig.defaults().workDuration - const Duration(seconds: 8));
     });
 
     test('focus phase reaching zero transitions to shortBreak, '
@@ -153,13 +170,13 @@ void main() {
 
       container.read(focusSessionControllerProvider.notifier).start();
       // Tick until the last second of focus.
-      final focusTicks = focusWorkDuration.inSeconds;
+      final focusTicks = const TimerConfig.defaults().workDuration.inSeconds;
       fake.tickN(focusTicks);
 
       final s = container.read(focusSessionControllerProvider);
       expect(s.phase, FocusPhase.shortBreak);
       expect(s.isRunning, isTrue);
-      expect(s.remaining, focusShortBreakDuration);
+      expect(s.remaining, const TimerConfig.defaults().shortBreakDuration);
       expect(s.completedFocusSessions, 1);
     });
 
@@ -172,16 +189,16 @@ void main() {
 
       // Complete 3 focus+short-break cycles, then 1 more focus.
       for (var cycle = 0; cycle < 3; cycle++) {
-        fake.tickN(focusWorkDuration.inSeconds); // focus -> shortBreak
-        fake.tickN(focusShortBreakDuration.inSeconds); // shortBreak -> focus
+        fake.tickN(const TimerConfig.defaults().workDuration.inSeconds); // focus -> shortBreak
+        fake.tickN(const TimerConfig.defaults().shortBreakDuration.inSeconds); // shortBreak -> focus
       }
       // 4th focus phase completes.
-      fake.tickN(focusWorkDuration.inSeconds);
+      fake.tickN(const TimerConfig.defaults().workDuration.inSeconds);
 
       final s = container.read(focusSessionControllerProvider);
       expect(s.phase, FocusPhase.longBreak);
       expect(s.isRunning, isTrue);
-      expect(s.remaining, focusLongBreakDuration);
+      expect(s.remaining, const TimerConfig.defaults().longBreakDuration);
       expect(s.completedFocusSessions, 4);
     });
 
@@ -191,13 +208,13 @@ void main() {
       addTearDown(container.dispose);
 
       container.read(focusSessionControllerProvider.notifier).start();
-      fake.tickN(focusWorkDuration.inSeconds); // -> shortBreak
-      fake.tickN(focusShortBreakDuration.inSeconds); // -> focus
+      fake.tickN(const TimerConfig.defaults().workDuration.inSeconds); // -> shortBreak
+      fake.tickN(const TimerConfig.defaults().shortBreakDuration.inSeconds); // -> focus
 
       final s = container.read(focusSessionControllerProvider);
       expect(s.phase, FocusPhase.focus);
       expect(s.isRunning, isTrue);
-      expect(s.remaining, focusWorkDuration);
+      expect(s.remaining, const TimerConfig.defaults().workDuration);
     });
 
     test('long break reaching zero transitions back to focus', () {
@@ -207,16 +224,16 @@ void main() {
 
       container.read(focusSessionControllerProvider.notifier).start();
       for (var cycle = 0; cycle < 3; cycle++) {
-        fake.tickN(focusWorkDuration.inSeconds);
-        fake.tickN(focusShortBreakDuration.inSeconds);
+        fake.tickN(const TimerConfig.defaults().workDuration.inSeconds);
+        fake.tickN(const TimerConfig.defaults().shortBreakDuration.inSeconds);
       }
-      fake.tickN(focusWorkDuration.inSeconds); // -> longBreak
-      fake.tickN(focusLongBreakDuration.inSeconds); // -> focus
+      fake.tickN(const TimerConfig.defaults().workDuration.inSeconds); // -> longBreak
+      fake.tickN(const TimerConfig.defaults().longBreakDuration.inSeconds); // -> focus
 
       final s = container.read(focusSessionControllerProvider);
       expect(s.phase, FocusPhase.focus);
       expect(s.isRunning, isTrue);
-      expect(s.remaining, focusWorkDuration);
+      expect(s.remaining, const TimerConfig.defaults().workDuration);
     });
 
     test('reset() returns to idle regardless of phase', () {
@@ -262,7 +279,7 @@ void main() {
       container.read(focusSessionControllerProvider.notifier).start();
       expect(container.read(focusSessionControllerProvider).isBreak, isFalse);
 
-      fake.tickN(focusWorkDuration.inSeconds); // -> shortBreak
+      fake.tickN(const TimerConfig.defaults().workDuration.inSeconds); // -> shortBreak
       expect(container.read(focusSessionControllerProvider).isBreak, isTrue);
       expect(container.read(focusSessionControllerProvider).isLongBreak,
           isFalse);
@@ -275,10 +292,10 @@ void main() {
 
       container.read(focusSessionControllerProvider.notifier).start();
       for (var cycle = 0; cycle < 3; cycle++) {
-        fake.tickN(focusWorkDuration.inSeconds);
-        fake.tickN(focusShortBreakDuration.inSeconds);
+        fake.tickN(const TimerConfig.defaults().workDuration.inSeconds);
+        fake.tickN(const TimerConfig.defaults().shortBreakDuration.inSeconds);
       }
-      fake.tickN(focusWorkDuration.inSeconds); // -> longBreak
+      fake.tickN(const TimerConfig.defaults().workDuration.inSeconds); // -> longBreak
 
       expect(container.read(focusSessionControllerProvider).isLongBreak,
           isTrue);
@@ -308,7 +325,7 @@ void main() {
         addTearDown(container.dispose);
 
         container.read(focusSessionControllerProvider.notifier).start();
-        fake.tickN(focusWorkDuration.inSeconds); // -> shortBreak
+        fake.tickN(const TimerConfig.defaults().workDuration.inSeconds); // -> shortBreak
 
         expect(
           container.read(focusSessionControllerProvider).phase,
@@ -320,7 +337,7 @@ void main() {
         final s = container.read(focusSessionControllerProvider);
         expect(s.phase, FocusPhase.focus);
         expect(s.isRunning, isTrue);
-        expect(s.remaining, focusWorkDuration);
+        expect(s.remaining, const TimerConfig.defaults().workDuration);
       });
 
       test('in longBreak -> advances to focus, running', () {
@@ -330,10 +347,10 @@ void main() {
 
         container.read(focusSessionControllerProvider.notifier).start();
         for (var cycle = 0; cycle < 3; cycle++) {
-          fake.tickN(focusWorkDuration.inSeconds);
-          fake.tickN(focusShortBreakDuration.inSeconds);
+          fake.tickN(const TimerConfig.defaults().workDuration.inSeconds);
+          fake.tickN(const TimerConfig.defaults().shortBreakDuration.inSeconds);
         }
-        fake.tickN(focusWorkDuration.inSeconds); // -> longBreak
+        fake.tickN(const TimerConfig.defaults().workDuration.inSeconds); // -> longBreak
 
         expect(
           container.read(focusSessionControllerProvider).phase,
@@ -345,7 +362,7 @@ void main() {
         final s = container.read(focusSessionControllerProvider);
         expect(s.phase, FocusPhase.focus);
         expect(s.isRunning, isTrue);
-        expect(s.remaining, focusWorkDuration);
+        expect(s.remaining, const TimerConfig.defaults().workDuration);
       });
 
       test('paused break -> endBreak() transitions to running focus', () {
@@ -354,7 +371,7 @@ void main() {
         addTearDown(container.dispose);
 
         container.read(focusSessionControllerProvider.notifier).start();
-        fake.tickN(focusWorkDuration.inSeconds); // -> shortBreak, running
+        fake.tickN(const TimerConfig.defaults().workDuration.inSeconds); // -> shortBreak, running
 
         expect(
           container.read(focusSessionControllerProvider).phase,
@@ -372,7 +389,7 @@ void main() {
         final s = container.read(focusSessionControllerProvider);
         expect(s.phase, FocusPhase.focus);
         expect(s.isRunning, isTrue);
-        expect(s.remaining, focusWorkDuration);
+        expect(s.remaining, const TimerConfig.defaults().workDuration);
       });
 
       test('no-op when idle', () {
@@ -401,8 +418,70 @@ void main() {
         // remaining should still be decremented by 10 ticks, not reset
         expect(
           s.remaining,
-          focusWorkDuration - const Duration(seconds: 10),
+          const TimerConfig.defaults().workDuration - const Duration(seconds: 10),
         );
+      });
+    });
+
+    group('non-default TimerConfig', () {
+      // work 10 min, short break 2 min, long break 20 min, sessions 2
+      const customConfig = TimerConfig(
+        workDuration: Duration(minutes: 10),
+        shortBreakDuration: Duration(minutes: 2),
+        longBreakDuration: Duration(minutes: 20),
+        sessionsUntilLongBreak: 2,
+      );
+
+      test('start() uses configured work duration', () {
+        final fake = FakeTickerFactory();
+        final container = makeContainer(fake, config: customConfig);
+        addTearDown(container.dispose);
+
+        container.read(focusSessionControllerProvider.notifier).start();
+
+        final s = container.read(focusSessionControllerProvider);
+        expect(s.phase, FocusPhase.focus);
+        expect(s.isRunning, isTrue);
+        expect(s.remaining, const Duration(minutes: 10));
+      });
+
+      test('focus phase reaching zero transitions to shortBreak with '
+          'configured short break duration', () {
+        final fake = FakeTickerFactory();
+        final container = makeContainer(fake, config: customConfig);
+        addTearDown(container.dispose);
+
+        container.read(focusSessionControllerProvider.notifier).start();
+        // Drive the 10-min focus phase to zero.
+        fake.tickN(const Duration(minutes: 10).inSeconds);
+
+        final s = container.read(focusSessionControllerProvider);
+        expect(s.phase, FocusPhase.shortBreak);
+        expect(s.isRunning, isTrue);
+        expect(s.remaining, const Duration(minutes: 2));
+        expect(s.completedFocusSessions, 1);
+      });
+
+      test('2nd completed focus session goes to longBreak with configured '
+          'long break duration (sessionsUntilLongBreak == 2)', () {
+        final fake = FakeTickerFactory();
+        final container = makeContainer(fake, config: customConfig);
+        addTearDown(container.dispose);
+
+        container.read(focusSessionControllerProvider.notifier).start();
+
+        // Complete 1st focus+short-break cycle.
+        fake.tickN(const Duration(minutes: 10).inSeconds); // focus -> shortBreak
+        fake.tickN(const Duration(minutes: 2).inSeconds); // shortBreak -> focus
+
+        // Complete 2nd focus phase -- should go to longBreak.
+        fake.tickN(const Duration(minutes: 10).inSeconds);
+
+        final s = container.read(focusSessionControllerProvider);
+        expect(s.phase, FocusPhase.longBreak);
+        expect(s.isRunning, isTrue);
+        expect(s.remaining, const Duration(minutes: 20));
+        expect(s.completedFocusSessions, 2);
       });
     });
   });

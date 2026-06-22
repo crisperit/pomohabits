@@ -11,15 +11,6 @@ String formatRemaining(Duration d) {
   return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
 }
 
-/// Canonical Pomodoro configuration constants.
-///
-/// All durations live here so S-07 can later make them user-configurable
-/// by replacing these consts with a provider-driven source.
-const Duration focusWorkDuration = Duration(minutes: 25);
-const Duration focusShortBreakDuration = Duration(minutes: 5);
-const Duration focusLongBreakDuration = Duration(minutes: 15);
-const int sessionsUntilLongBreak = 4;
-
 /// The phase the Pomodoro state machine is currently in.
 enum FocusPhase {
   idle,
